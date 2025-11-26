@@ -20,6 +20,11 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+Note: On the interview preparation page the CV upload is optional — a clear
+job description is required. The frontend acts as a portal: it sends the
+job description (and optional CV) to the backend which performs question
+generation and analysis. See `API_INTEGRATION.md` for the required endpoints.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
