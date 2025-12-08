@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "intraviewer-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -16,7 +16,8 @@
     "next": "16.0.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
