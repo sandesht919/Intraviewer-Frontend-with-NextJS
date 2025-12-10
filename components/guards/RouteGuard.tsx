@@ -68,7 +68,7 @@ export function RouteGuard({
 
     // If authentication is NOT required (e.g., login page) but user IS authenticated
     if (!requireAuth && isAuthenticated) {
-      const homeUrl = redirectTo || '/';
+      const homeUrl = redirectTo || '/interview/prepare';
       router.push(homeUrl);
       return;
     }
@@ -83,15 +83,8 @@ export function RouteGuard({
     );
   }
 
-  // If auth requirement doesn't match, don't render children
-  // (they will be redirected by useEffect)
-  if (requireAuth && !isAuthenticated) {
-    return null;
-  }
+ 
 
-  if (!requireAuth && isAuthenticated) {
-    return null;
-  }
 
   // Render children if auth state matches requirement
   return <>{children}</>;

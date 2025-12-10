@@ -209,6 +209,13 @@ export const useAuthStore = create<AuthStore>()(
 
         // Clear auth cookie
         clearAuthCookie();
+        
+        // Force clear localStorage to ensure no stale state
+        try {
+          localStorage.removeItem('auth-storage');
+        } catch (error) {
+          console.warn('Failed to clear auth storage:', error);
+        }
       },
 
       /**
