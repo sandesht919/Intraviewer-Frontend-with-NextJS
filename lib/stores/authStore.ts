@@ -18,10 +18,15 @@ const API_BASE_URL = API_CONFIG.BASE_URL;
  * User interface matching backend response
  */
 interface User {
-  id: string;
-  email: string;
+  id: number;
+  firstname: string;
+  lastname: string;
+  is_active: boolean;
+  role: string;
+  created_at: string;
+  // Computed properties for compatibility
   name?: string;
-  created_at?: string;
+  email?: string;
 }
 
 /**
@@ -73,6 +78,7 @@ interface AuthActions {
   refreshAccessToken: () => Promise<void>;
   clearError: () => void;
   setUser: (user: User | null) => void;
+  fetchUserData: () => Promise<void>;
 }
 
 /**
@@ -132,6 +138,13 @@ export const useAuthStore = create<AuthStore>()(
 
           // Sync auth state with cookies for middleware
           setAuthCookie(true, data.access_token);
+          
+          // Fetch complete user data
+          try {
+            await get().fetchUserData();
+          } catch (fetchError) {
+            console.warn('Failed to fetch user data after login:', fetchError);
+          }
         } catch (error: any) {
           set({
             error: error.message || 'Login failed. Please try again.',
@@ -185,6 +198,13 @@ export const useAuthStore = create<AuthStore>()(
 
           // Sync auth state with cookies for middleware
           setAuthCookie(true, responseData.access_token);
+          
+          // Fetch complete user data
+          try {
+            await get().fetchUserData();
+          } catch (fetchError) {
+            console.warn('Failed to fetch user data after signup:', fetchError);
+          }
         } catch (error: any) {
           set({
             error: error.message || 'Signup failed. Please try again.',
@@ -268,6 +288,50 @@ export const useAuthStore = create<AuthStore>()(
        */
       setUser: (user: User | null) => {
         set({ user });
+      },
+
+      /**
+       * Fetch current user data from backend
+       */
+      fetchUserData: async () => {
+        const { accessToken } = get();
+        
+        if (!accessToken) {
+          throw new Error('No access token available');
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/users/me`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              // Token expired, try to refresh
+              await get().refreshAccessToken();
+              return get().fetchUserData(); // Retry with new token
+            }
+            throw new Error('Failed to fetch user data');
+          }
+
+          const userData = await response.json();
+          
+          // Add computed properties for compatibility
+          const userWithComputed = {
+            ...userData,
+            name: `${userData.firstname} ${userData.lastname}`.trim(),
+            email: '', // Will be filled from login/signup
+          };
+
+          set({ user: userWithComputed });
+        } catch (error: any) {
+          console.error('Failed to fetch user data:', error);
+          // Don't logout on fetch failure, just log the error
+        }
       },
     }),
     {

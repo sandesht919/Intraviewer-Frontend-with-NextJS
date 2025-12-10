@@ -117,14 +117,22 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                         </Button>
 
                         {/* User Profile */}
+                        <Link href={'./profile'}>
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 bg-gradient-to-r from-sky-400 to-indigo-400 rounded-full flex items-center justify-center">
-                                <User className="w-4 h-4 text-white" />
+                                {user?.firstname && user?.lastname ? (
+                                  <span className="text-white text-sm font-medium">
+                                    {user.firstname[0]}{user.lastname[0]}
+                                  </span>
+                                ) : (
+                                  <User className="w-4 h-4 text-white" />
+                                )}
                             </div>
                             <span className="text-sm font-medium text-gray-700 hidden sm:block">
-                                {user?.email?.split('@')[0] || 'User'}
+                                {user?.name || user?.firstname || user?.email?.split('@')[0] || 'User'}
                             </span>
                         </div>
+                        </Link>
                     </div>
                 </div>
             </nav>

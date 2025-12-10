@@ -74,18 +74,32 @@ const Drawer = ({ isOpen, onToggle }: DrawerProps) => {
             {isOpen ? (
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-sky-400 to-indigo-400 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
+                  {user?.firstname && user?.lastname ? (
+                    <span className="text-white text-sm font-medium">
+                      {user.firstname[0]}{user.lastname[0]}
+                    </span>
+                  ) : (
+                    <User className="w-5 h-5 text-white" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800 truncate">
-                    {user?.email || 'User'}
+                    {user?.name || user?.firstname || user?.email || 'User'}
                   </p>
-                  <p className="text-xs text-gray-500">Free Plan</p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {user?.role || 'Free Plan'}
+                  </p>
                 </div>
               </div>
             ) : (
               <div className="w-10 h-10 bg-gradient-to-r from-sky-400 to-indigo-400 rounded-full flex items-center justify-center mx-auto">
-                <User className="w-5 h-5 text-white" />
+                {user?.firstname && user?.lastname ? (
+                  <span className="text-white text-sm font-medium">
+                    {user.firstname[0]}{user.lastname[0]}
+                  </span>
+                ) : (
+                  <User className="w-5 h-5 text-white" />
+                )}
               </div>
             )}
           </div>
