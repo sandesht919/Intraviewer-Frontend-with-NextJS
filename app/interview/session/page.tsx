@@ -42,9 +42,8 @@ import {
   SkipForward,
   PhoneOff
 } from 'lucide-react';
-import { useWebRTC } from '@/lib/hooks/useWebRTC';
-import { useWebSocket } from '@/lib/hooks/useWebSocket';
-import { useInterview } from '@/lib/hooks/useInterview';
+import { useInterviewStore } from '@/lib/stores/interviewStore';
+import { useMediaStream } from '@/lib/hooks/useMediaStream';
 
 /**
  * Interview Session Component
@@ -54,43 +53,31 @@ import { useInterview } from '@/lib/hooks/useInterview';
 export default function InterviewSessionPage() {
   const router = useRouter();
 
-  // Get interview data
-  const { currentSession, addResponse, completeInterview, interviewQuestions } = useInterview();
+  // Get interview data from Zustand store
+  const { currentSession, addResponse, completeInterview } = useInterviewStore();
 
-  // WebRTC hook for media handling
-  const {
-    localStream,
-    isConnected: webrtcConnected,
-    error: webrtcError,
-    initializeMedia,
-    startCall,
-    stopCall,
-    recordStream
-  } = useWebRTC();
+  // Media streaming hook (handles audio chunks + frame capture)
+  const { sessionId, status: streamStatus, startRecording: startMediaStream, stopRecording: stopMediaStream } = useMediaStream({
+    interviewSessionId: typeof currentSession?.id === 'number' ? currentSession.id : undefined,
+    audioChunkDuration: 10000, // 10 seconds
+    frameInterval: 2000 // 2 seconds
+  });
 
-  // WebSocket hook for real-time communication
-  // TODO: Replace with actual backend WebSocket URL
-  const { isConnected: wsConnected, send: wsSend, error: wsError } = useWebSocket(
-    'ws://localhost:8080/interview', // TODO: Update to actual backend URL
-    {
-      reconnectInterval: 3000,
-      maxReconnectAttempts: 5
-    }
-  );
+  // Local media stream state (for display and controls)
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
 
   // Local state for interview control
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(90); // 90 seconds per question
-  const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [sessionError, setSessionError] = useState<string | null>(null);
-  const [showConnectionStatus, setShowConnectionStatus] = useState(true);
 
-  // Refs for video, recording, and timing
+  // Refs for video, canvas (for frame extraction), and timing
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const recordingRef = useRef<any>(null);
   const responseStartTimeRef = useRef<number>(0);
 
   // Check if interview session exists
@@ -102,121 +89,97 @@ export default function InterviewSessionPage() {
   }, [currentSession, router]);
 
   /**
-   * Initialize media devices on component mount
-   * Start WebRTC connection setup
+   * Initialize media devices and start streaming
+   * Integrates with useMediaStream hook for chunked recording
    */
   useEffect(() => {
+    if (!currentSession || localStream) return;
+
     const setupMedia = async () => {
       try {
         // Request camera and microphone access
-        const stream = await initializeMedia();
-
-        // Display local video preview
-        if (videoRef.current && stream) {
-          videoRef.current.srcObject = stream;
-        }
-
-        // Start WebRTC connection
-        // TODO: This will connect to signaling server via WebSocket
-        await startCall(true);
-
-        // Send interview session start event
-        // TODO: Backend will initialize interview with AI
-        wsSend('interview-start', {
-          sessionId: currentSession?.id,
-          questions: currentSession?.questions
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720 },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
         });
 
-        // Start recording the interview
-        startRecording(stream);
-        responseStartTimeRef.current = Date.now();
+        setLocalStream(stream);
+
+        // Display local video preview
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+
+        // Start media streaming (audio chunks + frames)
+        if (videoRef.current && canvasRef.current) {
+          await startMediaStream(videoRef.current, canvasRef.current);
+          responseStartTimeRef.current = Date.now();
+          console.log('📹 Media streaming started - Session ID:', sessionId);
+        }
 
       } catch (err: any) {
-        setSessionError(err.message || 'Failed to initialize media devices');
+        setMediaError(err.message || 'Failed to access camera/microphone');
+        setSessionError('Please allow camera and microphone access to continue');
+        console.error('Media setup error:', err);
       }
     };
 
-    if (currentSession && !localStream) {
-      setupMedia();
-    }
+    setupMedia();
 
     return () => {
       // Cleanup on unmount
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
       }
+      
+      // Stop media streaming
+      stopMediaStream();
     };
-  }, [currentSession, localStream]);
+  }, [currentSession]); // Only run once when currentSession is available
 
   /**
    * Question timer countdown
    */
   useEffect(() => {
-    timerIntervalRef.current = setInterval(() => {
+    if (!currentSession) return;
+
+    const interval = setInterval(() => {
       setTimeRemaining(prev => {
         if (prev <= 1) {
-          // Auto-advance to next question when time runs out
-          handleNextQuestion();
-          return 90;
+          return 90; // Reset timer
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
+      clearInterval(interval);
     };
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, currentSession]); // Reset timer when question changes
 
   /**
-   * Start recording user's response
-   * Records video and audio for backend analysis
+   * Save response metadata
+   * Actual audio/video already streaming to backend via WebSocket
    */
-  const startRecording = (stream: MediaStream) => {
+  const saveResponseMetadata = async () => {
     try {
-      // TODO: Use proper recording implementation from useWebRTC hook
-      console.log('Recording started for question:', currentQuestionIndex + 1);
-      setIsRecording(true);
-
-      // Send recording start event to backend
-      wsSend('response-start', {
-        questionId: currentSession?.questions[currentQuestionIndex].id,
-        timestamp: Date.now()
-      });
-    } catch (err: any) {
-      console.error('Recording error:', err);
-    }
-  };
-
-  /**
-   * Stop recording and save response
-   */
-  const stopRecording = async () => {
-    try {
-      setIsRecording(false);
       const duration = (Date.now() - responseStartTimeRef.current) / 1000;
 
-      // TODO: Get actual recording blob from useWebRTC
-      // const audioBlob = recordingRef.current?.stop();
-
-      // Save response to interview session
-      addResponse({
+      // Save response metadata to interview session
+      await addResponse({
         questionId: currentSession?.questions[currentQuestionIndex].id || '',
-        answer: 'Response recorded', // TODO: Get actual transcription from backend
+        answer: 'Response recorded (streaming session: ' + sessionId + ')',
         duration: Math.round(duration),
-        // audioBlob // TODO: Include recorded audio
+        audioBlob: undefined // Streaming handled by WebSocket
       });
 
-      // Send response data to backend for analysis
-      wsSend('response-end', {
-        questionId: currentSession?.questions[currentQuestionIndex].id,
-        duration: duration,
-        timestamp: Date.now()
-      });
-
-      console.log('Response saved for question:', currentQuestionIndex + 1);
+      console.log('✅ Response metadata saved for question:', currentQuestionIndex + 1);
+      console.log('📊 Chunks:', streamStatus.chunksRecorded, 'Frames:', streamStatus.framesRecorded);
     } catch (err: any) {
       console.error('Error saving response:', err);
     }
@@ -226,18 +189,16 @@ export default function InterviewSessionPage() {
    * Handle next question navigation
    */
   const handleNextQuestion = async () => {
-    // Stop recording current response
-    await stopRecording();
+    // Save current response metadata (streaming continues)
+    await saveResponseMetadata();
 
     // Check if there are more questions
     if (currentQuestionIndex < currentSession!.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setTimeRemaining(90); // Reset timer for next question
+      responseStartTimeRef.current = Date.now();
 
-      // Start recording next question response
-      if (localStream) {
-        startRecording(localStream);
-      }
+      console.log('📝 Moving to question', currentQuestionIndex + 2);
     } else {
       // All questions completed
       handleCompleteInterview();
@@ -246,19 +207,25 @@ export default function InterviewSessionPage() {
 
   /**
    * Handle interview completion
-   * Send all responses to backend for analysis
+   * Stop streaming and finalize interview
    */
   const handleCompleteInterview = async () => {
     try {
-      // Complete interview in state
+      // Save final response metadata
+      await saveResponseMetadata();
+      
+      // Stop media streaming (sends session_complete to backend)
+      stopMediaStream();
+      
+      // Stop all media tracks
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      
+      // Complete interview in state (sends to backend)
       await completeInterview();
 
-      // Send completion event to backend
-      // TODO: Backend will trigger facial expression analysis and performance evaluation
-      wsSend('interview-complete', {
-        sessionId: currentSession?.id,
-        timestamp: Date.now()
-      });
+      console.log('🎬 Interview completed - Total chunks:', streamStatus.chunksRecorded, 'frames:', streamStatus.framesRecorded);
 
       // Wait briefly then redirect to results
       setTimeout(() => {
@@ -274,7 +241,6 @@ export default function InterviewSessionPage() {
    */
   const handleEndInterview = () => {
     if (confirm('Are you sure you want to end the interview? Your progress will be saved.')) {
-      stopCall();
       handleCompleteInterview();
     }
   };
@@ -319,13 +285,9 @@ export default function InterviewSessionPage() {
   const questionProgress = currentQuestionIndex + 1;
   const totalQuestions = currentSession.questions.length;
 
-  // Connection status indicators
-  const allConnected = webrtcConnected && wsConnected;
-  const connectionStatusColor = allConnected
-    ? 'text-green-500'
-    : webrtcConnected || wsConnected
-    ? 'text-yellow-500'
-    : 'text-red-500';
+  // Media status indicator (includes WebSocket connection)
+  const mediaConnected = localStream !== null && streamStatus.isConnected;
+  const connectionStatusColor = mediaConnected ? 'text-green-500' : 'text-yellow-500';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-8 px-4">
@@ -336,7 +298,7 @@ export default function InterviewSessionPage() {
       </div>
 
       <div className="relative max-w-5xl mx-auto">
-        {/* Header with Connection Status */}
+        {/* Header with Media Status */}
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">Interview Session</h1>
@@ -345,21 +307,21 @@ export default function InterviewSessionPage() {
             </p>
           </div>
 
-          {/* Connection Status Indicator */}
+          {/* Media Status Indicator */}
           <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg">
-            <div className={`w-2 h-2 rounded-full animate-pulse ${connectionStatusColor}`}></div>
+            <div className={`w-2 h-2 rounded-full ${mediaConnected ? 'animate-pulse' : ''} ${connectionStatusColor}`}></div>
             <span className="text-sm text-slate-300">
-              {allConnected ? 'Connected' : 'Connecting...'}
+              {mediaConnected ? 'Streaming' : 'Connecting...'}
             </span>
           </div>
         </div>
 
         {/* Error Alert */}
-        {(sessionError || webrtcError || wsError) && (
+        {(sessionError || mediaError) && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <p className="text-red-300 text-sm">
-              {sessionError || webrtcError || wsError}
+              {sessionError || mediaError}
             </p>
           </div>
         )}
@@ -380,12 +342,15 @@ export default function InterviewSessionPage() {
                 />
 
                 {/* Recording Indicator */}
-                {isRecording && (
+                {streamStatus.isRecording && (
                   <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1 bg-red-500 rounded-full">
                     <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                    <span className="text-white text-sm font-semibold">Recording</span>
+                    <span className="text-white text-sm font-semibold">Streaming</span>
                   </div>
                 )}
+
+                {/* Hidden canvas for frame extraction */}
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
 
                 {/* Camera Off Indicator */}
                 {isCameraOff && (
@@ -582,13 +547,18 @@ export default function InterviewSessionPage() {
           </div>
         </div>
 
-        {/* Debug Info - For testing WebSocket and WebRTC */}
+        {/* Debug Info - For testing Media and Streaming */}
         {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-400 font-mono">
-            <p>WebRTC: {webrtcConnected ? '✓ Connected' : '✗ Not Connected'}</p>
-            <p>WebSocket: {wsConnected ? '✓ Connected' : '✗ Not Connected'}</p>
-            <p>Recording: {isRecording ? '✓ Active' : '✗ Inactive'}</p>
-            <p>Session ID: {currentSession.id}</p>
+          <div className="mt-8 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-400 font-mono space-y-1">
+            <p>Media Stream: {localStream ? '✓ Active' : '✗ Not Active'}</p>
+            <p>WebSocket: {streamStatus.isConnected ? '✓ Connected' : '✗ Disconnected'}</p>
+            <p>Streaming: {streamStatus.isRecording ? '✓ Active' : '✗ Inactive'}</p>
+            <p>Session ID (Interview): {currentSession.id}</p>
+            <p>Session ID (Media): {sessionId}</p>
+            <p>Audio Chunks: {streamStatus.chunksRecorded}</p>
+            <p>Video Frames: {streamStatus.framesRecorded}</p>
+            <p>Question: {currentQuestionIndex + 1} / {totalQuestions}</p>
+            {streamStatus.error && <p className="text-red-400">Error: {streamStatus.error}</p>}
           </div>
         )}
       </div>

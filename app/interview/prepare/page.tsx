@@ -32,7 +32,7 @@ import {
   X,
   Sparkles
 } from 'lucide-react';
-import { useInterview } from '@/lib/hooks/useInterview';
+import { useInterviewStore } from '@/lib/stores/interviewStore';
 
 /**
  * Interview Preparation Component
@@ -51,7 +51,7 @@ export default function InterviewPreparePage() {
     setJobDescription,
     generateQuestions,
     startInterview
-  } = useInterview();
+  } = useInterviewStore();
 
   // Local state for managing steps
   const [currentStep, setCurrentStep] = useState<'upload' | 'describe' | 'preview'>('upload');
