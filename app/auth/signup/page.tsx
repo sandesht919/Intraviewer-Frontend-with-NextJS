@@ -121,8 +121,8 @@ export default function SignupPage() {
         confirmPassword
       });
 
-      // Redirect to interview preparation after successful signup
-      router.push('/interview/prepare');
+      // Redirect to dashboard after successful signup
+      router.push('/dashboard');
     } catch (err: any) {
       setSignupError(err.message || 'Signup failed. Please try again.');
     }
@@ -136,7 +136,7 @@ export default function SignupPage() {
   };
 
   return (
-    <RouteGuard requireAuth={false} redirectTo="/">
+    <RouteGuard requireAuth={false} redirectTo="/dashboard">
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4 py-12">
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

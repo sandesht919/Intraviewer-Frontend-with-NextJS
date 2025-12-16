@@ -27,8 +27,9 @@ const AuthLayout = ({ children, isDrawerOpen = false }: AuthLayoutProps) => {
       const isOnProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
       
       if (isOnProtectedRoute && !isAuthenticated) {
-        // Force navigation to login if user was logged out
-        router.push('/auth/login');
+        // Store the current path to redirect back after login
+        const loginUrl = `/auth/login?redirect=${encodeURIComponent(pathname)}`;
+        router.push(loginUrl);
       }
     }
   }, [isAuthenticated, mounted, pathname, router]);

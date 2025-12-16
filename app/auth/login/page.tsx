@@ -101,9 +101,12 @@ export default function LoginPage() {
       // Show success state briefly
       setIsSuccess(true);
 
+      // Get redirect URL from query params, default to dashboard
+      const redirectUrl = searchParams.get('redirect') || '/dashboard';
+
       // Redirect after a short delay to show success message
       setTimeout(() => {
-        router.push('/interview/prepare');
+        router.push(redirectUrl);
       }, 800);
     } catch (err: any) {
       setLoginError(err.message || 'Login failed. Please try again.');
@@ -112,7 +115,7 @@ export default function LoginPage() {
   };
 
   return (
-    <RouteGuard requireAuth={false} redirectTo="/">
+    <RouteGuard requireAuth={false} redirectTo="/dashboard">
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4 py-12">
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
