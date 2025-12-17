@@ -213,8 +213,8 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
         chunkIndexRef.current++;
         currentChunkStartTimeRef.current = Date.now();
 
-        // Start next chunk if still recording
-        if (status.isRecording) {
+        // Start next chunk if media recorder still exists (not stopped by user)
+        if (mediaRecorderRef.current === mediaRecorder) {
           mediaRecorder.start();
           setTimeout(() => {
             if (mediaRecorder.state === "recording") {
