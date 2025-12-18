@@ -35,12 +35,11 @@ I've built a complete, production-ready frontend for the IntraViewer AI-powered 
    - Link to login page
 
 4. **Interview Preparation Page** (`app/interview/prepare/page.tsx`)
-   - Multi-step form (CV upload → Job description → Question preview)
+   - Two-step form (CV upload → Job description)
    - Drag-and-drop file upload with validation
    - Textarea for job description with character counter
    - Progress indicator showing current step
-   - Question preview with metadata (category, difficulty)
-   - Option to regenerate questions or edit inputs
+   - Automatic question generation and interview start
 
 5. **Live Interview Session Page** (`app/interview/session/page.tsx`)
    - Video preview with WebRTC media capture
@@ -257,10 +256,9 @@ npm run dev
 2. **Signup/Login** → User creates account or signs in
 3. **Interview Prep** → User uploads CV and describes job
 4. **Question Generation** → AI generates personalized questions
-5. **Question Preview** → User reviews questions before interview
-6. **Live Interview** → Real-time mock interview with video/audio
-7. **Performance Analysis** → Detailed feedback and suggestions
-8. **Retake or Next** → Option to practice again
+5. **Live Interview** → Real-time mock interview with video/audio
+6. **Performance Analysis** → Detailed feedback and suggestions
+7. **Retake or Next** → Option to practice again
 
 ---
 

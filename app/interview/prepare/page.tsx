@@ -1,15 +1,14 @@
 /**
  * Interview Preparation Page
  * 
- * Guides users through interview setup in 3 simple steps:
+ * Guides users through interview setup in 2 simple steps:
  * 1. Optional CV upload (drag-drop support)
- * 2. Job description input (required)
- * 3. AI generates interview questions
+ * 2. Job description input and automatic question generation
  * 
  * Features:
  * - Optional CV upload with file validation
  * - Job description textarea
- * - AI question generation
+ * - Automatic AI question generation and interview start
  * - Progress indicators
  * - Responsive design
  * 
@@ -37,7 +36,7 @@ import { useInterview } from '@/lib/hooks/useInterview';
 /**
  * Interview Preparation Component
  * 
- * Manages the flow of uploading CV, describing job, and generating questions
+ * Manages the flow of uploading CV and describing job, then automatically starts interview
  */
 export default function InterviewPreparePage() {
   const router = useRouter();
@@ -54,10 +53,9 @@ export default function InterviewPreparePage() {
   } = useInterview();
 
   // Local state for managing steps
-  const [currentStep, setCurrentStep] = useState<'upload' | 'describe' | 'preview'>('upload');
+  const [currentStep, setCurrentStep] = useState<'upload' | 'describe'>('upload');
   const [dragActive, setDragActive] = useState(false);
   const [localJobDesc, setLocalJobDesc] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
 
   /**
    * Handle file upload via input or drag-drop
@@ -95,7 +93,7 @@ export default function InterviewPreparePage() {
   };
 
   /**
-   * Handle generate questions click
+   * Handle generate questions and start interview
    */
   const handleGenerateQuestions = async () => {
     // Persist job description in the hook state for later use
@@ -103,7 +101,8 @@ export default function InterviewPreparePage() {
     // Pass the local job description to avoid relying on the
     // asynchronous state update; the hook accepts an override.
     await generateQuestions(localJobDesc);
-    setCurrentStep('preview');
+    // Directly start the interview after questions are generated
+    await handleStartInterview();
   };
 
   /**
@@ -127,26 +126,20 @@ export default function InterviewPreparePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-12 px-4">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl"></div>
-      </div>
-
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="relative max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Start Your Interview Practice
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-gray-600 text-lg">
             Tell us about your target role and we'll generate personalized questions
           </p>
         </div>
 
         {/* Progress Steps */}
-        <div className="mb-12 flex justify-between relative">
+        <div className="mb-12 flex justify-center relative max-w-md mx-auto">
           {/* Step 1: Optional CV Upload */}
           <div className="flex flex-col items-center z-10">
             <div
@@ -155,20 +148,20 @@ export default function InterviewPreparePage() {
                 ${
                   currentStep === 'upload' || cvData.file
                     ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
-                    : 'bg-slate-800 text-slate-500'
+                    : 'bg-gray-200 text-gray-400'
                 }
               `}
             >
               {cvData.file ? <CheckCircle className="w-6 h-6" /> : '1'}
             </div>
-            <span className="text-sm font-medium text-white">CV (Optional)</span>
+            <span className="text-sm font-medium text-gray-900">CV (Optional)</span>
           </div>
 
           {/* Connector Line */}
           <div
             className={`
               flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${localJobDesc ? 'bg-blue-500' : 'bg-slate-800'}
+              ${localJobDesc ? 'bg-blue-500' : 'bg-gray-200'}
             `}
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
@@ -181,39 +174,13 @@ export default function InterviewPreparePage() {
                 ${
                   currentStep === 'describe' || localJobDesc
                     ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
-                    : 'bg-slate-800 text-slate-500'
+                    : 'bg-gray-200 text-gray-400'
                 }
               `}
             >
               {localJobDesc ? <CheckCircle className="w-6 h-6" /> : '2'}
             </div>
-            <span className="text-sm font-medium text-white">Job Description</span>
-          </div>
-
-          {/* Connector Line */}
-          <div
-            className={`
-              flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${interviewQuestions.length > 0 ? 'bg-blue-500' : 'bg-slate-800'}
-            `}
-            style={{ alignSelf: 'center', height: '2px' }}
-          ></div>
-
-          {/* Step 3: Start Interview */}
-          <div className="flex flex-col items-center z-10">
-            <div
-              className={`
-                w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
-                ${
-                  currentStep === 'preview' || interviewQuestions.length > 0
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
-                    : 'bg-slate-800 text-slate-500'
-                }
-              `}
-            >
-              {interviewQuestions.length > 0 ? <CheckCircle className="w-6 h-6" /> : '3'}
-            </div>
-            <span className="text-sm font-medium text-white\">Start Interview</span>
+            <span className="text-sm font-medium text-gray-900">Job Description</span>
           </div>
         </div>
 
@@ -227,10 +194,10 @@ export default function InterviewPreparePage() {
 
         {/* Step 1: Optional Upload CV */}
         {currentStep === 'upload' && (
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-lg">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Upload Your CV (Optional)</h2>
-              <p className="text-slate-400">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Your CV (Optional)</h2>
+              <p className="text-gray-600">
                 Your CV helps us generate more personalized questions. Supported formats: PDF, JPG, PNG, DOCX (Max 10MB). You can skip this if you prefer.
               </p>
             </div>
@@ -247,13 +214,13 @@ export default function InterviewPreparePage() {
                   ${
                     dragActive
                       ? 'border-blue-500 bg-blue-500/10'
-                      : 'border-slate-600 hover:border-slate-500 bg-slate-800/30 hover:bg-slate-800/50'
+                      : 'border-gray-300 hover:border-gray-400 bg-gray-50 hover:bg-gray-100'
                   }
                 `}
               >
-                <Upload className="w-12 h-12 mx-auto mb-4 text-slate-400" />
-                <p className="text-white font-semibold mb-2">Drag and drop your CV here</p>
-                <p className="text-slate-400 text-sm mb-4">or click to browse your files</p>
+                <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-900 font-semibold mb-2">Drag and drop your CV here</p>
+                <p className="text-gray-600 text-sm mb-4">or click to browse your files</p>
 
                 <input
                   type="file"
@@ -312,17 +279,17 @@ export default function InterviewPreparePage() {
 
         {/* Step 2: Describe Job */}
         {currentStep === 'describe' && (
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-lg">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Describe Your Target Role</h2>
-              <p className="text-slate-400">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Describe Your Target Role</h2>
+              <p className="text-gray-600">
                 Tell us about the position you're interviewing for. Include key responsibilities, required skills, and any other relevant details.
               </p>
             </div>
 
             {/* Job Description Input */}
             <div className="mb-6">
-              <label htmlFor="job-desc" className="block text-sm font-medium text-white mb-3">
+              <label htmlFor="job-desc" className="block text-sm font-medium text-gray-900 mb-3">
                 Job Description or Role Details
               </label>
               <textarea
@@ -332,13 +299,13 @@ export default function InterviewPreparePage() {
                 placeholder="E.g., Senior Frontend Engineer at a tech startup. Required: React, TypeScript, Web Performance. Responsibilities: Lead frontend architecture, mentor junior devs, optimize performance..."
                 rows={6}
                 className="
-                  w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg
-                  text-white placeholder-slate-500 resize-none
+                  w-full px-4 py-3 bg-white border border-gray-300 rounded-lg
+                  text-gray-900 placeholder-gray-500 resize-none
                   focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500
                   transition-all
                 "
               />
-              <p className="text-slate-400 text-sm mt-2">
+              <p className="text-gray-600 text-sm mt-2">
                 {localJobDesc.length} characters
               </p>
             </div>
@@ -359,72 +326,14 @@ export default function InterviewPreparePage() {
                 {isGenerating ? (
                   <>
                     <Loader className="w-4 h-4 animate-spin" />
-                    Generating Questions...
+                    Starting Interview...
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Generate Questions
+                    Start Interview
                   </>
                 )}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Preview Questions */}
-        {currentStep === 'preview' && interviewQuestions.length > 0 && (
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-8">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Ready to Start?</h2>
-              <p className="text-slate-400">
-                {interviewQuestions.length} personalized questions have been generated for you. Click below to begin your interview.
-              </p>
-            </div>
-
-            {/* Questions List */}
-            <div className="space-y-4 mb-8 max-h-96 overflow-y-auto">
-              {interviewQuestions.map((q, index) => (
-                <div
-                  key={q.id}
-                  className="p-4 bg-slate-800 border border-slate-700 rounded-lg hover:border-blue-500/50 transition"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-white font-semibold">
-                      Question {index + 1}
-                    </h3>
-                    <div className="flex gap-2">
-                      <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded">
-                        {q.category}
-                      </span>
-                      <span className={`
-                        px-2 py-1 text-xs rounded
-                        ${q.difficulty === 'easy' ? 'bg-green-500/20 text-green-300' : ''}
-                        ${q.difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-300' : ''}
-                        ${q.difficulty === 'hard' ? 'bg-red-500/20 text-red-300' : ''}
-                      `}>
-                        {q.difficulty}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-slate-200">{q.question}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-4 justify-between">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentStep('describe')}
-              >
-                Edit & Regenerate
-              </Button>
-              <Button
-                onClick={handleStartInterview}
-                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 flex items-center gap-2"
-              >
-                Start Interview <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </div>

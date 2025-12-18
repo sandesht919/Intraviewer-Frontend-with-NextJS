@@ -306,10 +306,10 @@ export default function InterviewSessionPage() {
   // Show loading state if session not ready
   if (!currentSession) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-white text-lg">Loading interview session...</p>
+          <p className="text-gray-900 text-lg">Loading interview session...</p>
         </div>
       </div>
     );
@@ -328,13 +328,7 @@ export default function InterviewSessionPage() {
     : 'text-red-500';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-8 px-4">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl"></div>
-      </div>
-
+    <div className="min-h-screen bg-white py-8 px-4">
       <div className="relative max-w-5xl mx-auto">
         {/* Header with Connection Status */}
         <div className="mb-8 flex justify-between items-center">

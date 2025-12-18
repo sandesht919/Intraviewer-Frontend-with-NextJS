@@ -41,7 +41,6 @@
  *                    │     (interview/prepare)      │
  *                    │  1. Upload CV                │
  *                    │  2. Enter Job Description    │
- *                    │  3. Preview Questions        │
  *                    │ [useInterview Hook Active]   │
  *                    └──────────────┬───────────────┘
  *                                   │

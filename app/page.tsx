@@ -16,11 +16,11 @@ import { ArrowRight } from 'lucide-react';
  */
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
+    <div className="min-h-screen bg-white text-gray-900 overflow-hidden">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-400">
+          <div className="text-2xl font-bold text-blue-600">
             IntraViewer
           </div>
           <div className="flex gap-3">
@@ -39,10 +39,10 @@ export default function Home() {
       {/* Hero Section */}
       <section className="pt-32 pb-16 px-4">
         <div className="container mx-auto text-center max-w-2xl">
-          <h1 className="text-5xl font-bold mb-6 text-white">
+          <h1 className="text-5xl font-bold mb-6 text-gray-900">
             Practice Interviews with AI
           </h1>
-          <p className="text-lg text-slate-300 mb-10">
+          <p className="text-lg text-gray-600 mb-10">
             Describe a job role, get AI-generated questions, and practice with real-time feedback.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -52,7 +52,7 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/auth/login">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-blue-400 border-blue-500 hover:bg-blue-500/10">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-blue-600 border-blue-500 hover:bg-blue-500/10">
                 Sign In
               </Button>
             </Link>
@@ -61,7 +61,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 py-6 px-4 text-center text-slate-600 text-xs">
+      <footer className="border-t border-gray-200 py-6 px-4 text-center text-gray-500 text-xs">
         <p>&copy; 2025 IntraViewer</p>
       </footer>
     </div>

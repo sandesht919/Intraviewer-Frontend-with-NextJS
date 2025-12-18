@@ -42,9 +42,9 @@ app/
    - Status: Complete
 
 4. **app/interview/prepare/page.tsx** ✅
-   - Interview preparation with 3-step process
+   - Interview preparation with 2-step process
    - ~400 lines of code
-   - Features: File upload, drag-drop, job description, question preview
+   - Features: File upload, drag-drop, job description, automatic interview start
    - Status: Complete
 
 5. **app/interview/session/page.tsx** ✅

@@ -263,11 +263,11 @@ export default function InterviewResultsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-white text-lg">Analyzing your interview...</p>
-          <p className="text-slate-400 text-sm mt-2">This may take a few moments</p>
+          <p className="text-gray-900 text-lg">Analyzing your interview...</p>
+          <p className="text-gray-600 text-sm mt-2">This may take a few moments</p>
         </div>
       </div>
     );
@@ -275,7 +275,7 @@ export default function InterviewResultsPage() {
 
   if (error || !analysisData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <p className="text-white text-lg mb-2">Failed to load results</p>
@@ -296,26 +296,20 @@ export default function InterviewResultsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-12 px-4">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl"></div>
-      </div>
-
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="relative max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Interview Results
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-gray-600 text-lg">
             Here's your detailed performance analysis
           </p>
         </div>
 
         {/* Overall Score Card */}
-        <div className="mb-12 backdrop-blur-md bg-gradient-to-br from-slate-900/50 to-slate-900/30 border border-slate-700 rounded-3xl p-8 lg:p-12">
+        <div className="mb-12 bg-white border border-gray-200 rounded-3xl p-8 lg:p-12 shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Score Circle */}
             <div className="flex justify-center">

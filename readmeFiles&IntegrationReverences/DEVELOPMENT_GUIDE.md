@@ -33,8 +33,6 @@
  *       which is responsible for generating questions and orchestrating
  *       interview sessions and analysis.
  *       ↓
- *   Question Preview (AI-Generated Questions)
- *       ↓
  *   Live Interview Session (WebRTC + WebSocket)
  *       ↓
  *   Performance Analysis Results Page
@@ -284,18 +282,11 @@
  *    - Textarea for job description
  *    - Character count
  *    - Generate questions button
- *    - Loading state during generation
- *    
- *    Step 3: Review Questions
- *    - Display all AI-generated questions
- *    - Show question metadata (category, difficulty)
- *    - Preview all questions before interview
- *    - Option to regenerate questions
- *    - Start interview button
+ *    - Loading state during generation and interview start
  *    
  *    Features:
- *    - Multi-step progress indicator
- *    - Back/forward navigation
+ *    - Two-step progress indicator
+ *    - Back navigation
  *    - Progress persistence (TODO)
  *    - Error handling and display
  *    
