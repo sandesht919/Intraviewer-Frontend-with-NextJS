@@ -272,17 +272,10 @@ export default function InterviewSessionPage() {
   // Show loading state if session not ready
   if (!currentSession) {
     return (
-<<<<<<< HEAD
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <Loader className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-900 text-lg">Loading interview session...</p>
-=======
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 animate-spin text-sky-600 mx-auto mb-4" />
           <p className="text-slate-800 text-lg">Loading interview session...</p>
->>>>>>> dc11
         </div>
       </div>
     );
@@ -297,9 +290,6 @@ export default function InterviewSessionPage() {
   const connectionStatusColor = mediaConnected ? 'text-green-500' : 'text-yellow-500';
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-white py-8 px-4">
-=======
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 py-8 px-4">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -307,7 +297,6 @@ export default function InterviewSessionPage() {
         <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
       </div>
 
->>>>>>> dc11
       <div className="relative max-w-5xl mx-auto">
         {/* Header with Media Status */}
         <div className="mb-8 flex justify-between items-center">
