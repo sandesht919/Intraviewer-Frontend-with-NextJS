@@ -68,7 +68,7 @@ export function RouteGuard({
 
     // If authentication is NOT required (e.g., login page) but user IS authenticated
     if (!requireAuth && isAuthenticated) {
-      const homeUrl = redirectTo || '/interview/prepare';
+      const homeUrl = redirectTo || '/dashboard';
       router.push(homeUrl);
       return;
     }

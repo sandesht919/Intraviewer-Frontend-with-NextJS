@@ -1,16 +1,16 @@
 /**
  * Authentication Store using Zustand
- * 
+ *
  * This store manages the global authentication state including:
  * - User data
  * - Access and refresh tokens
  * - Authentication operations (login, signup, logout, refresh)
  */
 
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { API_CONFIG, handleAPIResponse } from '../config/api';
-import { setAuthCookie, clearAuthCookie } from '../utils/cookies';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { API_CONFIG, handleAPIResponse } from "../config/api";
+import { setAuthCookie, clearAuthCookie } from "../utils/cookies";
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
 
@@ -18,10 +18,15 @@ const API_BASE_URL = API_CONFIG.BASE_URL;
  * User interface matching backend response
  */
 interface User {
-  id: string;
-  email: string;
+  id: number;
+  firstname: string;
+  lastname: string;
+  is_active: boolean;
+  role: string;
+  created_at: string;
+  // Computed properties for compatibility
   name?: string;
-  created_at?: string;
+  email?: string;
 }
 
 /**
@@ -73,6 +78,7 @@ interface AuthActions {
   refreshAccessToken: () => Promise<void>;
   clearError: () => void;
   setUser: (user: User | null) => void;
+  fetchUserData: () => Promise<void>;
 }
 
 /**
@@ -103,20 +109,22 @@ export const useAuthStore = create<AuthStore>()(
         try {
           // FastAPI OAuth2 expects form data, not JSON
           const formData = new URLSearchParams();
-          formData.append('username', credentials.email); // OAuth2 uses 'username' field
-          formData.append('password', credentials.password);
+          formData.append("username", credentials.email); // OAuth2 uses 'username' field
+          formData.append("password", credentials.password);
 
           const response = await fetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify(credentials),
           });
 
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ detail: 'Login failed' }));
-            throw new Error(errorData.detail || 'Login failed');
+            const errorData = await response
+              .json()
+              .catch(() => ({ detail: "Login failed" }));
+            throw new Error(errorData.detail || "Login failed");
           }
 
           const data: AuthResponse = await response.json();
@@ -132,9 +140,27 @@ export const useAuthStore = create<AuthStore>()(
 
           // Sync auth state with cookies for middleware
           setAuthCookie(true, data.access_token);
+
+          // Also set the auth-storage cookie for middleware
+          document.cookie = `auth-storage=${encodeURIComponent(
+            JSON.stringify({
+              state: {
+                isAuthenticated: true,
+                accessToken: data.access_token,
+                user: data.user,
+              },
+            })
+          )}; path=/; max-age=2592000; SameSite=Lax`;
+
+          // Fetch complete user data
+          try {
+            await get().fetchUserData();
+          } catch (fetchError) {
+            console.warn("Failed to fetch user data after login:", fetchError);
+          }
         } catch (error: any) {
           set({
-            error: error.message || 'Login failed. Please try again.',
+            error: error.message || "Login failed. Please try again.",
             isLoading: false,
             isAuthenticated: false,
           });
@@ -150,14 +176,14 @@ export const useAuthStore = create<AuthStore>()(
 
         try {
           // Split name into firstname and lastname for backend
-          const nameParts = (data.name || '').trim().split(' ');
-          const firstname = nameParts[0] || '';
-          const lastname = nameParts.slice(1).join(' ') || nameParts[0] || ''; // Use firstname as lastname if no lastname provided
+          const nameParts = (data.name || "").trim().split(" ");
+          const firstname = nameParts[0] || "";
+          const lastname = nameParts.slice(1).join(" ") || nameParts[0] || ""; // Use firstname as lastname if no lastname provided
 
           const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               firstname,
@@ -168,8 +194,10 @@ export const useAuthStore = create<AuthStore>()(
           });
 
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ detail: 'Signup failed' }));
-            throw new Error(errorData.detail || 'Signup failed');
+            const errorData = await response
+              .json()
+              .catch(() => ({ detail: "Signup failed" }));
+            throw new Error(errorData.detail || "Signup failed");
           }
 
           const responseData: AuthResponse = await response.json();
@@ -185,9 +213,27 @@ export const useAuthStore = create<AuthStore>()(
 
           // Sync auth state with cookies for middleware
           setAuthCookie(true, responseData.access_token);
+
+          // Also set the auth-storage cookie for middleware
+          document.cookie = `auth-storage=${encodeURIComponent(
+            JSON.stringify({
+              state: {
+                isAuthenticated: true,
+                accessToken: responseData.access_token,
+                user: responseData.user,
+              },
+            })
+          )}; path=/; max-age=2592000; SameSite=Lax`;
+
+          // Fetch complete user data
+          try {
+            await get().fetchUserData();
+          } catch (fetchError) {
+            console.warn("Failed to fetch user data after signup:", fetchError);
+          }
         } catch (error: any) {
           set({
-            error: error.message || 'Signup failed. Please try again.',
+            error: error.message || "Signup failed. Please try again.",
             isLoading: false,
             isAuthenticated: false,
           });
@@ -209,12 +255,16 @@ export const useAuthStore = create<AuthStore>()(
 
         // Clear auth cookie
         clearAuthCookie();
-        
+
+        // Clear the auth-storage cookie
+        document.cookie =
+          "auth-storage=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
         // Force clear localStorage to ensure no stale state
         try {
-          localStorage.removeItem('auth-storage');
+          localStorage.removeItem("auth-storage");
         } catch (error) {
-          console.warn('Failed to clear auth storage:', error);
+          console.warn("Failed to clear auth storage:", error);
         }
       },
 
@@ -225,22 +275,22 @@ export const useAuthStore = create<AuthStore>()(
         const { refreshToken } = get();
 
         if (!refreshToken) {
-          throw new Error('No refresh token available');
+          throw new Error("No refresh token available");
         }
 
         try {
           const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${refreshToken}`,
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${refreshToken}`,
             },
           });
 
           if (!response.ok) {
             // If refresh fails, logout user
             get().logout();
-            throw new Error('Session expired. Please login again.');
+            throw new Error("Session expired. Please login again.");
           }
 
           const data = await response.json();
@@ -269,9 +319,53 @@ export const useAuthStore = create<AuthStore>()(
       setUser: (user: User | null) => {
         set({ user });
       },
+
+      /**
+       * Fetch current user data from backend
+       */
+      fetchUserData: async () => {
+        const { accessToken } = get();
+
+        if (!accessToken) {
+          throw new Error("No access token available");
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/users/me`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              // Token expired, try to refresh
+              await get().refreshAccessToken();
+              return get().fetchUserData(); // Retry with new token
+            }
+            throw new Error("Failed to fetch user data");
+          }
+
+          const userData = await response.json();
+
+          // Add computed properties for compatibility
+          const userWithComputed = {
+            ...userData,
+            name: `${userData.firstname} ${userData.lastname}`.trim(),
+            email: "", // Will be filled from login/signup
+          };
+
+          set({ user: userWithComputed });
+        } catch (error: any) {
+          console.error("Failed to fetch user data:", error);
+          // Don't logout on fetch failure, just log the error
+        }
+      },
     }),
     {
-      name: 'auth-storage', // unique name for localStorage key
+      name: "auth-storage", // unique name for localStorage key
       storage: createJSONStorage(() => localStorage),
       // Only persist these fields
       partialize: (state) => ({
@@ -294,7 +388,7 @@ export const useAuthenticatedFetch = () => {
   return async (url: string, options: RequestInit = {}) => {
     const headers = {
       ...options.headers,
-      'Authorization': `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
     };
 
     let response = await fetch(url, { ...options, headers });
@@ -304,12 +398,12 @@ export const useAuthenticatedFetch = () => {
       try {
         await refreshAccessToken();
         const newAccessToken = useAuthStore.getState().accessToken;
-        
-        headers['Authorization'] = `Bearer ${newAccessToken}`;
+
+        headers["Authorization"] = `Bearer ${newAccessToken}`;
         response = await fetch(url, { ...options, headers });
       } catch (error) {
         // Refresh failed, user will be logged out
-        throw new Error('Session expired. Please login again.');
+        throw new Error("Session expired. Please login again.");
       }
     }
 

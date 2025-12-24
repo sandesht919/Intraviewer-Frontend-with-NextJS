@@ -263,11 +263,19 @@ export default function InterviewResultsPage() {
 
   if (isLoading) {
     return (
+<<<<<<< HEAD
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
           <p className="text-gray-900 text-lg">Analyzing your interview...</p>
           <p className="text-gray-600 text-sm mt-2">This may take a few moments</p>
+=======
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="w-12 h-12 animate-spin text-sky-600 mx-auto mb-4" />
+          <p className="text-slate-800 text-lg">Analyzing your interview...</p>
+          <p className="text-slate-600 text-sm mt-2">This may take a few moments</p>
+>>>>>>> dc11
         </div>
       </div>
     );
@@ -275,12 +283,16 @@ export default function InterviewResultsPage() {
 
   if (error || !analysisData) {
     return (
+<<<<<<< HEAD
       <div className="min-h-screen bg-white flex items-center justify-center px-4">
+=======
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center px-4">
+>>>>>>> dc11
         <div className="text-center max-w-md">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-white text-lg mb-2">Failed to load results</p>
-          <p className="text-slate-400 mb-6">{error}</p>
-          <Button onClick={() => router.push('/interview/prepare')}>
+          <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
+          <p className="text-slate-800 text-lg mb-2">Failed to load results</p>
+          <p className="text-slate-600 mb-6">{error}</p>
+          <Button onClick={() => router.push('/interview/prepare')} className="bg-sky-600 hover:bg-sky-700">
             Return to Preparation
           </Button>
         </div>
@@ -296,6 +308,7 @@ export default function InterviewResultsPage() {
   );
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-white py-12 px-4">
       <div className="relative max-w-5xl mx-auto">
         {/* Header */}
@@ -304,12 +317,32 @@ export default function InterviewResultsPage() {
             Interview Results
           </h1>
           <p className="text-gray-600 text-lg">
+=======
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 py-12 px-4">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
+            Interview Results
+          </h1>
+          <p className="text-slate-600 text-lg">
+>>>>>>> dc11
             Here's your detailed performance analysis
           </p>
         </div>
 
         {/* Overall Score Card */}
+<<<<<<< HEAD
         <div className="mb-12 bg-white border border-gray-200 rounded-3xl p-8 lg:p-12 shadow-lg">
+=======
+        <div className="mb-12 backdrop-blur-sm bg-white/80 border border-sky-200 rounded-3xl p-8 lg:p-12 shadow-xl">
+>>>>>>> dc11
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Score Circle */}
             <div className="flex justify-center">
@@ -323,7 +356,7 @@ export default function InterviewResultsPage() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
-                    className="text-slate-700"
+                    className="text-slate-200"
                   />
                   {/* Progress circle */}
                   <circle
@@ -343,7 +376,7 @@ export default function InterviewResultsPage() {
                   <div className={`text-5xl font-bold ${getScoreColor(analysisData.overallScore)}`}>
                     {analysisData.overallScore}
                   </div>
-                  <p className="text-slate-400">Overall Score</p>
+                  <p className="text-slate-600">Overall Score</p>
                 </div>
               </div>
             </div>
@@ -353,14 +386,14 @@ export default function InterviewResultsPage() {
               {/* Technical Score */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-white font-semibold">Technical Score</span>
+                  <span className="text-slate-800 font-semibold">Technical Score</span>
                   <span className={`text-lg font-bold ${getScoreColor(analysisData.technicalScore)}`}>
                     {analysisData.technicalScore}
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-500 transition-all"
+                    className="h-full bg-sky-500 transition-all"
                     style={{ width: `${analysisData.technicalScore}%` }}
                   ></div>
                 </div>
@@ -369,14 +402,14 @@ export default function InterviewResultsPage() {
               {/* Communication Score */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-white font-semibold">Communication</span>
+                  <span className="text-slate-800 font-semibold">Communication</span>
                   <span className={`text-lg font-bold ${getScoreColor(analysisData.communicationScore)}`}>
                     {analysisData.communicationScore}
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-purple-500 transition-all"
+                    className="h-full bg-blue-500 transition-all"
                     style={{ width: `${analysisData.communicationScore}%` }}
                   ></div>
                 </div>
@@ -385,12 +418,12 @@ export default function InterviewResultsPage() {
               {/* Confidence Level */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-white font-semibold">Confidence</span>
+                  <span className="text-slate-800 font-semibold">Confidence</span>
                   <span className={`text-lg font-bold ${getScoreColor(analysisData.confidenceLevel)}`}>
                     {analysisData.confidenceLevel}%
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-green-500 transition-all"
                     style={{ width: `${analysisData.confidenceLevel}%` }}
