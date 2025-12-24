@@ -35,14 +35,14 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
    
     if (!isAuthenticated) {
         return (
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-sky-200 shadow-sm">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="text-2xl font-bold text-sky-600">
+                    <div className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
                         IntraViewer
                     </div>
                     <div className="flex items-center gap-4">
                         <Link href="/auth/login">
-                            <Button variant="ghost" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                            <Button variant="ghost" className="text-slate-600 hover:text-slate-900 hover:bg-sky-50">
                                 Sign In
                             </Button>
                         </Link>
@@ -60,7 +60,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
     return (
         <>
             {/* Authenticated Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+            <nav className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-sky-200 shadow-sm">
                 <div className="flex items-center justify-between px-4 py-3">
                     {/* Left Section */}
                     <div className="flex items-center gap-4">
@@ -69,28 +69,28 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                             variant="ghost"
                             size="sm"
                             onClick={toggleDrawer}
-                            className="p-2 hover:bg-gray-100"
+                            className="p-2 hover:bg-sky-50"
                         >
-                            <Menu className="w-5 h-5 text-gray-600" />
+                            <Menu className="w-5 h-5 text-slate-600" />
                         </Button>
                         
                         {/* Logo */}
                         <Link href="/dashboard" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center">
+                            <div className="w-8 h-8 bg-gradient-to-br from-sky-600 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
                                 <span className="text-white font-bold text-sm">IV</span>
                             </div>
-                            <span className="font-bold text-gray-800 hidden sm:block">IntraViewer</span>
+                            <span className="font-bold text-slate-800 hidden sm:block">IntraViewer</span>
                         </Link>
                     </div>
 
                     {/* Center Section - Search */}
                     <div className="hidden md:flex flex-1 max-w-2xl mx-8">
                         <div className="relative w-full">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                             <input
                                 type="text"
                                 placeholder="Search interviews, feedback, results..."
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                                className="w-full pl-10 pr-4 py-2 border border-sky-200 rounded-full bg-sky-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
                             />
                         </div>
                     </div>

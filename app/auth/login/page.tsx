@@ -116,27 +116,27 @@ export default function LoginPage() {
 
   return (
     <RouteGuard requireAuth={false} redirectTo="/dashboard">
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center px-4 py-12">
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 left-10 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
         </div>
 
         {/* Login Card */}
         <div className="relative w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">
+            <h1 className="text-4xl font-bold text-slate-800 mb-2">
               Welcome Back
             </h1>
-            <p className="text-slate-400">
+            <p className="text-slate-600">
               Sign in to IntraViewer and continue your interview preparation
             </p>
           </div>
 
           {/* Form Container */}
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-8 shadow-2xl">
+          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
             {/* Success Alert */}
             {isSuccess && (
               <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-start gap-3">
@@ -161,11 +161,11 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-slate-500" />
+                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
                   <input
                     id="email"
                     type="email"
@@ -179,10 +179,10 @@ export default function LoginPage() {
                     }}
                     placeholder="your@email.com"
                     className={`
-                      w-full pl-10 pr-4 py-2.5 bg-slate-800 border rounded-lg
-                      text-white placeholder-slate-500 transition-all
-                      focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500
-                      ${errors.email ? 'border-red-500' : 'border-slate-600 hover:border-slate-500'}
+                      w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg
+                      text-slate-800 placeholder-slate-400 transition-all
+                      focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-sky-400
+                      ${errors.email ? 'border-red-500' : 'border-sky-200 hover:border-sky-300'}
                     `}
                   />
                 </div>
@@ -193,11 +193,11 @@ export default function LoginPage() {
 
               {/* Password Field */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-slate-500" />
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
                   <input
                     id="password"
                     type="password"
@@ -211,10 +211,10 @@ export default function LoginPage() {
                     }}
                     placeholder="••••••••"
                     className={`
-                      w-full pl-10 pr-4 py-2.5 bg-slate-800 border rounded-lg
-                      text-white placeholder-slate-500 transition-all
-                      focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500
-                      ${errors.password ? 'border-red-500' : 'border-slate-600 hover:border-slate-500'}
+                      w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg
+                      text-slate-800 placeholder-slate-400 transition-all
+                      focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-sky-400
+                      ${errors.password ? 'border-red-500' : 'border-sky-200 hover:border-sky-300'}
                     `}
                   />
                 </div>
@@ -229,13 +229,13 @@ export default function LoginPage() {
                   <input
                     type="checkbox"
                     defaultChecked
-                    className="w-4 h-4 rounded bg-slate-800 border-slate-600 text-blue-500"
+                    className="w-4 h-4 rounded bg-white border-sky-300 text-sky-600"
                   />
-                  <span className="text-slate-300">Remember me</span>
+                  <span className="text-slate-600">Remember me</span>
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-slate-300 hover:text-blue-300 transition"
+                  className="text-sky-600 hover:text-sky-700 transition"
                 >
                   Forgot password?
                 </Link>
@@ -245,7 +245,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-md"
               >
                 {isLoading ? (
                   <>
@@ -260,11 +260,11 @@ export default function LoginPage() {
           </div>
 
           {/* Sign Up Link */}
-          <p className="text-center mt-6 text-slate-300">
+          <p className="text-center mt-6 text-slate-600">
             Don't have an account?{' '}
             <Link
               href="/auth/signup"
-              className="text-blue-400 hover:text-blue-300 font-semibold transition"
+              className="text-sky-600 hover:text-sky-700 font-semibold transition"
             >
               Sign up here
             </Link>

@@ -127,20 +127,20 @@ export default function InterviewPreparePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 py-12 px-4">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
             Start Your Interview Practice
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-slate-600 text-lg">
             Tell us about your target role and we'll generate personalized questions
           </p>
         </div>
@@ -227,10 +227,10 @@ export default function InterviewPreparePage() {
 
         {/* Step 1: Optional Upload CV */}
         {currentStep === 'upload' && (
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-8">
+          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Upload Your CV (Optional)</h2>
-              <p className="text-slate-400">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Upload Your CV (Optional)</h2>
+              <p className="text-slate-600">
                 Your CV helps us generate more personalized questions. Supported formats: PDF, JPG, PNG, DOCX (Max 10MB). You can skip this if you prefer.
               </p>
             </div>
@@ -246,14 +246,14 @@ export default function InterviewPreparePage() {
                   border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all mb-6
                   ${
                     dragActive
-                      ? 'border-blue-500 bg-blue-500/10'
-                      : 'border-slate-600 hover:border-slate-500 bg-slate-800/30 hover:bg-slate-800/50'
+                      ? 'border-sky-500 bg-sky-100'
+                      : 'border-sky-300 hover:border-sky-400 bg-white hover:bg-sky-50'
                   }
                 `}
               >
                 <Upload className="w-12 h-12 mx-auto mb-4 text-slate-400" />
-                <p className="text-white font-semibold mb-2">Drag and drop your CV here</p>
-                <p className="text-slate-400 text-sm mb-4">or click to browse your files</p>
+                <p className="text-slate-800 font-semibold mb-2">Drag and drop your CV here</p>
+                <p className="text-slate-600 text-sm mb-4">or click to browse your files</p>
 
                 <input
                   type="file"
@@ -270,7 +270,7 @@ export default function InterviewPreparePage() {
                 <label htmlFor="file-input">
                   <Button
                     type="button"
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-sky-600 hover:bg-sky-700"
                     onClick={() => document.getElementById('file-input')?.click()}
                   >
                     Select File
@@ -279,12 +279,12 @@ export default function InterviewPreparePage() {
               </div>
             ) : (
               /* CV Uploaded Display */
-              <div className="p-6 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center justify-between mb-6">
+              <div className="p-6 bg-green-100 border border-green-300 rounded-lg flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <FileText className="w-8 h-8 text-green-500" />
+                  <FileText className="w-8 h-8 text-green-600" />
                   <div>
-                    <p className="text-white font-semibold">{cvData.fileName}</p>
-                    <p className="text-slate-400 text-sm">Ready for analysis</p>
+                    <p className="text-slate-800 font-semibold">{cvData.fileName}</p>
+                    <p className="text-slate-600 text-sm">Ready for analysis</p>
                   </div>
                 </div>
                 <Button
@@ -302,7 +302,7 @@ export default function InterviewPreparePage() {
             <div className="flex justify-end">
               <Button
                 onClick={() => setCurrentStep('describe')}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-sky-600 hover:bg-sky-700 shadow-md"
               >
                 Continue <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -312,17 +312,17 @@ export default function InterviewPreparePage() {
 
         {/* Step 2: Describe Job */}
         {currentStep === 'describe' && (
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-8">
+          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Describe Your Target Role</h2>
-              <p className="text-slate-400">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Describe Your Target Role</h2>
+              <p className="text-slate-600">
                 Tell us about the position you're interviewing for. Include key responsibilities, required skills, and any other relevant details.
               </p>
             </div>
 
             {/* Job Description Input */}
             <div className="mb-6">
-              <label htmlFor="job-desc" className="block text-sm font-medium text-white mb-3">
+              <label htmlFor="job-desc" className="block text-sm font-medium text-slate-700 mb-3">
                 Job Description or Role Details
               </label>
               <textarea
@@ -332,13 +332,13 @@ export default function InterviewPreparePage() {
                 placeholder="E.g., Senior Frontend Engineer at a tech startup. Required: React, TypeScript, Web Performance. Responsibilities: Lead frontend architecture, mentor junior devs, optimize performance..."
                 rows={6}
                 className="
-                  w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg
-                  text-white placeholder-slate-500 resize-none
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500
+                  w-full px-4 py-3 bg-white border border-sky-200 rounded-lg
+                  text-slate-800 placeholder-slate-400 resize-none
+                  focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400
                   transition-all
                 "
               />
-              <p className="text-slate-400 text-sm mt-2">
+              <p className="text-slate-600 text-sm mt-2">
                 {localJobDesc.length} characters
               </p>
             </div>
@@ -354,7 +354,7 @@ export default function InterviewPreparePage() {
               <Button
                 disabled={!localJobDesc.trim() || isGenerating}
                 onClick={handleGenerateQuestions}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex items-center gap-2"
+                className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 flex items-center gap-2 shadow-md"
               >
                 {isGenerating ? (
                   <>
@@ -374,10 +374,10 @@ export default function InterviewPreparePage() {
 
         {/* Step 3: Preview Questions */}
         {currentStep === 'preview' && interviewQuestions.length > 0 && (
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-8">
+          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Ready to Start?</h2>
-              <p className="text-slate-400">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Ready to Start?</h2>
+              <p className="text-slate-600">
                 {interviewQuestions.length} personalized questions have been generated for you. Click below to begin your interview.
               </p>
             </div>
@@ -387,27 +387,27 @@ export default function InterviewPreparePage() {
               {interviewQuestions.map((q, index) => (
                 <div
                   key={q.id}
-                  className="p-4 bg-slate-800 border border-slate-700 rounded-lg hover:border-blue-500/50 transition"
+                  className="p-4 bg-white border border-sky-200 rounded-lg hover:border-sky-400 hover:shadow-md transition"
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-white font-semibold">
+                    <h3 className="text-slate-800 font-semibold">
                       Question {index + 1}
                     </h3>
                     <div className="flex gap-2">
-                      <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded">
+                      <span className="px-2 py-1 bg-sky-100 text-sky-700 text-xs rounded">
                         {q.category}
                       </span>
                       <span className={`
                         px-2 py-1 text-xs rounded
-                        ${q.difficulty === 'easy' ? 'bg-green-500/20 text-green-300' : ''}
-                        ${q.difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-300' : ''}
-                        ${q.difficulty === 'hard' ? 'bg-red-500/20 text-red-300' : ''}
+                        ${q.difficulty === 'easy' ? 'bg-green-100 text-green-700' : ''}
+                        ${q.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : ''}
+                        ${q.difficulty === 'hard' ? 'bg-red-100 text-red-700' : ''}
                       `}>
                         {q.difficulty}
                       </span>
                     </div>
                   </div>
-                  <p className="text-slate-200">{q.question}</p>
+                  <p className="text-slate-700">{q.question}</p>
                 </div>
               ))}
             </div>
@@ -422,7 +422,7 @@ export default function InterviewPreparePage() {
               </Button>
               <Button
                 onClick={handleStartInterview}
-                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 flex items-center gap-2"
+                className="bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 flex items-center gap-2 shadow-md"
               >
                 Start Interview <ArrowRight className="w-4 h-4" />
               </Button>
