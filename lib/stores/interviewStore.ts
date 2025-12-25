@@ -12,6 +12,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { InterviewService } from '../services';
+import { useAuthStore } from './authStore';
 import type { InterviewQuestion, InterviewResponse, InterviewSession } from '../types';
 import { FILE_CONSTANTS, MESSAGES } from '../constants';
 
@@ -44,7 +45,7 @@ interface InterviewStore {
   generateQuestions: (jobDescOverride?: string) => Promise<void>;
   startInterview: () => Promise<void>;
   addResponse: (response: InterviewResponse) => Promise<void>;
-  completeInterview: () => Promise<void>;
+  completeInterview: () => Promise<number | undefined>;
   fetchPreviousSessions: () => Promise<void>;
   clearCurrentSession: () => void;
   resetInterview: () => void;
@@ -142,23 +143,64 @@ export const useInterviewStore = create<InterviewStore>()(
           return;
         }
 
-        set({ error: null });
+        if (!state.jobDescription.trim()) {
+          set({ error: 'Job description is required to start interview' });
+          return;
+        }
+
+        set({ isGenerating: true, error: null });
 
         try {
-          const session = await InterviewService.startSession(
-            state.jobDescription,
-            state.cvData.parsedContent
+          // Get access token from auth store
+          const accessToken = useAuthStore.getState().accessToken;
+
+          if (!accessToken) {
+            throw new Error('Please login to start an interview');
+          }
+
+          // Extract job title (first line) and description from combined text
+          const lines = state.jobDescription.split('\n');
+          const jobTitle = lines[0]?.trim() || 'Interview Position';
+          const jobDescription = lines.slice(2).join('\n').trim() || state.jobDescription;
+
+          // Step 1: Upload CV and job description to backend, get cv_id and prompt_id
+          const { cv_id, prompt_id } = await InterviewService.uploadUserData(
+            state.cvData.file,
+            state.cvData.parsedContent || null,
+            jobTitle, // job topic (extracted from first line)
+            jobDescription, // job text (remaining content)
+            accessToken // Pass access token for authentication
           );
 
-          // Extract backend session ID if returned
-          const backendSessionId = typeof session.id === 'number' ? session.id : null;
+          console.log('✅ User data uploaded - cv_id:', cv_id, 'prompt_id:', prompt_id);
 
-          set({ 
+          // Step 2: Create session with cv_id and prompt_id, get session_id
+          const { session_id } = await InterviewService.startSession(cv_id, prompt_id, accessToken);
+
+          console.log('✅ Session created - session_id:', session_id);
+
+          // Step 3: Create local session object for UI
+          const session: InterviewSession = {
+            id: session_id,
+            jobDescription: state.jobDescription,
+            cvContent: state.cvData.parsedContent,
+            questions: state.interviewQuestions,
+            responses: [],
+            status: 'in-progress',
+            createdAt: new Date(),
+          };
+
+          set({
             currentSession: session,
-            backendSessionId 
+            backendSessionId: session_id,
+            isGenerating: false,
+            error: null,
           });
         } catch (err: any) {
-          set({ error: err?.message || 'Failed to start interview' });
+          set({
+            error: err?.message || 'Failed to start interview',
+            isGenerating: false,
+          });
           throw err;
         }
       },
@@ -197,7 +239,7 @@ export const useInterviewStore = create<InterviewStore>()(
       completeInterview: async () => {
         const state = get();
 
-        if (!state.currentSession) {
+        if (!state.backendSessionId) {
           set({ error: 'No active interview session' });
           return;
         }
@@ -205,22 +247,30 @@ export const useInterviewStore = create<InterviewStore>()(
         set({ isGenerating: true, error: null });
 
         try {
-          await InterviewService.completeSession(state.currentSession.id);
+          // Get access token from auth store
+          const accessToken = useAuthStore.getState().accessToken;
+          if (!accessToken) {
+            throw new Error('Not authenticated');
+          }
 
-          set((state) => ({
-            currentSession: state.currentSession
-              ? {
-                  ...state.currentSession,
-                  status: 'completed',
-                  completedAt: new Date(),
-                }
-              : null,
-          }));
+          // Call backend to complete session
+          await InterviewService.completeSession(state.backendSessionId, accessToken);
+
+          // Clear all session state (expire sessionid, promptid, cvid)
+          set({
+            currentSession: null,
+            backendSessionId: null,
+            cvData: { file: null, fileName: '' },
+            jobDescription: '',
+            interviewQuestions: [],
+            error: null,
+            isGenerating: false,
+          });
+
+          return state.backendSessionId; // Return session ID for redirect
         } catch (err: any) {
-          set({ error: err.message || 'Failed to complete interview' });
+          set({ error: err.message || 'Failed to complete interview', isGenerating: false });
           throw err;
-        } finally {
-          set({ isGenerating: false });
         }
       },
 
@@ -238,10 +288,10 @@ export const useInterviewStore = create<InterviewStore>()(
       },
 
       clearCurrentSession: () => {
-        set({ 
-          currentSession: null, 
+        set({
+          currentSession: null,
           backendSessionId: null,
-          error: null 
+          error: null,
         });
       },
 

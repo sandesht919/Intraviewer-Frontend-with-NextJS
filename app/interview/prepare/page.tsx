@@ -56,6 +56,7 @@ export default function InterviewPreparePage() {
   // Local state for managing steps
   const [currentStep, setCurrentStep] = useState<'upload' | 'describe' | 'preview'>('upload');
   const [dragActive, setDragActive] = useState(false);
+  const [localJobTitle, setLocalJobTitle] = useState('');
   const [localJobDesc, setLocalJobDesc] = useState('');
   const [showPreview, setShowPreview] = useState(false);
 
@@ -98,11 +99,14 @@ export default function InterviewPreparePage() {
    * Handle generate questions click
    */
   const handleGenerateQuestions = async () => {
+    // Combine job title and description
+    const fullJobDescription = `${localJobTitle}\n\n${localJobDesc}`;
+    
     // Persist job description in the hook state for later use
-    setJobDescription(localJobDesc);
-    // Pass the local job description to avoid relying on the
+    setJobDescription(fullJobDescription);
+    // Pass the full job description to avoid relying on the
     // asynchronous state update; the hook accepts an override.
-    await generateQuestions(localJobDesc);
+    await generateQuestions(fullJobDescription);
     setCurrentStep('preview');
   };
 
@@ -168,7 +172,7 @@ export default function InterviewPreparePage() {
           <div
             className={`
               flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${localJobDesc ? 'bg-blue-500' : 'bg-slate-800'}
+              ${localJobTitle && localJobDesc ? 'bg-blue-500' : 'bg-slate-800'}
             `}
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
@@ -179,13 +183,13 @@ export default function InterviewPreparePage() {
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
                 ${
-                  currentStep === 'describe' || localJobDesc
+                  currentStep === 'describe' || (localJobTitle && localJobDesc)
                     ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
                     : 'bg-slate-800 text-slate-500'
                 }
               `}
             >
-              {localJobDesc ? <CheckCircle className="w-6 h-6" /> : '2'}
+              {(localJobTitle && localJobDesc) ? <CheckCircle className="w-6 h-6" /> : '2'}
             </div>
             <span className="text-sm font-medium text-white">Job Description</span>
           </div>
@@ -231,7 +235,7 @@ export default function InterviewPreparePage() {
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Upload Your CV (Optional)</h2>
               <p className="text-slate-600">
-                Your CV helps us generate more personalized questions. Supported formats: PDF, JPG, PNG, DOCX (Max 10MB). You can skip this if you prefer.
+                Your CV helps us generate more personalized questions. Supported formats: PDF, Images (JPG, PNG, etc.), DOCX (Max 10MB). You can skip this if you prefer.
               </p>
             </div>
 
@@ -257,7 +261,7 @@ export default function InterviewPreparePage() {
 
                 <input
                   type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  accept=".pdf,.doc,.docx,image/*"
                   onChange={(e) => {
                     if (e.target.files?.[0]) {
                       handleFileUpload(e.target.files[0]);
@@ -316,20 +320,40 @@ export default function InterviewPreparePage() {
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Describe Your Target Role</h2>
               <p className="text-slate-600">
-                Tell us about the position you're interviewing for. Include key responsibilities, required skills, and any other relevant details.
+                Tell us about the position you're interviewing for. Include the job title and detailed description.
               </p>
+            </div>
+
+            {/* Job Title Input */}
+            <div className="mb-6">
+              <label htmlFor="job-title" className="block text-sm font-medium text-slate-700 mb-3">
+                Job Title <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="job-title"
+                value={localJobTitle}
+                onChange={(e) => setLocalJobTitle(e.target.value)}
+                placeholder="E.g., Senior Frontend Engineer"
+                className="
+                  w-full px-4 py-3 bg-white border border-sky-200 rounded-lg
+                  text-slate-800 placeholder-slate-400
+                  focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400
+                  transition-all
+                "
+              />
             </div>
 
             {/* Job Description Input */}
             <div className="mb-6">
               <label htmlFor="job-desc" className="block text-sm font-medium text-slate-700 mb-3">
-                Job Description or Role Details
+                Job Description <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="job-desc"
                 value={localJobDesc}
                 onChange={(e) => setLocalJobDesc(e.target.value)}
-                placeholder="E.g., Senior Frontend Engineer at a tech startup. Required: React, TypeScript, Web Performance. Responsibilities: Lead frontend architecture, mentor junior devs, optimize performance..."
+                placeholder="E.g., We're seeking a skilled engineer to lead our frontend team. Required: React, TypeScript, Web Performance. Responsibilities: Lead frontend architecture, mentor junior devs, optimize performance..."
                 rows={6}
                 className="
                   w-full px-4 py-3 bg-white border border-sky-200 rounded-lg
@@ -352,7 +376,7 @@ export default function InterviewPreparePage() {
                 Back
               </Button>
               <Button
-                disabled={!localJobDesc.trim() || isGenerating}
+                disabled={!localJobTitle.trim() || !localJobDesc.trim() || isGenerating}
                 onClick={handleGenerateQuestions}
                 className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 flex items-center gap-2 shadow-md"
               >

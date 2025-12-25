@@ -30,13 +30,51 @@ export class InterviewService {
   }
 
   /**
-   * Start a new interview session
+   * Upload CV and job description to backend
+   * Returns cv_id and prompt_id needed for session creation
+   */
+  static async uploadUserData(
+    cvFile: File | null,
+    cvText: string | null,
+    jobTopic: string,
+    jobText: string,
+    accessToken?: string
+  ): Promise<{ cv_id: number; prompt_id: number }> {
+    const formData = new FormData();
+
+    if (cvFile) {
+      formData.append('cv_file', cvFile);
+    } else if (cvText) {
+      formData.append('cv_text', cvText);
+    }
+
+    formData.append('job_topic', jobTopic);
+    formData.append('job_text', jobText);
+
+    const headers: HeadersInit = {};
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/userinput/data`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+      body: formData,
+    });
+
+    return handleAPIResponse<{ cv_id: number; prompt_id: number }>(response);
+  }
+
+  /**
+   * Start a new interview session with cv_id and prompt_id
+   * Returns session_id from backend
    */
   static async startSession(
-    jobDescription: string,
-    cvContent?: string,
+    cvId: number,
+    promptId: number,
     accessToken?: string
-  ): Promise<InterviewSession> {
+  ): Promise<{ message: string; session_id: number }> {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
@@ -45,14 +83,14 @@ export class InterviewService {
       headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/interviews/start`, {
+    const response = await fetch(`${API_BASE_URL}/sessions/start`, {
       method: 'POST',
       headers,
       credentials: 'include',
-      body: JSON.stringify({ jobDescription, cvContent }),
+      body: JSON.stringify({ cv_id: cvId, prompt_id: promptId }),
     });
 
-    return handleAPIResponse<InterviewSession>(response);
+    return handleAPIResponse<{ message: string; session_id: number }>(response);
   }
 
   /**
@@ -96,7 +134,7 @@ export class InterviewService {
       headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/interviews/${sessionId}/complete`, {
+    const response = await fetch(`${API_BASE_URL}/sessions/end/${sessionId}`, {
       method: 'POST',
       headers,
       credentials: 'include',
@@ -126,6 +164,27 @@ export class InterviewService {
     });
 
     return handleAPIResponse(response);
+  }
+
+  /**
+   * Fetch all interview sessions for current user
+   */
+  static async fetchSessions(accessToken?: string): Promise<InterviewSession[]> {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/interviews/sessions`, {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+    });
+
+    return handleAPIResponse<InterviewSession[]>(response);
   }
 
   /**

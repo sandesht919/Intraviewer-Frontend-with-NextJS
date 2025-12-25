@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { useInterviewStore } from '@/lib/stores/interviewStore';
 import { useMediaStream } from '@/lib/hooks/useMediaStream';
+import PreviousSessionsModal from '@/components/PreviousSessionsModal';
 
 /**
  * Interview Session Component
@@ -54,11 +55,24 @@ export default function InterviewSessionPage() {
   const router = useRouter();
 
   // Get interview data from Zustand store
-  const { currentSession, addResponse, completeInterview } = useInterviewStore();
+  const { 
+    currentSession, 
+    backendSessionId,
+    previousSessions,
+    addResponse, 
+    completeInterview,
+    fetchPreviousSessions,
+    clearCurrentSession
+  } = useInterviewStore();
+
+  // State to control when to show previous sessions modal
+  const [showSessionsModal, setShowSessionsModal] = useState(false);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
 
   // Media streaming hook (handles audio chunks + frame capture)
+  // Only initialize with sessionId when we have a valid backend session
   const { sessionId, status: streamStatus, startRecording: startMediaStream, stopRecording: stopMediaStream } = useMediaStream({
-    interviewSessionId: typeof currentSession?.id === 'number' ? currentSession.id : undefined,
+    interviewSessionId: backendSessionId || undefined,
     audioChunkDuration: 10000, // 10 seconds
     frameInterval: 2000 // 2 seconds
   });
@@ -80,20 +94,29 @@ export default function InterviewSessionPage() {
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const responseStartTimeRef = useRef<number>(0);
 
-  // Check if interview session exists
+  // Check if interview session exists and has backend session ID
   useEffect(() => {
-    if (!currentSession) {
-      setSessionError('No active interview session. Please start from preparation page.');
-      setTimeout(() => router.push('/interview/prepare'), 3000);
-    }
-  }, [currentSession, router]);
+    const validateSession = async () => {
+      // If no current session or no backend session ID, show previous sessions modal
+      if (!currentSession || !backendSessionId) {
+        setIsLoadingSessions(true);
+        setShowSessionsModal(true);
+        await fetchPreviousSessions();
+        setIsLoadingSessions(false);
+      }
+    };
+
+    validateSession();
+  }, [currentSession, backendSessionId, fetchPreviousSessions]);
 
   /**
    * Initialize media devices and start streaming
    * Integrates with useMediaStream hook for chunked recording
+   * ONLY starts when there's a valid backend session
    */
   useEffect(() => {
-    if (!currentSession || localStream) return;
+    // Don't start media if no current session or no backend session ID
+    if (!currentSession || !backendSessionId || localStream) return;
 
     const setupMedia = async () => {
       try {
@@ -119,7 +142,7 @@ export default function InterviewSessionPage() {
         if (videoRef.current && canvasRef.current) {
           await startMediaStream(videoRef.current, canvasRef.current);
           responseStartTimeRef.current = Date.now();
-          console.log('📹 Media streaming started - Session ID:', sessionId);
+          console.log('📹 Media streaming started - Backend Session ID:', backendSessionId);
         }
 
       } catch (err: any) {
@@ -140,7 +163,7 @@ export default function InterviewSessionPage() {
       // Stop media streaming
       stopMediaStream();
     };
-  }, [currentSession]); // Only run once when currentSession is available
+  }, [currentSession, backendSessionId]); // Re-run if session changes
 
   /**
    * Question timer countdown
@@ -175,6 +198,7 @@ export default function InterviewSessionPage() {
         questionId: currentSession?.questions[currentQuestionIndex].id || '',
         answer: 'Response recorded (streaming session: ' + sessionId + ')',
         duration: Math.round(duration),
+        timestamp: new Date(),
         audioBlob: undefined // Streaming handled by WebSocket
       });
 
@@ -211,6 +235,14 @@ export default function InterviewSessionPage() {
    */
   const handleCompleteInterview = async () => {
     try {
+      // Store session ID before clearing
+      const sessionIdForRedirect = backendSessionId;
+
+      if (!sessionIdForRedirect) {
+        setSessionError('No active session to complete');
+        return;
+      }
+
       // Save final response metadata
       await saveResponseMetadata();
       
@@ -222,16 +254,16 @@ export default function InterviewSessionPage() {
         localStream.getTracks().forEach(track => track.stop());
       }
       
-      // Complete interview in state (sends to backend)
+      // Complete interview in state (sends to backend and clears state)
       await completeInterview();
 
       console.log('🎬 Interview completed - Total chunks:', streamStatus.chunksRecorded, 'frames:', streamStatus.framesRecorded);
+      console.log('📊 Session cleared. Redirecting to results:', sessionIdForRedirect);
 
-      // Wait briefly then redirect to results
-      setTimeout(() => {
-        router.push(`/interview/results/${currentSession?.id}`);
-      }, 2000);
+      // Redirect to results page
+      router.push(`/interview/results/${sessionIdForRedirect}`);
     } catch (err: any) {
+      console.error('❌ Failed to complete interview:', err);
       setSessionError(err.message || 'Failed to complete interview');
     }
   };
@@ -269,15 +301,41 @@ export default function InterviewSessionPage() {
     }
   };
 
-  // Show loading state if session not ready
-  if (!currentSession) {
+  /**
+   * Handle create new session from modal
+   */
+  const handleCreateNewSession = () => {
+    clearCurrentSession();
+    router.push('/interview/prepare');
+  };
+
+  /**
+   * Handle close modal (go back to dashboard)
+   */
+  const handleCloseModal = () => {
+    router.push('/dashboard');
+  };
+
+  // Show sessions modal if no valid backend session
+  if (showSessionsModal || !currentSession || !backendSessionId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader className="w-12 h-12 animate-spin text-sky-600 mx-auto mb-4" />
-          <p className="text-slate-800 text-lg">Loading interview session...</p>
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center">
+          {/* Background decorative elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
+          </div>
         </div>
-      </div>
+
+        {/* Previous Sessions Modal */}
+        <PreviousSessionsModal
+          sessions={previousSessions}
+          isLoading={isLoadingSessions}
+          onCreateNew={handleCreateNewSession}
+          onClose={handleCloseModal}
+        />
+      </>
     );
   }
 

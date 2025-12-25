@@ -32,11 +32,21 @@ export const FILE_CONSTANTS = {
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/bmp',
+    'image/webp',
   ],
   CV_EXTENSION_LABELS: {
     'application/pdf': '.pdf',
     'application/msword': '.doc',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+    'image/jpeg': '.jpg/.jpeg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'image/bmp': '.bmp',
+    'image/webp': '.webp',
   },
 } as const;
 
