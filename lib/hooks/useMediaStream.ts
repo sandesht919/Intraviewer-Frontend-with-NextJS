@@ -11,11 +11,12 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 interface MediaStreamConfig {
   audioChunkDuration?: number; // milliseconds (default: 10000)
   frameInterval?: number; // milliseconds (default: 2000)
-  websocketUrl?: string;
+  apiBaseUrl?: string; // API base URL (default: http://localhost:8000)
   interviewSessionId?: number;
 }
 
@@ -25,15 +26,19 @@ interface MediaStreamStatus {
   chunksRecorded: number;
   framesRecorded: number;
   error: string | null;
+  sessionId: number | null; // Backend session ID
 }
 
 export const useMediaStream = (config: MediaStreamConfig = {}) => {
   const {
     audioChunkDuration = 10000,
     frameInterval = 2000,
-    websocketUrl = "ws://localhost:8000/ws/media-stream",
+    apiBaseUrl = "http://localhost:8000",
     interviewSessionId,
   } = config;
+
+  // Get auth token from store
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   // State
   const [status, setStatus] = useState<MediaStreamStatus>({
@@ -42,6 +47,7 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
     chunksRecorded: 0,
     framesRecorded: 0,
     error: null,
+    sessionId: null,
   });
 
   // Refs
@@ -59,63 +65,127 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
 
   const frameIntervalIdRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const backendSessionIdRef = useRef<number | null>(null);
+
+  /**
+   * Create backend session via API
+   */
+  const createBackendSession = useCallback(async () => {
+    if (!accessToken) {
+      throw new Error("No access token available");
+    }
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/sessions/start`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Failed to create session");
+      }
+
+      const data = await response.json();
+      backendSessionIdRef.current = data.session_id;
+      setStatus((prev) => ({ ...prev, sessionId: data.session_id }));
+
+      console.log("✅ Backend session created:", data.session_id);
+      return data.session_id;
+    } catch (err: any) {
+      console.error("❌ Failed to create session:", err);
+      throw err;
+    }
+  }, [accessToken, apiBaseUrl]);
 
   /**
    * Initialize WebSocket connection
    */
-  const connectWebSocket = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
+  const connectWebSocket = useCallback(
+    async (sessionId: number) => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    const ws = new WebSocket(websocketUrl);
-
-    ws.onopen = () => {
-      console.log("🔌 WebSocket connected");
-
-      // Initialize session
-      ws.send(
-        JSON.stringify({
-          type: "session_init",
-          session_id: sessionIdRef.current,
-          interview_session_id: interviewSessionId,
-          user_id: 1, // TODO: Get from auth
-          timestamp: new Date().toISOString(),
-        })
-      );
-
-      setStatus((prev) => ({ ...prev, isConnected: true, error: null }));
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log("📨 Received:", data.type);
-
-        if (data.type === "session_init_ack") {
-          console.log("✅ Session initialized:", data.session_id);
-        }
-      } catch (err) {
-        console.error("Failed to parse message:", err);
+      if (!accessToken) {
+        console.error("❌ No access token available");
+        setStatus((prev) => ({ ...prev, error: "Authentication required" }));
+        return;
       }
-    };
 
-    ws.onerror = (error) => {
-      console.error("❌ WebSocket error:", error);
-      setStatus((prev) => ({ ...prev, error: "WebSocket connection error" }));
-    };
+      // WebSocket URL with session_id in path and token in query
+      const wsProtocol = apiBaseUrl.startsWith("https") ? "wss" : "ws";
+      const wsHost = apiBaseUrl.replace(/^https?:\/\//, "");
+      const wsUrl = `${wsProtocol}://${wsHost}/ws/sessions/${sessionId}
+      )}`;
 
-    ws.onclose = () => {
-      console.log("🔌 WebSocket disconnected");
-      setStatus((prev) => ({ ...prev, isConnected: false }));
+      console.log("🔌 Connecting to WebSocket:", wsUrl);
+      const ws = new WebSocket(wsUrl);
 
-      // Attempt reconnect after 3 seconds
-      reconnectTimeoutRef.current = setTimeout(() => {
-        console.log("🔄 Attempting to reconnect...");
-        connectWebSocket();
-      }, 3000);
-    };
+      ws.onopen = () => {
+        console.log("🔌 WebSocket connected to session:", sessionId);
 
-    wsRef.current = ws;
-  }, [websocketUrl, interviewSessionId]);
+        // Send initial metadata
+        ws.send(
+          JSON.stringify({
+            type: "session_init",
+            client_session_id: sessionIdRef.current,
+            backend_session_id: sessionId,
+            interview_session_id: interviewSessionId,
+            timestamp: new Date().toISOString(),
+          })
+        );
+
+        setStatus((prev) => ({ ...prev, isConnected: true, error: null }));
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("📨 Received message type:", data.type);
+          console.log("📦 Full data:", data);
+
+          if (data.type === "session_init_ack") {
+            console.log("✅ Session initialized:", data.session_id);
+          } else if (data.type === "transcription") {
+            console.log(
+              "🎤 Transcription received:",
+              data.text || data.transcription
+            );
+          } else if (data.type === "audio_received") {
+            console.log("🔊 Audio chunk received:", data);
+          } else if (data.type === "frame_received") {
+            console.log("📸 Frame received:", data);
+          }
+        } catch (err) {
+          console.error("❌ Failed to parse message:", err);
+          console.log("📄 Raw message:", event.data);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("❌ WebSocket error:", error);
+        setStatus((prev) => ({ ...prev, error: "WebSocket connection error" }));
+      };
+
+      ws.onclose = () => {
+        console.log("🔌 WebSocket disconnected");
+        setStatus((prev) => ({ ...prev, isConnected: false }));
+
+        // Attempt reconnect after 3 seconds if we have a token and session
+        if (accessToken && sessionId) {
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log("🔄 Attempting to reconnect...");
+            connectWebSocket(sessionId);
+          }, 3000);
+        }
+      };
+
+      wsRef.current = ws;
+    },
+    [apiBaseUrl, interviewSessionId, accessToken]
+  );
 
   /**
    * Send binary blob via WebSocket
@@ -335,7 +405,12 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
       canvasElement: HTMLCanvasElement
     ) => {
       try {
-        // Get media stream
+        console.log("🎬 Starting recording...");
+
+        // Step 1: Create backend session first
+        const sessionId = await createBackendSession();
+
+        // Step 2: Get media stream
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 1280, height: 720 },
           audio: {
@@ -353,20 +428,26 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
         videoElement.srcObject = stream;
         await videoElement.play();
 
-        // Connect WebSocket
-        connectWebSocket();
+        // Step 3: Connect WebSocket with session ID
+        await connectWebSocket(sessionId);
 
-        // Wait for WebSocket to be ready
-        await new Promise((resolve) => {
+        // Step 4: Wait for WebSocket to be ready
+        await new Promise((resolve, reject) => {
           const checkConnection = setInterval(() => {
             if (wsRef.current?.readyState === WebSocket.OPEN) {
               clearInterval(checkConnection);
               resolve(true);
             }
           }, 100);
+
+          // Timeout after 10 seconds
+          setTimeout(() => {
+            clearInterval(checkConnection);
+            reject(new Error("WebSocket connection timeout"));
+          }, 10000);
         });
 
-        // Start recording
+        // Step 5: Start recording
         recordingStartTimeRef.current = Date.now();
         currentChunkStartTimeRef.current = Date.now();
 
@@ -374,13 +455,23 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
         startFrameCapture();
 
         setStatus((prev) => ({ ...prev, isRecording: true, error: null }));
-        console.log("🎬 Recording started");
+        console.log("✅ Recording started successfully");
       } catch (err: any) {
-        console.error("Failed to start recording:", err);
+        console.error("❌ Failed to start recording:", err);
         setStatus((prev) => ({ ...prev, error: err.message }));
+
+        // Cleanup on error
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        }
       }
     },
-    [connectWebSocket, startAudioRecording, startFrameCapture]
+    [
+      createBackendSession,
+      connectWebSocket,
+      startAudioRecording,
+      startFrameCapture,
+    ]
   );
 
   /**

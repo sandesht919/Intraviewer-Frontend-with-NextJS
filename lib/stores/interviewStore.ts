@@ -12,6 +12,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { API_CONFIG } from "../config/api";
+import { useAuthStore } from "./authStore";
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
 
@@ -149,7 +150,11 @@ export const useInterviewStore = create<InterviewStore>()(
         set({ isGenerating: true, error: null });
 
         try {
-          const endpoint = `${API_BASE_URL}/post/applications`;
+          const endpoint = `${API_BASE_URL}/userinput/data`;
+
+          // Get the access token from authStore
+          const token = useAuthStore.getState().accessToken;
+          console.log("Using token:", token);
 
           // Create FormData with CV file (if available) and job description text
           const formData = new FormData();
@@ -162,6 +167,9 @@ export const useInterviewStore = create<InterviewStore>()(
 
           const resp = await fetch(endpoint, {
             method: "POST",
+            headers: {
+              ...(token && { Authorization: `Bearer ${token}` }),
+            },
             body: formData,
           });
 
@@ -239,10 +247,14 @@ export const useInterviewStore = create<InterviewStore>()(
 
         try {
           const endpoint = `${API_BASE_URL}/sessions/start`;
+          const token = useAuthStore.getState().accessToken;
 
           const resp = await fetch(endpoint, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(token && { Authorization: `Bearer ${token}` }),
+            },
             body: JSON.stringify({
               questions: state.interviewQuestions,
               jobDescription: state.jobDescription,
