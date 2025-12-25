@@ -103,7 +103,7 @@ export default function LoginPage() {
 
       // Redirect after a short delay to show success message
       setTimeout(() => {
-        router.push('/interview/prepare');
+        router.push('/dashboard');
       }, 800);
     } catch (err: any) {
       setLoginError(err.message || 'Login failed. Please try again.');

@@ -68,10 +68,10 @@ export default function ProfilePage() {
     if (user && mounted) {
       setFormData(prev => ({
         ...prev,
-        firstname: user.firstname || '',
-        lastname: user.lastname || '',
-        name: user.name || `${user.firstname || ''} ${user.lastname || ''}`.trim(),
-        email: user.email || '',
+        firstname: user.firstname ?? '',
+        lastname: user.lastname ?? '',
+        name: user.name ?? `${user.firstname ?? ''} ${user.lastname ?? ''}`.trim(),
+        email: user.email ?? '',
       }));
     }
   }, [user, mounted]);
@@ -104,10 +104,10 @@ export default function ProfilePage() {
   // Get user initials for avatar
   const getUserInitials = (): string => {
     if (user?.firstname && user?.lastname) {
-      return `${user.firstname[0]}${user.lastname[0]}`.toUpperCase();
+      return `${user.firstname?.[0] || ''}${user.lastname?.[0] || ''}`.toUpperCase();
     }
     if (user?.firstname) {
-      return user.firstname[0].toUpperCase();
+      return user.firstname?.[0]?.toUpperCase() || 'U';
     }
     if (formData.name) {
       return formData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);

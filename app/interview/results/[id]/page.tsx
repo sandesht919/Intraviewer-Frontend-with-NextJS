@@ -50,7 +50,7 @@ import {
   Eye,
   Clock
 } from 'lucide-react';
-import { useInterview } from '@/lib/hooks/useInterview';
+import { useInterviewStore } from '@/lib/stores/interviewStore';
 
 /**
  * Mock analysis data structure
@@ -97,7 +97,7 @@ export default function InterviewResultsPage() {
   const params = useParams();
   const sessionId = params.id as string;
 
-  const { currentSession } = useInterview();
+  const { currentSession } = useInterviewStore();
 
   // Local state
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
@@ -263,19 +263,11 @@ export default function InterviewResultsPage() {
 
   if (isLoading) {
     return (
-<<<<<<< HEAD
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <Loader className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-900 text-lg">Analyzing your interview...</p>
-          <p className="text-gray-600 text-sm mt-2">This may take a few moments</p>
-=======
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 animate-spin text-sky-600 mx-auto mb-4" />
           <p className="text-slate-800 text-lg">Analyzing your interview...</p>
           <p className="text-slate-600 text-sm mt-2">This may take a few moments</p>
->>>>>>> dc11
         </div>
       </div>
     );
@@ -283,11 +275,7 @@ export default function InterviewResultsPage() {
 
   if (error || !analysisData) {
     return (
-<<<<<<< HEAD
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
-=======
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center px-4">
->>>>>>> dc11
         <div className="text-center max-w-md">
           <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
           <p className="text-slate-800 text-lg mb-2">Failed to load results</p>
@@ -308,16 +296,6 @@ export default function InterviewResultsPage() {
   );
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-white py-12 px-4">
-      <div className="relative max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Interview Results
-          </h1>
-          <p className="text-gray-600 text-lg">
-=======
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 py-12 px-4">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -332,17 +310,12 @@ export default function InterviewResultsPage() {
             Interview Results
           </h1>
           <p className="text-slate-600 text-lg">
->>>>>>> dc11
             Here's your detailed performance analysis
           </p>
         </div>
 
         {/* Overall Score Card */}
-<<<<<<< HEAD
-        <div className="mb-12 bg-white border border-gray-200 rounded-3xl p-8 lg:p-12 shadow-lg">
-=======
         <div className="mb-12 backdrop-blur-sm bg-white/80 border border-sky-200 rounded-3xl p-8 lg:p-12 shadow-xl">
->>>>>>> dc11
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Score Circle */}
             <div className="flex justify-center">
