@@ -76,7 +76,7 @@ const Drawer = ({ isOpen, onToggle }: DrawerProps) => {
                 <div className="w-10 h-10 bg-gradient-to-r from-sky-400 to-indigo-400 rounded-full flex items-center justify-center">
                   {user?.firstname && user?.lastname ? (
                     <span className="text-white text-sm font-medium">
-                      {user.firstname[0]}{user.lastname[0]}
+                      {user.firstname?.[0]}{user.lastname?.[0]}
                     </span>
                   ) : (
                     <User className="w-5 h-5 text-white" />
@@ -95,7 +95,7 @@ const Drawer = ({ isOpen, onToggle }: DrawerProps) => {
               <div className="w-10 h-10 bg-gradient-to-r from-sky-400 to-indigo-400 rounded-full flex items-center justify-center mx-auto">
                 {user?.firstname && user?.lastname ? (
                   <span className="text-white text-sm font-medium">
-                    {user.firstname[0]}{user.lastname[0]}
+                    {user.firstname?.[0]}{user.lastname?.[0]}
                   </span>
                 ) : (
                   <User className="w-5 h-5 text-white" />

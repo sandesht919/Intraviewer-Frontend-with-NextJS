@@ -50,7 +50,7 @@ import {
   Eye,
   Clock
 } from 'lucide-react';
-import { useInterview } from '@/lib/hooks/useInterview';
+import { useInterviewStore } from '@/lib/stores/interviewStore';
 
 /**
  * Mock analysis data structure
@@ -97,7 +97,7 @@ export default function InterviewResultsPage() {
   const params = useParams();
   const sessionId = params.id as string;
 
-  const { currentSession } = useInterview();
+  const { currentSession } = useInterviewStore();
 
   // Local state
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);

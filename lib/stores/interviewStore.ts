@@ -9,12 +9,11 @@
  * - Interview operations
  */
 
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { API_CONFIG } from "../config/api";
-import { useAuthStore } from "./authStore";
-
-const API_BASE_URL = API_CONFIG.BASE_URL;
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { InterviewService } from '../services';
+import type { InterviewQuestion, InterviewResponse, InterviewSession } from '../types';
+import { FILE_CONSTANTS, MESSAGES } from '../constants';
 
 /**
  * Interface for CV data structure
@@ -26,40 +25,6 @@ interface CVData {
 }
 
 /**
- * Interface for interview question structure
- */
-interface InterviewQuestion {
-  id: string;
-  question: string;
-  category: string;
-  difficulty: "easy" | "medium" | "hard";
-}
-
-/**
- * Interface for user response during interview
- */
-interface InterviewResponse {
-  questionId: string;
-  answer: string;
-  duration: number;
-  audioBlob?: Blob;
-}
-
-/**
- * Interface for interview session data
- */
-interface InterviewSession {
-  id: string | number;
-  jobTitle: string;
-  jobDescription: string;
-  questions: InterviewQuestion[];
-  responses: InterviewResponse[];
-  startTime?: Date;
-  endTime?: Date;
-  status: "not-started" | "in-progress" | "completed";
-}
-
-/**
  * Interview Store State
  */
 interface InterviewStore {
@@ -68,6 +33,8 @@ interface InterviewStore {
   jobDescription: string;
   interviewQuestions: InterviewQuestion[];
   currentSession: InterviewSession | null;
+  backendSessionId: number | null; // Backend session ID from /sessions/start
+  previousSessions: InterviewSession[];
   isGenerating: boolean;
   error: string | null;
 
@@ -78,6 +45,8 @@ interface InterviewStore {
   startInterview: () => Promise<void>;
   addResponse: (response: InterviewResponse) => Promise<void>;
   completeInterview: () => Promise<void>;
+  fetchPreviousSessions: () => Promise<void>;
+  clearCurrentSession: () => void;
   resetInterview: () => void;
   setError: (error: string | null) => void;
 }
@@ -91,11 +60,13 @@ export const useInterviewStore = create<InterviewStore>()(
       // Initial State
       cvData: {
         file: null,
-        fileName: "",
+        fileName: '',
       },
-      jobDescription: "",
+      jobDescription: '',
       interviewQuestions: [],
       currentSession: null,
+      backendSessionId: null,
+      previousSessions: [],
       isGenerating: false,
       error: null,
 
@@ -105,33 +76,30 @@ export const useInterviewStore = create<InterviewStore>()(
       uploadCV: async (file) => {
         try {
           if (!file) {
-            set({ cvData: { file: null, fileName: "" }, error: null });
+            set({ cvData: { file: null, fileName: '' }, error: null });
             return;
           }
 
           // Validate file type
-          const allowedTypes = [
-            "application/pdf",
-            "image/jpeg",
-            "image/png",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          ];
-          if (!allowedTypes.includes(file.type)) {
+          if (!FILE_CONSTANTS.ALLOWED_CV_TYPES.includes(file.type as any)) {
             throw new Error(
-              "Invalid file type. Please upload PDF, JPG, PNG, or DOCX."
+              `Invalid file type. Allowed: ${Object.values(FILE_CONSTANTS.CV_EXTENSION_LABELS).join(
+                ', '
+              )}`
             );
           }
 
-          // Validate file size (max 10MB)
-          if (file.size > 10 * 1024 * 1024) {
-            throw new Error("File size exceeds 10MB limit.");
+          // Validate file size
+          if (file.size > FILE_CONSTANTS.MAX_CV_SIZE) {
+            throw new Error(
+              `File size exceeds ${FILE_CONSTANTS.MAX_CV_SIZE / 1024 / 1024}MB limit.`
+            );
           }
 
           // Store file locally
           set({ cvData: { file, fileName: file.name }, error: null });
         } catch (err: any) {
-          set({ error: err?.message || "Failed to upload CV" });
+          set({ error: err?.message || 'Failed to upload CV' });
         }
       },
 
@@ -139,106 +107,37 @@ export const useInterviewStore = create<InterviewStore>()(
 
       generateQuestions: async (jobDescOverride) => {
         const state = get();
-        const effectiveJobDesc =
-          (jobDescOverride ?? state.jobDescription)?.trim() ?? "";
+        const effectiveJobDesc = (jobDescOverride ?? state.jobDescription)?.trim() ?? '';
 
         if (!effectiveJobDesc) {
-          set({ error: "Please provide a job description" });
+          set({ error: 'Please provide a job description' });
           return;
         }
 
         set({ isGenerating: true, error: null });
 
         try {
-          const endpoint = `${API_BASE_URL}/userinput/data`;
-
-          // Get the access token from authStore
-          const token = useAuthStore.getState().accessToken;
-          console.log("Using token:", token);
-
-          // Create FormData with CV file (if available) and job description text
-          const formData = new FormData();
-
-          if (state.cvData.file) {
-            formData.append("cv_file", state.cvData.file);
-          }
-
-          formData.append("job_text", effectiveJobDesc);
-
-          const resp = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              ...(token && { Authorization: `Bearer ${token}` }),
-            },
-            body: formData,
+          const data = await InterviewService.generateQuestions({
+            jobDescription: effectiveJobDesc,
+            cvContent: state.cvData.parsedContent,
           });
 
-          if (!resp.ok) {
-            const t = await resp.text();
-            throw new Error(t || "Server failed to create application");
-          }
-
-          const data = await resp.json();
-
-          // Store parsed CV content if returned
-          if (data.cv_raw) {
-            set((state) => ({
-              cvData: { ...state.cvData, parsedContent: data.cv_raw },
-            }));
-          }
-
-          // Mock questions for now
-          const mockQuestions: InterviewQuestion[] = [
-            {
-              id: "1",
-              question:
-                "Tell me about your most relevant project related to this role.",
-              category: "experience",
-              difficulty: "medium",
-            },
-            {
-              id: "2",
-              question:
-                "What are the key technologies you would use to solve this problem?",
-              category: "technical",
-              difficulty: "hard",
-            },
-            {
-              id: "3",
-              question: "How do you handle tight deadlines in your work?",
-              category: "behavioral",
-              difficulty: "medium",
-            },
-            {
-              id: "4",
-              question:
-                "Describe a challenging bug you encountered and how you resolved it.",
-              category: "technical",
-              difficulty: "medium",
-            },
-            {
-              id: "5",
-              question:
-                "How do you stay updated with the latest industry trends?",
-              category: "behavioral",
-              difficulty: "easy",
-            },
-          ];
-
-          set({ interviewQuestions: data.questions || mockQuestions });
+          set({
+            interviewQuestions: data.questions,
+            error: null,
+          });
         } catch (err: any) {
-          set({ error: err?.message || "Failed to generate questions" });
+          set({ error: err?.message || MESSAGES.INTERVIEW.GENERATION_FAILED });
         } finally {
           set({ isGenerating: false });
         }
       },
-
       startInterview: async () => {
         const state = get();
 
         if (state.interviewQuestions.length === 0) {
           set({
-            error: "No questions available. Please generate questions first.",
+            error: 'No questions available. Please generate questions first.',
           });
           return;
         }
@@ -246,43 +145,21 @@ export const useInterviewStore = create<InterviewStore>()(
         set({ error: null });
 
         try {
-          const endpoint = `${API_BASE_URL}/sessions/start`;
-          const token = useAuthStore.getState().accessToken;
+          const session = await InterviewService.startSession(
+            state.jobDescription,
+            state.cvData.parsedContent
+          );
 
-          const resp = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(token && { Authorization: `Bearer ${token}` }),
-            },
-            body: JSON.stringify({
-              questions: state.interviewQuestions,
-              jobDescription: state.jobDescription,
-              cvFileName: state.cvData.fileName || undefined,
-            }),
+          // Extract backend session ID if returned
+          const backendSessionId = typeof session.id === 'number' ? session.id : null;
+
+          set({ 
+            currentSession: session,
+            backendSessionId 
           });
-
-          if (!resp.ok) {
-            const t = await resp.text();
-            throw new Error(t || "Failed to start interview session");
-          }
-
-          const data = await resp.json();
-
-          const session: InterviewSession = {
-            id: data.sessionId,
-            jobTitle: data.jobTitle || "",
-            jobDescription: data.jobDescription,
-            questions: data.questions,
-            responses: [],
-            startTime: new Date(data.startTime),
-            status: data.status,
-          };
-
-          set({ currentSession: session });
         } catch (err: any) {
-          set({ error: err?.message || "Failed to start interview" });
-          throw err; // Re-throw to allow caller to handle
+          set({ error: err?.message || 'Failed to start interview' });
+          throw err;
         }
       },
 
@@ -290,7 +167,7 @@ export const useInterviewStore = create<InterviewStore>()(
         const state = get();
 
         if (!state.currentSession) {
-          set({ error: "No active interview session" });
+          set({ error: 'No active interview session' });
           return;
         }
 
@@ -306,22 +183,13 @@ export const useInterviewStore = create<InterviewStore>()(
 
         // Send to backend
         try {
-          const endpoint = `${API_BASE_URL}/sessions/responses`;
-
-          await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId: state.currentSession.id,
-              questionId: response.questionId,
-              answer: response.answer,
-              duration: response.duration,
-              audioUrl: response.audioBlob ? "pending-upload" : undefined,
-              videoUrl: undefined,
-            }),
-          });
+          await InterviewService.submitResponse(
+            state.currentSession.id,
+            response.questionId,
+            response.answer
+          );
         } catch (err: any) {
-          console.error("Failed to save response:", err);
+          console.error('Failed to save response:', err);
           // Continue even if backend fails
         }
       },
@@ -330,59 +198,67 @@ export const useInterviewStore = create<InterviewStore>()(
         const state = get();
 
         if (!state.currentSession) {
-          set({ error: "No active interview session" });
+          set({ error: 'No active interview session' });
           return;
         }
 
         set({ isGenerating: true, error: null });
 
         try {
-          const endpoint = `${API_BASE_URL}/sessions/complete`;
-
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId: state.currentSession.id,
-            }),
-          });
-
-          if (!response.ok) {
-            const text = await response.text();
-            throw new Error(text || "Failed to complete interview");
-          }
-
-          const data = await response.json();
+          await InterviewService.completeSession(state.currentSession.id);
 
           set((state) => ({
             currentSession: state.currentSession
               ? {
                   ...state.currentSession,
-                  status: data.status,
-                  endTime: new Date(data.endTime),
+                  status: 'completed',
+                  completedAt: new Date(),
                 }
               : null,
           }));
         } catch (err: any) {
-          set({ error: err.message || "Failed to complete interview" });
+          set({ error: err.message || 'Failed to complete interview' });
           throw err;
         } finally {
           set({ isGenerating: false });
         }
       },
 
+      fetchPreviousSessions: async () => {
+        set({ isGenerating: true, error: null });
+        try {
+          const sessions = await InterviewService.fetchSessions();
+          set({ previousSessions: sessions });
+        } catch (err: any) {
+          console.error('Failed to fetch previous sessions:', err);
+          set({ previousSessions: [] });
+        } finally {
+          set({ isGenerating: false });
+        }
+      },
+
+      clearCurrentSession: () => {
+        set({ 
+          currentSession: null, 
+          backendSessionId: null,
+          error: null 
+        });
+      },
+
       resetInterview: () => {
         set({
-          cvData: { file: null, fileName: "" },
-          jobDescription: "",
+          cvData: { file: null, fileName: '' },
+          jobDescription: '',
           interviewQuestions: [],
           currentSession: null,
+          backendSessionId: null,
+          previousSessions: [],
           error: null,
         });
       },
     }),
     {
-      name: "interview-storage",
+      name: 'interview-storage',
       storage: createJSONStorage(() => localStorage),
       // Don't persist file objects
       partialize: (state) => ({
@@ -394,6 +270,8 @@ export const useInterviewStore = create<InterviewStore>()(
         jobDescription: state.jobDescription,
         interviewQuestions: state.interviewQuestions,
         currentSession: state.currentSession,
+        backendSessionId: state.backendSessionId,
+        previousSessions: [], // Don't persist previous sessions
         isGenerating: false, // Reset on reload
         error: null, // Reset on reload
       }),

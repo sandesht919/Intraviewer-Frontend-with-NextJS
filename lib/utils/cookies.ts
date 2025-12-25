@@ -1,6 +1,6 @@
 /**
  * Cookie utilities for authentication
- * 
+ *
  * These utilities help sync authentication state between localStorage (Zustand)
  * and cookies (for Next.js middleware to read on server-side)
  */
@@ -15,7 +15,7 @@ export function setAuthCookie(isAuthenticated: boolean, accessToken: string | nu
     state: {
       isAuthenticated,
       accessToken,
-    }
+    },
   };
 
   // Set cookie with auth state
@@ -23,7 +23,13 @@ export function setAuthCookie(isAuthenticated: boolean, accessToken: string | nu
   const cookieValue = JSON.stringify(authData);
   const maxAge = 7 * 24 * 60 * 60; // 7 days in seconds
 
-  document.cookie = `auth-storage=${encodeURIComponent(cookieValue)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  // Base64 encode to safely store JSON in cookie
+  const encodedValue = btoa(cookieValue);
+  document.cookie = `auth-storage=${encodedValue}; path=/; max-age=${maxAge}; SameSite=Lax`;
+
+  console.log('[Cookie] Auth cookie set:', { isAuthenticated, hasToken: !!accessToken });
+  console.log('[Cookie] Encoded value:', encodedValue);
+  console.log('[Cookie] All cookies:', document.cookie);
 }
 
 /**
@@ -45,7 +51,7 @@ export function getAuthFromCookie(): { isAuthenticated: boolean; accessToken: st
   }
 
   const cookies = document.cookie.split(';');
-  const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth-storage='));
+  const authCookie = cookies.find((cookie) => cookie.trim().startsWith('auth-storage='));
 
   if (!authCookie) {
     return { isAuthenticated: false, accessToken: null };

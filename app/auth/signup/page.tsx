@@ -34,7 +34,8 @@ export default function SignupPage() {
   const { signup, isLoading, error: authError } = useAuth();
 
   // Form state
-  const [name, setName] = useState('');
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -62,11 +63,18 @@ export default function SignupPage() {
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
-    // Name validation
-    if (!name.trim()) {
-      newErrors.name = 'Full name is required';
-    } else if (name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
+    // Firstname validation
+    if (!firstname.trim()) {
+      newErrors.firstname = 'First name is required';
+    } else if (firstname.trim().length < 2) {
+      newErrors.firstname = 'First name must be at least 2 characters';
+    }
+
+    // Lastname validation
+    if (!lastname.trim()) {
+      newErrors.lastname = 'Last name is required';
+    } else if (lastname.trim().length < 2) {
+      newErrors.lastname = 'Last name must be at least 2 characters';
     }
 
     // Email validation
@@ -115,14 +123,16 @@ export default function SignupPage() {
     try {
       // Call signup function from useAuth hook
       await signup({
-        name,
+        name: `${firstname} ${lastname}`.trim(),
         email,
         password,
         confirmPassword
       });
 
-      // Redirect to interview preparation after successful signup
-      router.push('/interview/prepare');
+      // Redirect after successful signup (same as login)
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     } catch (err: any) {
       setSignupError(err.message || 'Signup failed. Please try again.');
     }
@@ -136,7 +146,7 @@ export default function SignupPage() {
   };
 
   return (
-    <RouteGuard requireAuth={false} redirectTo="/">
+    <RouteGuard requireAuth={false} redirectTo="/dashboard">
       <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
 
         {/* Signup Card */}
@@ -164,34 +174,65 @@ export default function SignupPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Full Name Field */}
+              {/* First Name Field */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
+                <label htmlFor="firstname" className="block text-sm font-medium text-gray-700 mb-2">
+                  First Name
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                   <input
-                    id="name"
+                    id="firstname"
                     type="text"
-                    value={name}
+                    value={firstname}
                     onChange={(e) => {
-                      setName(e.target.value);
-                      if (errors.name) {
-                        setErrors({ ...errors, name: '' });
+                      setFirstname(e.target.value);
+                      if (errors.firstname) {
+                        setErrors({ ...errors, firstname: '' });
                       }
                     }}
-                    placeholder="John Doe"
+                    placeholder="John"
                     className={`
                       w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg
                       text-gray-900 placeholder-gray-500 transition-all
                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                      ${errors.name ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'}
+                      ${errors.firstname ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400'}
                     `}
                   />
                 </div>
-                {errors.name && (
-                  <p className="text-red-600 text-xs mt-1.5">{errors.name}</p>
+                {errors.firstname && (
+                  <p className="text--600 text-xs mt-1.5">{errors.firstname}</p>
+                )}
+              </div>
+
+              {/* Last Name Field */}
+              <div>
+                <label htmlFor="lastname" className="block text-sm font-medium text-gray-700 mb-2">
+                  Last Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <input
+                    id="lastname"
+                    type="text"
+                    value={lastname}
+                    onChange={(e) => {
+                      setLastname(e.target.value);
+                      if (errors.lastname) {
+                        setErrors({ ...errors, lastname: '' });
+                      }
+                    }}
+                    placeholder="Doe"
+                    className={`
+                      w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg
+                      text-gray-900 placeholder-gray-500 transition-all
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                      ${errors.lastname ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'}
+                    `}
+                  />
+                </div>
+                {errors.lastname && (
+                  <p className="text-red-600 text-xs mt-1.5">{errors.lastname}</p>
                 )}
               </div>
 
