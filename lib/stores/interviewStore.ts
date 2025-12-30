@@ -38,11 +38,13 @@ interface InterviewStore {
   previousSessions: InterviewSession[];
   isGenerating: boolean;
   error: string | null;
+  cv_id: number | null;
+  prompt_id: number | null;
 
   // Actions
   uploadCV: (file: File | null) => Promise<void>;
   setJobDescription: (description: string) => void;
-  generateQuestions: (jobDescOverride?: string) => Promise<void>;
+  generateQuestions: (session_id: number, accessToken?: string) => Promise<void>;
   startInterview: () => Promise<void>;
   addResponse: (response: InterviewResponse) => Promise<void>;
   completeInterview: () => Promise<number | undefined>;
@@ -50,6 +52,8 @@ interface InterviewStore {
   clearCurrentSession: () => void;
   resetInterview: () => void;
   setError: (error: string | null) => void;
+ SetUserData: () => Promise<void>;
+  
 }
 
 /**
@@ -70,6 +74,8 @@ export const useInterviewStore = create<InterviewStore>()(
       previousSessions: [],
       isGenerating: false,
       error: null,
+      cv_id: null,
+      prompt_id: null,
 
       // Actions
       setError: (error) => set({ error }),
@@ -106,11 +112,10 @@ export const useInterviewStore = create<InterviewStore>()(
 
       setJobDescription: (description) => set({ jobDescription: description }),
 
-      generateQuestions: async (jobDescOverride) => {
+      generateQuestions: async (backendSessionId) => {
         const state = get();
-        const effectiveJobDesc = (jobDescOverride ?? state.jobDescription)?.trim() ?? '';
 
-        if (!effectiveJobDesc) {
+        if (!backendSessionId) {
           set({ error: 'Please provide a job description' });
           return;
         }
@@ -118,10 +123,10 @@ export const useInterviewStore = create<InterviewStore>()(
         set({ isGenerating: true, error: null });
 
         try {
-          const data = await InterviewService.generateQuestions({
-            jobDescription: effectiveJobDesc,
-            cvContent: state.cvData.parsedContent,
-          });
+          const data = await InterviewService.generateQuestions(
+            backendSessionId,
+            useAuthStore.getState().accessToken!
+          );
 
           set({
             interviewQuestions: data.questions,
@@ -135,42 +140,26 @@ export const useInterviewStore = create<InterviewStore>()(
       },
       startInterview: async () => {
         const state = get();
-
-        if (state.interviewQuestions.length === 0) {
-          set({
-            error: 'No questions available. Please generate questions first.',
-          });
-          return;
-        }
-
-        if (!state.jobDescription.trim()) {
-          set({ error: 'Job description is required to start interview' });
-          return;
-        }
-
+      
         set({ isGenerating: true, error: null });
 
         try {
           // Get access token from auth store
           const accessToken = useAuthStore.getState().accessToken;
+          const cv_id = state.cv_id;
+          const prompt_id = state.prompt_id;
+          
+          if(!cv_id || !prompt_id){
+            throw new Error('Please upload CV and job description to start an interview');
+          }
 
           if (!accessToken) {
             throw new Error('Please login to start an interview');
           }
 
           // Extract job title (first line) and description from combined text
-          const lines = state.jobDescription.split('\n');
-          const jobTitle = lines[0]?.trim() || 'Interview Position';
-          const jobDescription = lines.slice(2).join('\n').trim() || state.jobDescription;
-
-          // Step 1: Upload CV and job description to backend, get cv_id and prompt_id
-          const { cv_id, prompt_id } = await InterviewService.uploadUserData(
-            state.cvData.file,
-            state.cvData.parsedContent || null,
-            jobTitle, // job topic (extracted from first line)
-            jobDescription, // job text (remaining content)
-            accessToken // Pass access token for authentication
-          );
+  
+       
 
           console.log('✅ User data uploaded - cv_id:', cv_id, 'prompt_id:', prompt_id);
 
@@ -202,6 +191,50 @@ export const useInterviewStore = create<InterviewStore>()(
             isGenerating: false,
           });
           throw err;
+        }
+      },
+
+      SetUserData: async () => {
+        const state = get();
+
+        if (!state.jobDescription.trim()) {
+          set({ error: 'Job description is required to start interview' });
+          return;
+        }
+
+        set({ isGenerating: true, error: null });
+
+        try {
+          // Get access token from auth store
+          const accessToken = useAuthStore.getState().accessToken;
+
+          if (!accessToken) {
+            throw new Error('Please login to start an interview');
+          }
+
+          // Extract job title (first line) and description from combined text
+          const lines = state.jobDescription.split('\n');
+          const jobTitle = lines[0]?.trim() || 'Interview Position';
+          const jobDescription = lines.slice(2).join('\n').trim() || state.jobDescription;
+
+          // Step 1: Upload CV and job description to backend, get cv_id and prompt_id
+          const { cv_id, prompt_id } = await InterviewService.uploadUserData(
+            state.cvData.file,
+            state.cvData.parsedContent || null,
+            jobTitle, // job topic (extracted from first line)
+            jobDescription, // job text (remaining content)
+            accessToken // Pass access token for authentication
+          );
+          set({ cv_id, prompt_id, error: null,
+            isGenerating: false,
+            
+           });
+
+          console.log('✅ User data uploaded - cv_id:', cv_id, 'prompt_id:', prompt_id);
+
+       
+        } catch (err: any) {
+          set({ error: err?.message || 'Failed to upload CV' });
         }
       },
 

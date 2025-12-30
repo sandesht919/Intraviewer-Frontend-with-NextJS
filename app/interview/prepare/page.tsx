@@ -18,6 +18,7 @@
 
 'use client';
 
+import React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -33,6 +34,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useInterviewStore } from '@/lib/stores/interviewStore';
+import { useAuthStore } from '@/lib/stores/authStore';
+import { AuthService } from '@/lib/services/auth.service';
 
 /**
  * Interview Preparation Component
@@ -50,7 +53,8 @@ export default function InterviewPreparePage() {
     uploadCV,
     setJobDescription,
     generateQuestions,
-    startInterview
+    startInterview,
+    SetUserData
   } = useInterviewStore();
 
   // Local state for managing steps
@@ -59,6 +63,8 @@ export default function InterviewPreparePage() {
   const [localJobTitle, setLocalJobTitle] = useState('');
   const [localJobDesc, setLocalJobDesc] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+
+  
 
   /**
    * Handle file upload via input or drag-drop
@@ -97,8 +103,9 @@ export default function InterviewPreparePage() {
 
   /**
    * Handle generate questions click
+   * 
    */
-  const handleGenerateQuestions = async () => {
+  const handleSetUserData = async () => {
     // Combine job title and description
     const fullJobDescription = `${localJobTitle}\n\n${localJobDesc}`;
     
@@ -106,7 +113,7 @@ export default function InterviewPreparePage() {
     setJobDescription(fullJobDescription);
     // Pass the full job description to avoid relying on the
     // asynchronous state update; the hook accepts an override.
-    await generateQuestions(fullJobDescription);
+    await SetUserData();
     setCurrentStep('preview');
   };
 
@@ -116,9 +123,11 @@ export default function InterviewPreparePage() {
   const handleStartInterview = () => {
     // startInterview is async (calls backend); fire-and-forget and navigate
     startInterview().then(() => {
-      router.push('/interview/session');
+      //router.push('/interview/session');
+      console.log('Interview created successfully');
     }).catch(() => {
       // keep user on page if start failed
+      console.log('Interview creation failed');
     });
   };
 
@@ -376,19 +385,18 @@ export default function InterviewPreparePage() {
                 Back
               </Button>
               <Button
-                disabled={!localJobTitle.trim() || !localJobDesc.trim() || isGenerating}
-                onClick={handleGenerateQuestions}
+                onClick={handleSetUserData}
                 className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 flex items-center gap-2 shadow-md"
               >
                 {isGenerating ? (
                   <>
                     <Loader className="w-4 h-4 animate-spin" />
-                    Generating Questions...
+                    uploading...
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Generate Questions
+                   Next
                   </>
                 )}
               </Button>
@@ -406,35 +414,7 @@ export default function InterviewPreparePage() {
               </p>
             </div>
 
-            {/* Questions List */}
-            <div className="space-y-4 mb-8 max-h-96 overflow-y-auto">
-              {interviewQuestions.map((q, index) => (
-                <div
-                  key={q.id}
-                  className="p-4 bg-white border border-sky-200 rounded-lg hover:border-sky-400 hover:shadow-md transition"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-slate-800 font-semibold">
-                      Question {index + 1}
-                    </h3>
-                    <div className="flex gap-2">
-                      <span className="px-2 py-1 bg-sky-100 text-sky-700 text-xs rounded">
-                        {q.category}
-                      </span>
-                      <span className={`
-                        px-2 py-1 text-xs rounded
-                        ${q.difficulty === 'easy' ? 'bg-green-100 text-green-700' : ''}
-                        ${q.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : ''}
-                        ${q.difficulty === 'hard' ? 'bg-red-100 text-red-700' : ''}
-                      `}>
-                        {q.difficulty}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-slate-700">{q.question}</p>
-                </div>
-              ))}
-            </div>
+           
 
             {/* Action Buttons */}
             <div className="flex gap-4 justify-between">
@@ -442,13 +422,13 @@ export default function InterviewPreparePage() {
                 variant="outline"
                 onClick={() => setCurrentStep('describe')}
               >
-                Edit & Regenerate
+               create session
               </Button>
               <Button
                 onClick={handleStartInterview}
                 className="bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 flex items-center gap-2 shadow-md"
               >
-                Start Interview <ArrowRight className="w-4 h-4" />
+             start Session <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </div>

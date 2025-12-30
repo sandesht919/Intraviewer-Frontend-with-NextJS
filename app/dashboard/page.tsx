@@ -21,9 +21,29 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { AuthService } from '@/lib/services/auth.service';
+import React from 'react';
+import { useEffect } from 'react';
 
 export default function DashboardPage() {
   const { user, logout } = useAuthStore();
+
+  const RefreshToken= useAuthStore((state) => state.refreshToken);
+
+  const {refreshToken}= AuthService
+
+  // Refresh access token every 12 minutes
+  // Assumes AuthService has a refreshAccessToken() method
+useEffect(() => {
+  if (!RefreshToken || typeof refreshToken !== 'function') return;
+
+  const interval = setInterval(() => {
+    refreshToken(RefreshToken);
+  }, 12 * 60 * 1000);
+
+  return () => clearInterval(interval);
+}, [RefreshToken, refreshToken]);
+
 
   const stats = [
     { label: 'Interviews Completed', value: '12', icon: PlayCircle, color: 'bg-sky-500' },

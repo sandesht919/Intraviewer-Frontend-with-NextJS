@@ -10,6 +10,8 @@ import type {
   InterviewSession,
 } from '../types';
 
+import { useInterviewStore } from '../stores/interviewStore';
+
 const API_BASE_URL = API_CONFIG.BASE_URL;
 
 export class InterviewService {
@@ -17,13 +19,13 @@ export class InterviewService {
    * Generate interview questions using AI
    */
   static async generateQuestions(
-    request: GenerateQuestionsRequest
+    session_id: number,
+    accessToken?: string
   ): Promise<GenerateQuestionsResponse> {
     // Use local Next.js API route for now (replace with backend when ready)
-    const response = await fetch('/api/interviews/generate-questions', {
+    const response = await fetch(`${API_BASE_URL}/questions/generate/${session_id}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
     });
 
     return handleAPIResponse<GenerateQuestionsResponse>(response);
