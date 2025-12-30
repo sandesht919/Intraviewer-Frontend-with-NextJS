@@ -45,7 +45,7 @@ interface InterviewStore {
   uploadCV: (file: File | null) => Promise<void>;
   setJobDescription: (description: string) => void;
   generateQuestions: (session_id: number, accessToken?: string) => Promise<void>;
-  startInterview: () => Promise<void>;
+  createSession: () => Promise<void>;
   addResponse: (response: InterviewResponse) => Promise<void>;
   completeInterview: () => Promise<number | undefined>;
   fetchPreviousSessions: () => Promise<void>;
@@ -138,7 +138,8 @@ export const useInterviewStore = create<InterviewStore>()(
           set({ isGenerating: false });
         }
       },
-      startInterview: async () => {
+      
+      createSession: async () => {
         const state = get();
       
         set({ isGenerating: true, error: null });
@@ -164,7 +165,9 @@ export const useInterviewStore = create<InterviewStore>()(
           console.log('✅ User data uploaded - cv_id:', cv_id, 'prompt_id:', prompt_id);
 
           // Step 2: Create session with cv_id and prompt_id, get session_id
-          const { session_id } = await InterviewService.startSession(cv_id, prompt_id, accessToken);
+          const { session_id } = await InterviewService.createSession(cv_id, prompt_id, accessToken);
+       
+          await get().generateQuestions(session_id);
 
           console.log('✅ Session created - session_id:', session_id);
 
@@ -351,9 +354,10 @@ export const useInterviewStore = create<InterviewStore>()(
           parsedContent: state.cvData.parsedContent,
         },
         jobDescription: state.jobDescription,
-        interviewQuestions: state.interviewQuestions,
+        interviewQuestions: [], // Don't persist questions - generate fresh each time
         currentSession: state.currentSession,
         backendSessionId: state.backendSessionId,
+        // interviewQuestions: state.interviewQuestions,
         previousSessions: [], // Don't persist previous sessions
         isGenerating: false, // Reset on reload
         error: null, // Reset on reload

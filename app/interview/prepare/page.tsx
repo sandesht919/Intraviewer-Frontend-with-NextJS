@@ -19,7 +19,7 @@
 'use client';
 
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -50,19 +50,37 @@ export default function InterviewPreparePage() {
     interviewQuestions,
     isGenerating,
     error,
+    backendSessionId,
     uploadCV,
     setJobDescription,
     generateQuestions,
-    startInterview,
+    createSession,
     SetUserData
   } = useInterviewStore();
 
   // Local state for managing steps
-  const [currentStep, setCurrentStep] = useState<'upload' | 'describe' | 'preview'>('upload');
+  const [currentStep, setCurrentStep] = useState<'upload' | 'describe' | 'createSession' |'preview'>('upload');
   const [dragActive, setDragActive] = useState(false);
   const [localJobTitle, setLocalJobTitle] = useState('');
   const [localJobDesc, setLocalJobDesc] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+
+  // Clear only interviewQuestions from persisted storage (one-time cleanup)
+  useEffect(() => {
+    const stored = localStorage.getItem('interview-storage');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (data.state && data.state.interviewQuestions) {
+          data.state.interviewQuestions = [];
+          localStorage.setItem('interview-storage', JSON.stringify(data));
+          console.log('🧹 Cleared old interview questions from storage');
+        }
+      } catch (e) {
+        console.error('Failed to parse storage:', e);
+      }
+    }
+  }, []);
 
   
 
@@ -114,22 +132,37 @@ export default function InterviewPreparePage() {
     // Pass the full job description to avoid relying on the
     // asynchronous state update; the hook accepts an override.
     await SetUserData();
-    setCurrentStep('preview');
+    setCurrentStep('createSession');
   };
 
   /**
    * Handle start interview
    */
-  const handleStartInterview = () => {
+  const handleCreateSession = () => {
     // startInterview is async (calls backend); fire-and-forget and navigate
-    startInterview().then(() => {
+    createSession().then(() => {
       //router.push('/interview/session');
       console.log('Interview created successfully');
+      setCurrentStep('preview');
     }).catch(() => {
       // keep user on page if start failed
       console.log('Interview creation failed');
     });
   };
+
+  /** handle startinterview */
+  const handleStartInterview = () => {
+    // startInterview is async (calls backend); fire-and-forget and navigate
+    if (backendSessionId) {
+      router.push('/interview/session');
+      console.log('Interview created successfully');
+      setCurrentStep('preview');
+    }
+    else {
+      console.log('Interview creation failed');
+    }
+  };
+  console.log("the interview question length is  interviewQuestions", interviewQuestions);
 
   /**
    * Remove uploaded CV and reset step
@@ -174,7 +207,7 @@ export default function InterviewPreparePage() {
             >
               {cvData.file ? <CheckCircle className="w-6 h-6" /> : '1'}
             </div>
-            <span className="text-sm font-medium text-white">CV (Optional)</span>
+            <span className="text-sm font-medium text-black">CV </span>
           </div>
 
           {/* Connector Line */}
@@ -193,14 +226,14 @@ export default function InterviewPreparePage() {
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
                 ${
                   currentStep === 'describe' || (localJobTitle && localJobDesc)
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
+                   ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
                     : 'bg-slate-800 text-slate-500'
                 }
               `}
             >
               {(localJobTitle && localJobDesc) ? <CheckCircle className="w-6 h-6" /> : '2'}
             </div>
-            <span className="text-sm font-medium text-white">Job Description</span>
+            <span className="text-sm font-medium text-black">Job Description</span>
           </div>
 
           {/* Connector Line */}
@@ -212,7 +245,33 @@ export default function InterviewPreparePage() {
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
 
-          {/* Step 3: Start Interview */}
+          {/* Step 3: create session */}
+          <div className="flex flex-col items-center z-10">
+            <div
+              className={`
+                w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
+                ${
+                  currentStep === 'createSession' || interviewQuestions.length > 0
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
+                    : 'bg-slate-800 text-slate-500'
+                }
+              `}
+            >
+              {interviewQuestions.length > 0 ? <CheckCircle className="w-6 h-6" /> : '3'}
+            </div>
+            <span className="text-sm font-medium text-black">create session</span>
+          </div>
+        
+            {/* Connector Line */}
+          <div
+            className={`
+              flex-1 h-1 my-auto mx-4 rounded-full transition-all
+              ${interviewQuestions.length > 0 ? 'bg-blue-500' : 'bg-slate-800'}
+            `}
+            style={{ alignSelf: 'center', height: '2px' }}
+          ></div>
+
+                 {/* Step 4: Start Interview */}
           <div className="flex flex-col items-center z-10">
             <div
               className={`
@@ -224,9 +283,9 @@ export default function InterviewPreparePage() {
                 }
               `}
             >
-              {interviewQuestions.length > 0 ? <CheckCircle className="w-6 h-6" /> : '3'}
+              {interviewQuestions.length > 0 ? <CheckCircle className="w-6 h-6" /> : '4'}
             </div>
-            <span className="text-sm font-medium text-white\">Start Interview</span>
+            <span className="text-sm font-medium text-black">Start Interview</span>
           </div>
         </div>
 
@@ -405,14 +464,9 @@ export default function InterviewPreparePage() {
         )}
 
         {/* Step 3: Preview Questions */}
-        {currentStep === 'preview' && interviewQuestions.length > 0 && (
+        {currentStep === 'createSession'&& (
           <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Ready to Start?</h2>
-              <p className="text-slate-600">
-                {interviewQuestions.length} personalized questions have been generated for you. Click below to begin your interview.
-              </p>
-            </div>
+           
 
            
 
@@ -422,15 +476,55 @@ export default function InterviewPreparePage() {
                 variant="outline"
                 onClick={() => setCurrentStep('describe')}
               >
-               create session
+               back
+              </Button>
+              <Button
+                onClick={handleCreateSession}
+                className="bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 flex items-center gap-2 shadow-md"
+              >
+              {isGenerating ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin" />
+                    creating session...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                   Create Session
+                  </>
+                )}
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+
+            
+          </div>
+        )}
+
+         {/* Step 3: Preview Questions */}
+        {currentStep === 'preview'&& (
+          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
+           
+
+           
+
+            {/* Action Buttons */}
+            <div className="flex gap-4 justify-between">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentStep('createSession')}
+              >
+               back
               </Button>
               <Button
                 onClick={handleStartInterview}
                 className="bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 flex items-center gap-2 shadow-md"
               >
-             start Session <ArrowRight className="w-4 h-4" />
+             Start Interview <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
+
+            
           </div>
         )}
       </div>

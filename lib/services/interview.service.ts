@@ -72,7 +72,7 @@ export class InterviewService {
    * Start a new interview session with cv_id and prompt_id
    * Returns session_id from backend
    */
-  static async startSession(
+  static async createSession(
     cvId: number,
     promptId: number,
     accessToken?: string

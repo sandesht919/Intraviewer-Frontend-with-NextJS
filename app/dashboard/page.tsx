@@ -26,23 +26,26 @@ import React from 'react';
 import { useEffect } from 'react';
 
 export default function DashboardPage() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, refreshAccessToken } = useAuthStore();
 
-  const RefreshToken= useAuthStore((state) => state.refreshToken);
+  // Refresh access token every 12 minutes (tokens expire in 15 minutes)
+  useEffect(() => {
+    // Only set up refresh if user is authenticated
+    if (!user) return;
 
-  const {refreshToken}= AuthService
+    const interval = setInterval(async () => {
+      try {
+        console.log('🔄 Refreshing access token...');
+        await refreshAccessToken();
+        console.log('✅ Access token refreshed successfully');
+      } catch (error) {
+        console.error('❌ Failed to refresh token:', error);
+        // Token refresh failed - user will be logged out by the store
+      }
+    }, 12 * 60 * 1000); // 12 minutes
 
-  // Refresh access token every 12 minutes
-  // Assumes AuthService has a refreshAccessToken() method
-useEffect(() => {
-  if (!RefreshToken || typeof refreshToken !== 'function') return;
-
-  const interval = setInterval(() => {
-    refreshToken(RefreshToken);
-  }, 12 * 60 * 1000);
-
-  return () => clearInterval(interval);
-}, [RefreshToken, refreshToken]);
+    return () => clearInterval(interval);
+  }, [user, refreshAccessToken]);
 
 
   const stats = [

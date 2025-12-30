@@ -187,6 +187,9 @@ export const useAuthStore = create<AuthStore>()(
             accessToken: data.access_token,
             refreshToken: data.refresh_token || refreshToken,
           });
+
+          // Update cookie with new access token
+          setAuthCookie(true, data.access_token);
         } catch (error: any) {
           get().logout();
           throw error;

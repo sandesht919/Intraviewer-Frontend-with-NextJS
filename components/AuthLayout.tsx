@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 }
 
 const AuthLayout = ({ children, isDrawerOpen = false }: AuthLayoutProps) => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, refreshAccessToken } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -33,6 +33,25 @@ const AuthLayout = ({ children, isDrawerOpen = false }: AuthLayoutProps) => {
       }
     }
   }, [isAuthenticated, mounted, pathname, router]);
+
+  // Automatic token refresh
+  useEffect(() => {
+    // Only set up refresh if user is authenticated
+    if (!isAuthenticated) return;
+
+    const interval = setInterval(async () => {
+      try {
+        console.log('🔄 Refreshing access token...');
+        await refreshAccessToken();
+        console.log('✅ Access token refreshed successfully');
+      } catch (error) {
+        console.error('❌ Failed to refresh token:', error);
+        // Token refresh failed - user will be logged out by the store
+      }
+    }, 12 * 60 * 1000); // 12 minutes
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, refreshAccessToken]);
 
   // Calculate dynamic margin based on drawer state and authentication
   const getMainContentStyle = () => {
