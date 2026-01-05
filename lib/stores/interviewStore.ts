@@ -52,8 +52,7 @@ interface InterviewStore {
   clearCurrentSession: () => void;
   resetInterview: () => void;
   setError: (error: string | null) => void;
- SetUserData: () => Promise<void>;
-  
+  SetUserData: () => Promise<void>;
 }
 
 /**
@@ -138,10 +137,10 @@ export const useInterviewStore = create<InterviewStore>()(
           set({ isGenerating: false });
         }
       },
-      
+
       createSession: async () => {
         const state = get();
-      
+
         set({ isGenerating: true, error: null });
 
         try {
@@ -149,8 +148,8 @@ export const useInterviewStore = create<InterviewStore>()(
           const accessToken = useAuthStore.getState().accessToken;
           const cv_id = state.cv_id;
           const prompt_id = state.prompt_id;
-          
-          if(!cv_id || !prompt_id){
+
+          if (!cv_id || !prompt_id) {
             throw new Error('Please upload CV and job description to start an interview');
           }
 
@@ -159,24 +158,29 @@ export const useInterviewStore = create<InterviewStore>()(
           }
 
           // Extract job title (first line) and description from combined text
-  
-       
 
           console.log('✅ User data uploaded - cv_id:', cv_id, 'prompt_id:', prompt_id);
 
           // Step 2: Create session with cv_id and prompt_id, get session_id
-          const { session_id } = await InterviewService.createSession(cv_id, prompt_id, accessToken);
-       
+          const { session_id } = await InterviewService.createSession(
+            cv_id,
+            prompt_id,
+            accessToken
+          );
+
           await get().generateQuestions(session_id);
+
+          // Always read the latest questions after generateQuestions updates state
+          const updatedQuestions = get().interviewQuestions;
 
           console.log('✅ Session created - session_id:', session_id);
 
-          // Step 3: Create local session object for UI
+          // Step 3: Create local session object for UI using fresh questions
           const session: InterviewSession = {
             id: session_id,
             jobDescription: state.jobDescription,
             cvContent: state.cvData.parsedContent,
-            questions: state.interviewQuestions,
+            questions: updatedQuestions,
             responses: [],
             status: 'in-progress',
             createdAt: new Date(),
@@ -188,6 +192,18 @@ export const useInterviewStore = create<InterviewStore>()(
             isGenerating: false,
             error: null,
           });
+          console.log(
+            '✅ Interview started - session_id:',
+            session_id,
+            'cv_id:',
+            cv_id,
+            'prompt_id:',
+            prompt_id,
+            'accessToken:',
+            accessToken,
+            'currentsession:',
+            session
+          );
         } catch (err: any) {
           set({
             error: err?.message || 'Failed to start interview',
@@ -228,14 +244,9 @@ export const useInterviewStore = create<InterviewStore>()(
             jobDescription, // job text (remaining content)
             accessToken // Pass access token for authentication
           );
-          set({ cv_id, prompt_id, error: null,
-            isGenerating: false,
-            
-           });
+          set({ cv_id, prompt_id, error: null, isGenerating: false });
 
           console.log('✅ User data uploaded - cv_id:', cv_id, 'prompt_id:', prompt_id);
-
-       
         } catch (err: any) {
           set({ error: err?.message || 'Failed to upload CV' });
         }

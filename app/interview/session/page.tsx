@@ -63,7 +63,8 @@ export default function InterviewSessionPage() {
     addResponse, 
     completeInterview,
     fetchPreviousSessions,
-    clearCurrentSession
+    clearCurrentSession,
+    interviewQuestions
   } = useInterviewStore();
 
   // State to control when to show previous sessions modal
@@ -95,6 +96,8 @@ export default function InterviewSessionPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const responseStartTimeRef = useRef<number>(0);
+
+  console.log("🚀 ~ InterviewSessionPage ~ currentSession:", currentSession, backendSessionId)
 
   // Check if interview session exists and has backend session ID
   // Check if interview session exists and has backend session ID
