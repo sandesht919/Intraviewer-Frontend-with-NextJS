@@ -34,11 +34,25 @@ const AuthLayout = ({ children, isDrawerOpen = false }: AuthLayoutProps) => {
     }
   }, [isAuthenticated, mounted, pathname, router]);
 
-  // Automatic token refresh
+  // Automatic token refresh - on first load and every 12 minutes
   useEffect(() => {
     // Only set up refresh if user is authenticated
     if (!isAuthenticated) return;
 
+    // Refresh token immediately on first load
+    const refreshImmediately = async () => {
+      try {
+        console.log('🔄 Refreshing access token on first load...');
+        await refreshAccessToken();
+        console.log('✅ Access token refreshed successfully');
+      } catch (error) {
+        console.error('❌ Failed to refresh token on first load:', error);
+      }
+    };
+
+    refreshImmediately();
+
+    // Then refresh every 12 minutes
     const interval = setInterval(async () => {
       try {
         console.log('🔄 Refreshing access token...');
