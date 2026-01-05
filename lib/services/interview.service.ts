@@ -28,7 +28,35 @@ export class InterviewService {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
     });
 
-    return handleAPIResponse<GenerateQuestionsResponse>(response);
+    const data = await handleAPIResponse<{
+      message: string;
+      count: number;
+      questions: Array<{
+        id: number;
+        question_text: string;
+        session_id: number;
+        difficulty_level: string | null;
+        order: number;
+        created_at: string;
+      }>;
+    }>(response);
+
+    console.log('🔍 Raw API response for questions:', data);
+
+    // Map backend question format to frontend InterviewQuestion format
+    const mappedQuestions = data.questions.map((q) => ({
+      id: String(q.id),
+      question: q.question_text,
+      category: 'technical' as const, // Default category since backend doesn't have it
+      difficulty: (q.difficulty_level?.toLowerCase() || 'medium') as 'easy' | 'medium' | 'hard',
+    }));
+
+    console.log('🔍 Mapped questions:', mappedQuestions);
+
+    return {
+      questions: mappedQuestions,
+      message: data.message,
+    };
   }
 
   /**

@@ -44,7 +44,7 @@ interface InterviewStore {
   // Actions
   uploadCV: (file: File | null) => Promise<void>;
   setJobDescription: (description: string) => void;
-  generateQuestions: (session_id: number, accessToken?: string) => Promise<void>;
+  generateQuestions: (session_id: number, accessToken?: string) => Promise<InterviewQuestion[]>;
   createSession: () => Promise<void>;
   addResponse: (response: InterviewResponse) => Promise<void>;
   completeInterview: () => Promise<number | undefined>;
@@ -116,7 +116,7 @@ export const useInterviewStore = create<InterviewStore>()(
 
         if (!backendSessionId) {
           set({ error: 'Please provide a job description' });
-          return;
+          return [];
         }
 
         set({ isGenerating: true, error: null });
@@ -127,12 +127,17 @@ export const useInterviewStore = create<InterviewStore>()(
             useAuthStore.getState().accessToken!
           );
 
+          console.log('📝 Generated questions from API:', data.questions);
+
           set({
             interviewQuestions: data.questions,
             error: null,
           });
+
+          return data.questions; // Return questions for caller
         } catch (err: any) {
           set({ error: err?.message || MESSAGES.INTERVIEW.GENERATION_FAILED });
+          return [];
         } finally {
           set({ isGenerating: false });
         }
@@ -168,19 +173,22 @@ export const useInterviewStore = create<InterviewStore>()(
             accessToken
           );
 
-          await get().generateQuestions(session_id);
+          // Generate questions and get them directly from the return value
+          const generatedQuestions = await get().generateQuestions(session_id);
 
-          // Always read the latest questions after generateQuestions updates state
-          const updatedQuestions = get().interviewQuestions;
+          console.log(
+            '✅ Session created - session_id:',
+            session_id,
+            'questions:',
+            generatedQuestions
+          );
 
-          console.log('✅ Session created - session_id:', session_id);
-
-          // Step 3: Create local session object for UI using fresh questions
+          // Step 3: Create local session object for UI using the returned questions
           const session: InterviewSession = {
             id: session_id,
             jobDescription: state.jobDescription,
             cvContent: state.cvData.parsedContent,
-            questions: updatedQuestions,
+            questions: generatedQuestions || [],
             responses: [],
             status: 'in-progress',
             createdAt: new Date(),

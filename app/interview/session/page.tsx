@@ -100,7 +100,6 @@ export default function InterviewSessionPage() {
   console.log("🚀 ~ InterviewSessionPage ~ currentSession:", currentSession, backendSessionId)
 
   // Check if interview session exists and has backend session ID
-  // Check if interview session exists and has backend session ID
   useEffect(() => {
     const validateSession = async () => {
       // Validate session: exists, has backend ID, not completed, and has questions
@@ -110,7 +109,10 @@ export default function InterviewSessionPage() {
                              currentSession.questions && 
                              currentSession.questions.length > 0;
 
-      if (!isValidSession) {
+      if (isValidSession) {
+        // Valid session exists - hide modal and proceed
+        setShowSessionsModal(false);
+      } else {
         // If session is invalid (e.g. completed or empty), clear it and show modal
         if (currentSession || backendSessionId) {
           clearCurrentSession();
@@ -367,9 +369,17 @@ export default function InterviewSessionPage() {
     );
   }
 
-  const currentQuestion = currentSession.questions[currentQuestionIndex];
+  // Get current question - handle both backend (question_text) and frontend (question) formats
+  const rawQuestion = currentSession.questions[currentQuestionIndex] as any;
+  const currentQuestion = {
+    id: rawQuestion?.id,
+    question: rawQuestion?.question || rawQuestion?.question_text || '',
+    category: rawQuestion?.category || 'technical',
+    difficulty: rawQuestion?.difficulty || rawQuestion?.difficulty_level?.toLowerCase() || 'medium',
+  };
   const questionProgress = currentQuestionIndex + 1;
   const totalQuestions = currentSession.questions.length;
+  console.log("🚀 ~ InterviewSessionPage ~ currentQuestion:", currentQuestion)
 
   // Media status indicator (includes WebSocket connection)
   const mediaConnected = localStream !== null && streamStatus.isConnected;
