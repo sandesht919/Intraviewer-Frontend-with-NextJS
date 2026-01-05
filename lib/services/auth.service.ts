@@ -51,9 +51,8 @@ export class AuthService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        //Authorization: `Bearer ${refreshToken}`,
+        refresh_token: refreshToken,
       },
-      body: JSON.stringify({ token: refreshToken }),
       credentials: 'include',
     });
 
