@@ -40,7 +40,8 @@ import {
   CheckCircle,
   ChevronRight,
   SkipForward,
-  PhoneOff
+  PhoneOff,
+  Play
 } from 'lucide-react';
 import { useInterviewStore } from '@/lib/stores/interviewStore';
 import { useMediaStream } from '@/lib/hooks/useMediaStream';
@@ -87,6 +88,7 @@ export default function InterviewSessionPage() {
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [sessionError, setSessionError] = useState<string | null>(null);
+  const [isInterviewStarted, setIsInterviewStarted] = useState(false);
 
   // Refs for video, canvas (for frame extraction), and timing
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -95,10 +97,22 @@ export default function InterviewSessionPage() {
   const responseStartTimeRef = useRef<number>(0);
 
   // Check if interview session exists and has backend session ID
+  // Check if interview session exists and has backend session ID
   useEffect(() => {
     const validateSession = async () => {
-      // If no current session or no backend session ID, show previous sessions modal
-      if (!currentSession || !backendSessionId) {
+      // Validate session: exists, has backend ID, not completed, and has questions
+      const isValidSession = currentSession && 
+                             backendSessionId && 
+                             currentSession.status !== 'completed' &&
+                             currentSession.questions && 
+                             currentSession.questions.length > 0;
+
+      if (!isValidSession) {
+        // If session is invalid (e.g. completed or empty), clear it and show modal
+        if (currentSession || backendSessionId) {
+          clearCurrentSession();
+        }
+
         setIsLoadingSessions(true);
         setShowSessionsModal(true);
         await fetchPreviousSessions();
@@ -107,7 +121,7 @@ export default function InterviewSessionPage() {
     };
 
     validateSession();
-  }, [currentSession, backendSessionId, fetchPreviousSessions]);
+  }, [currentSession, backendSessionId, fetchPreviousSessions, clearCurrentSession]);
 
   /**
    * Initialize media devices and start streaming
@@ -138,12 +152,7 @@ export default function InterviewSessionPage() {
           await videoRef.current.play();
         }
 
-        // Start media streaming (audio chunks + frames)
-        if (videoRef.current && canvasRef.current) {
-          await startMediaStream(videoRef.current, canvasRef.current);
-          responseStartTimeRef.current = Date.now();
-          console.log('📹 Media streaming started - Backend Session ID:', backendSessionId);
-        }
+        console.log('📹 Media preview started');
 
       } catch (err: any) {
         setMediaError(err.message || 'Failed to access camera/microphone');
@@ -169,7 +178,7 @@ export default function InterviewSessionPage() {
    * Question timer countdown
    */
   useEffect(() => {
-    if (!currentSession) return;
+    if (!currentSession || !isInterviewStarted) return;
 
     const interval = setInterval(() => {
       setTimeRemaining(prev => {
@@ -265,6 +274,22 @@ export default function InterviewSessionPage() {
     } catch (err: any) {
       console.error('❌ Failed to complete interview:', err);
       setSessionError(err.message || 'Failed to complete interview');
+    }
+  };
+
+  /**
+   * Start the actual interview session
+   */
+  const handleStartInterview = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    try {
+      await startMediaStream(videoRef.current, canvasRef.current);
+      responseStartTimeRef.current = Date.now();
+      setIsInterviewStarted(true);
+      console.log('🚀 Interview session started - Backend Session ID:', backendSessionId);
+    } catch (err: any) {
+      setSessionError(err.message || 'Failed to start interview session');
     }
   };
 
@@ -369,7 +394,7 @@ export default function InterviewSessionPage() {
           <div className="flex items-center gap-3 px-4 py-2 bg-white/80 border border-sky-200 rounded-lg shadow-sm">
             <div className={`w-2 h-2 rounded-full ${mediaConnected ? 'animate-pulse' : ''} ${connectionStatusColor}`}></div>
             <span className="text-sm text-slate-700">
-              {mediaConnected ? 'Streaming' : 'Connecting...'}
+              {streamStatus.isRecording ? 'Live & Recording' : (localStream ? 'Ready to Start' : 'Connecting...')}
             </span>
           </div>
         </div>
@@ -398,6 +423,28 @@ export default function InterviewSessionPage() {
                   muted
                   className="w-full h-full object-cover"
                 />
+
+                {/* Start Interview overlay */}
+                {!isInterviewStarted && !showSessionsModal && localStream && (
+                  <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center">
+                    <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl text-center max-w-sm mx-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+                        <Play className="w-8 h-8 text-white ml-1" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">Ready to specific start?</h3>
+                      <p className="text-slate-200 mb-6 text-sm">
+                        Your camera and microphone are ready. Click below to begin the interview session.
+                      </p>
+                      <Button 
+                        onClick={handleStartInterview}
+                        size="lg"
+                        className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold"
+                      >
+                        Start Interview Session
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Recording Indicator */}
                 {streamStatus.isRecording && (
