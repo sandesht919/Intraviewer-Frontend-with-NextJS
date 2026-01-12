@@ -80,33 +80,33 @@ export const useInterviewStore = create<InterviewStore>()(
       setError: (error) => set({ error }),
 
       uploadCV: async (file) => {
-        try {
-          if (!file) {
-            set({ cvData: { file: null, fileName: '' }, error: null });
-            return;
-          }
-
-          // Validate file type
-          if (!FILE_CONSTANTS.ALLOWED_CV_TYPES.includes(file.type as any)) {
-            throw new Error(
-              `Invalid file type. Allowed: ${Object.values(FILE_CONSTANTS.CV_EXTENSION_LABELS).join(
-                ', '
-              )}`
-            );
-          }
-
-          // Validate file size
-          if (file.size > FILE_CONSTANTS.MAX_CV_SIZE) {
-            throw new Error(
-              `File size exceeds ${FILE_CONSTANTS.MAX_CV_SIZE / 1024 / 1024}MB limit.`
-            );
-          }
-
-          // Store file locally
-          set({ cvData: { file, fileName: file.name }, error: null });
-        } catch (err: any) {
-          set({ error: err?.message || 'Failed to upload CV' });
+        if (!file) {
+          set({ cvData: { file: null, fileName: '' }, error: null });
+          return;
         }
+
+        // Validate file type
+        if (!FILE_CONSTANTS.ALLOWED_CV_TYPES.includes(file.type as any)) {
+          set({
+            error: `Invalid file type. Allowed: ${Object.values(
+              FILE_CONSTANTS.CV_EXTENSION_LABELS
+            ).join(', ')}`,
+          });
+          throw new Error(
+            `Invalid file type. Allowed: ${Object.values(FILE_CONSTANTS.CV_EXTENSION_LABELS).join(
+              ', '
+            )}`
+          );
+        }
+
+        // Validate file size
+        if (file.size > FILE_CONSTANTS.MAX_CV_SIZE) {
+          set({ error: `File size exceeds ${FILE_CONSTANTS.MAX_CV_SIZE / 1024 / 1024}MB limit.` });
+          throw new Error(`File size exceeds ${FILE_CONSTANTS.MAX_CV_SIZE / 1024 / 1024}MB limit.`);
+        }
+
+        // Store file locally
+        set({ cvData: { file, fileName: file.name }, error: null });
       },
 
       setJobDescription: (description) => set({ jobDescription: description }),

@@ -303,7 +303,7 @@ export default function InterviewPreparePage() {
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Upload Your CV (Optional)</h2>
               <p className="text-slate-600">
-                Your CV helps us generate more personalized questions. Supported formats: PDF, Images (JPG, PNG, etc.), DOCX (Max 10MB). You can skip this if you prefer.
+                Your CV helps us generate more personalized questions. Supported formats: PDF, Images (JPG, PNG, etc.), DOCX (Max 5MB). You can skip this if you prefer.
               </p>
             </div>
 
