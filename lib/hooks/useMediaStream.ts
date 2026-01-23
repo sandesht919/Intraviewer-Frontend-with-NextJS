@@ -165,6 +165,7 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
       const base64 = btoa(
         new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
       );
+      console.log('the audio chunks', base64);
 
       // Send in backend-expected format
       wsRef.current?.send(
@@ -207,6 +208,7 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
 
         // Send audio blob in backend format
         sendBlob('audio', blob);
+        console.log('the audion formate ', blob);
 
         setStatus((prev) => ({
           ...prev,
@@ -337,6 +339,19 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
         // Step 1: Store video and canvas refs
         videoRef.current = videoElement;
         canvasRef.current = canvasElement;
+
+        // Step 1.5: Extract media stream from video element
+        const stream = videoElement.srcObject as MediaStream;
+        if (!stream) {
+          throw new Error(
+            'No media stream found on video element. Ensure camera/microphone access is granted.'
+          );
+        }
+        mediaStreamRef.current = stream;
+        console.log(
+          '📹 Media stream captured:',
+          stream.getTracks().map((t) => `${t.kind}: ${t.label}`)
+        );
 
         // Step 2: Connect WebSocket with session ID
         await connectWebSocket(interviewSessionId);
