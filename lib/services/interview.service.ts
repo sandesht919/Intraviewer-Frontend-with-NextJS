@@ -208,7 +208,7 @@ export class InterviewService {
       headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/interviews/sessions`, {
+    const response = await fetch(`${API_BASE_URL}/sessions`, {
       method: 'GET',
       headers,
       credentials: 'include',
