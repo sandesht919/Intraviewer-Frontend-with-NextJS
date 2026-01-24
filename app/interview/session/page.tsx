@@ -1,13 +1,13 @@
 /**
  * Live Interview Session Page
- * 
+ *
  * Main interview practice page where:
  * - User's camera/microphone are accessed via WebRTC
  * - Interview questions are displayed one at a time
  * - User responds to each question
  * - Interview progress is tracked
  * - Real-time data streams to backend for analysis
- * 
+ *
  * Features:
  * - Video preview with media controls
  * - Question display with 90-second timer
@@ -16,8 +16,8 @@
  * - Connection status indicator
  * - Mute/camera toggle controls
  * - Navigation between questions
- * 
- * TODO: 
+ *
+ * TODO:
  * - Implement actual WebRTC recording
  * - Connect WebSocket for real-time analysis
  * - Handle connection failures
@@ -41,7 +41,7 @@ import {
   ChevronRight,
   SkipForward,
   PhoneOff,
-  Play
+  Play,
 } from 'lucide-react';
 import { useInterviewStore } from '@/lib/stores/interviewStore';
 import { useMediaStream } from '@/lib/hooks/useMediaStream';
@@ -49,22 +49,22 @@ import PreviousSessionsModal from '@/components/PreviousSessionsModal';
 
 /**
  * Interview Session Component
- * 
+ *
  * Manages the real-time interview experience
  */
 export default function InterviewSessionPage() {
   const router = useRouter();
 
   // Get interview data from Zustand store
-  const { 
-    currentSession, 
+  const {
+    currentSession,
     backendSessionId,
     previousSessions,
-    addResponse, 
+    addResponse,
     completeInterview,
     fetchPreviousSessions,
     clearCurrentSession,
-    interviewQuestions
+    interviewQuestions,
   } = useInterviewStore();
 
   // State to control when to show previous sessions modal
@@ -73,10 +73,15 @@ export default function InterviewSessionPage() {
 
   // Media streaming hook (handles audio chunks + frame capture)
   // Only initialize with sessionId when we have a valid backend session
-  const { sessionId, status: streamStatus, startRecording: startMediaStream, stopRecording: stopMediaStream } = useMediaStream({
+  const {
+    sessionId,
+    status: streamStatus,
+    startRecording: startMediaStream,
+    stopRecording: stopMediaStream,
+  } = useMediaStream({
     interviewSessionId: backendSessionId || undefined,
     audioChunkDuration: 10000, // 10 seconds
-    frameInterval: 2000 // 2 seconds
+    frameInterval: 2000, // 2 seconds
   });
 
   // Local media stream state (for display and controls)
@@ -97,17 +102,18 @@ export default function InterviewSessionPage() {
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const responseStartTimeRef = useRef<number>(0);
 
-  console.log("🚀 ~ InterviewSessionPage ~ currentSession:", currentSession, backendSessionId)
+  console.log('🚀 ~ InterviewSessionPage ~ currentSession:', currentSession, backendSessionId);
 
   // Check if interview session exists and has backend session ID
   useEffect(() => {
     const validateSession = async () => {
       // Validate session: exists, has backend ID, not completed, and has questions
-      const isValidSession = currentSession && 
-                             backendSessionId && 
-                             currentSession.status !== 'completed' &&
-                             currentSession.questions && 
-                             currentSession.questions.length > 0;
+      const isValidSession =
+        currentSession &&
+        backendSessionId &&
+        currentSession.status !== 'completed' &&
+        currentSession.questions &&
+        currentSession.questions.length > 0;
 
       if (isValidSession) {
         // Valid session exists - hide modal and proceed
@@ -134,8 +140,9 @@ export default function InterviewSessionPage() {
    * ONLY starts when there's a valid backend session
    */
   useEffect(() => {
-    // Don't start media if no current session or no backend session ID
-    if (!currentSession || !backendSessionId || localStream) return;
+    // Don't start media if no backend session ID.
+    // We remove currentSession from this check to prevent re-initialization loops.
+    if (!backendSessionId || localStream) return;
 
     const setupMedia = async () => {
       try {
@@ -145,8 +152,8 @@ export default function InterviewSessionPage() {
           audio: {
             echoCancellation: true,
             noiseSuppression: true,
-            autoGainControl: true
-          }
+            autoGainControl: true,
+          },
         });
 
         setLocalStream(stream);
@@ -158,7 +165,6 @@ export default function InterviewSessionPage() {
         }
 
         console.log('📹 Media preview started');
-
       } catch (err: any) {
         setMediaError(err.message || 'Failed to access camera/microphone');
         setSessionError('Please allow camera and microphone access to continue');
@@ -173,11 +179,11 @@ export default function InterviewSessionPage() {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
       }
-      
+
       // Stop media streaming
       stopMediaStream();
     };
-  }, [currentSession, backendSessionId]); // Re-run if session changes
+  }, [backendSessionId]); // Re-run if session changes
 
   /**
    * Question timer countdown
@@ -186,7 +192,7 @@ export default function InterviewSessionPage() {
     if (!currentSession || !isInterviewStarted) return;
 
     const interval = setInterval(() => {
-      setTimeRemaining(prev => {
+      setTimeRemaining((prev) => {
         if (prev <= 1) {
           return 90; // Reset timer
         }
@@ -213,11 +219,16 @@ export default function InterviewSessionPage() {
         answer: 'Response recorded (streaming session: ' + sessionId + ')',
         duration: Math.round(duration),
         timestamp: new Date(),
-        audioBlob: undefined // Streaming handled by WebSocket
+        audioBlob: undefined, // Streaming handled by WebSocket
       });
 
       console.log('✅ Response metadata saved for question:', currentQuestionIndex + 1);
-      console.log('📊 Chunks:', streamStatus.chunksRecorded, 'Frames:', streamStatus.framesRecorded);
+      console.log(
+        '📊 Chunks:',
+        streamStatus.chunksRecorded,
+        'Frames:',
+        streamStatus.framesRecorded
+      );
     } catch (err: any) {
       console.error('Error saving response:', err);
     }
@@ -232,7 +243,7 @@ export default function InterviewSessionPage() {
 
     // Check if there are more questions
     if (currentQuestionIndex < currentSession!.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
       setTimeRemaining(90); // Reset timer for next question
       responseStartTimeRef.current = Date.now();
 
@@ -259,19 +270,24 @@ export default function InterviewSessionPage() {
 
       // Save final response metadata
       await saveResponseMetadata();
-      
+
       // Stop media streaming (sends session_complete to backend)
       stopMediaStream();
-      
+
       // Stop all media tracks
       if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
+        localStream.getTracks().forEach((track) => track.stop());
       }
-      
+
       // Complete interview in state (sends to backend and clears state)
       await completeInterview();
 
-      console.log('🎬 Interview completed - Total chunks:', streamStatus.chunksRecorded, 'frames:', streamStatus.framesRecorded);
+      console.log(
+        '🎬 Interview completed - Total chunks:',
+        streamStatus.chunksRecorded,
+        'frames:',
+        streamStatus.framesRecorded
+      );
       console.log('📊 Session cleared. Redirecting to results:', sessionIdForRedirect);
 
       // Redirect to results page
@@ -287,7 +303,7 @@ export default function InterviewSessionPage() {
    */
   const handleStartInterview = async () => {
     if (!videoRef.current || !canvasRef.current) return;
-    
+
     try {
       await startMediaStream(videoRef.current, canvasRef.current);
       responseStartTimeRef.current = Date.now();
@@ -312,7 +328,7 @@ export default function InterviewSessionPage() {
    */
   const toggleMicrophone = () => {
     if (localStream) {
-      localStream.getAudioTracks().forEach(track => {
+      localStream.getAudioTracks().forEach((track) => {
         track.enabled = !track.enabled;
       });
       setIsMuted(!isMuted);
@@ -324,7 +340,7 @@ export default function InterviewSessionPage() {
    */
   const toggleCamera = () => {
     if (localStream) {
-      localStream.getVideoTracks().forEach(track => {
+      localStream.getVideoTracks().forEach((track) => {
         track.enabled = !track.enabled;
       });
       setIsCameraOff(!isCameraOff);
@@ -379,7 +395,7 @@ export default function InterviewSessionPage() {
   };
   const questionProgress = currentQuestionIndex + 1;
   const totalQuestions = currentSession.questions.length;
-  console.log("🚀 ~ InterviewSessionPage ~ currentQuestion:", currentQuestion)
+  console.log('🚀 ~ InterviewSessionPage ~ currentQuestion:', currentQuestion);
 
   // Media status indicator (includes WebSocket connection)
   const mediaConnected = localStream !== null && streamStatus.isConnected;
@@ -405,9 +421,15 @@ export default function InterviewSessionPage() {
 
           {/* Media Status Indicator */}
           <div className="flex items-center gap-3 px-4 py-2 bg-white/80 border border-sky-200 rounded-lg shadow-sm">
-            <div className={`w-2 h-2 rounded-full ${mediaConnected ? 'animate-pulse' : ''} ${connectionStatusColor}`}></div>
+            <div
+              className={`w-2 h-2 rounded-full ${mediaConnected ? 'animate-pulse' : ''} ${connectionStatusColor}`}
+            ></div>
             <span className="text-sm text-slate-700">
-              {streamStatus.isRecording ? 'Live & Recording' : (localStream ? 'Ready to Start' : 'Connecting...')}
+              {streamStatus.isRecording
+                ? 'Live & Recording'
+                : localStream
+                  ? 'Ready to Start'
+                  : 'Connecting...'}
             </span>
           </div>
         </div>
@@ -416,9 +438,7 @@ export default function InterviewSessionPage() {
         {(sessionError || mediaError) && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-red-300 text-sm">
-              {sessionError || mediaError}
-            </p>
+            <p className="text-red-300 text-sm">{sessionError || mediaError}</p>
           </div>
         )}
 
@@ -444,11 +464,14 @@ export default function InterviewSessionPage() {
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
                         <Play className="w-8 h-8 text-white ml-1" />
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-2">Ready to specific start?</h3>
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        Ready to specific start?
+                      </h3>
                       <p className="text-slate-200 mb-6 text-sm">
-                        Your camera and microphone are ready. Click below to begin the interview session.
+                        Your camera and microphone are ready. Click below to begin the interview
+                        session.
                       </p>
-                      <Button 
+                      <Button
                         onClick={handleStartInterview}
                         size="lg"
                         className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold"
@@ -545,7 +568,9 @@ export default function InterviewSessionPage() {
             {/* Question Display */}
             <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-6 shadow-xl">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-slate-600 mb-2">Question {questionProgress}</h2>
+                <h2 className="text-lg font-semibold text-slate-600 mb-2">
+                  Question {questionProgress}
+                </h2>
                 <p className="text-3xl font-bold text-slate-800 leading-tight">
                   {currentQuestion?.question}
                 </p>
@@ -556,12 +581,14 @@ export default function InterviewSessionPage() {
                 <span className="px-3 py-1 bg-sky-100 text-sky-700 text-sm rounded-full">
                   {currentQuestion?.category}
                 </span>
-                <span className={`
+                <span
+                  className={`
                   px-3 py-1 text-sm rounded-full
                   ${currentQuestion?.difficulty === 'easy' ? 'bg-green-100 text-green-700' : ''}
                   ${currentQuestion?.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : ''}
                   ${currentQuestion?.difficulty === 'hard' ? 'bg-red-100 text-red-700' : ''}
-                `}>
+                `}
+                >
                   {currentQuestion?.difficulty} difficulty
                 </span>
               </div>
@@ -636,11 +663,7 @@ export default function InterviewSessionPage() {
             <div className="space-y-3">
               {/* Skip Question Button */}
               {questionProgress < totalQuestions && (
-                <Button
-                  onClick={handleNextQuestion}
-                  variant="outline"
-                  className="w-full"
-                >
+                <Button onClick={handleNextQuestion} variant="outline" className="w-full">
                   <SkipForward className="w-4 h-4 mr-2" />
                   Skip
                 </Button>
@@ -648,7 +671,9 @@ export default function InterviewSessionPage() {
 
               {/* Next/Complete Button */}
               <Button
-                onClick={questionProgress < totalQuestions ? handleNextQuestion : handleCompleteInterview}
+                onClick={
+                  questionProgress < totalQuestions ? handleNextQuestion : handleCompleteInterview
+                }
                 className="w-full bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 shadow-md"
               >
                 {questionProgress < totalQuestions ? (
@@ -675,7 +700,9 @@ export default function InterviewSessionPage() {
             <p>Session ID (Media): {sessionId}</p>
             <p>Audio Chunks: {streamStatus.chunksRecorded}</p>
             <p>Video Frames: {streamStatus.framesRecorded}</p>
-            <p>Question: {currentQuestionIndex + 1} / {totalQuestions}</p>
+            <p>
+              Question: {currentQuestionIndex + 1} / {totalQuestions}
+            </p>
             {streamStatus.error && <p className="text-red-400">Error: {streamStatus.error}</p>}
           </div>
         )}
