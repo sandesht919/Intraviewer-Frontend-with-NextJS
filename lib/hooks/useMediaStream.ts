@@ -220,14 +220,26 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
         chunkIndexRef.current++;
         currentChunkStartTimeRef.current = Date.now();
 
-        // Start next chunk if media recorder still exists (not stopped by user)
-        if (mediaRecorderRef.current === mediaRecorder) {
-          mediaRecorder.start();
-          setTimeout(() => {
-            if (mediaRecorder.state === 'recording') {
-              mediaRecorder.stop();
+        // Start next chunk if media recorder still exists and stream is still active
+        if (mediaRecorderRef.current === mediaRecorder && mediaStreamRef.current) {
+          // Check if audio tracks are still active
+          const audioTracks = mediaStreamRef.current.getAudioTracks();
+          const hasActiveTrack = audioTracks.some((track) => track.readyState === 'live');
+
+          if (hasActiveTrack) {
+            try {
+              mediaRecorder.start();
+              setTimeout(() => {
+                if (mediaRecorder.state === 'recording') {
+                  mediaRecorder.stop();
+                }
+              }, audioChunkDuration);
+            } catch (err) {
+              console.log('🛑 Audio recording stopped - stream ended');
             }
-          }, audioChunkDuration);
+          } else {
+            console.log('🛑 Audio tracks ended - stopping chunk recording');
+          }
         }
       };
 
