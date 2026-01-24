@@ -193,7 +193,8 @@ export default function InterviewPreparePage() {
 
         {/* Progress Steps */}
         <div className="mb-12 flex justify-between relative">
-          {/* Step 1: Optional CV Upload */}
+
+          {/* Step 1:  CV Upload */}
           <div className="flex flex-col items-center z-10">
             <div
               className={`
@@ -297,7 +298,7 @@ export default function InterviewPreparePage() {
           </div>
         )}
 
-        {/* Step 1: Optional Upload CV */}
+        {/* Step 1:  Upload CV */}
         {currentStep === 'upload' && (
           <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
             <div className="mb-6">

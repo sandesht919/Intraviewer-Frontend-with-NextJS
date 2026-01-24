@@ -228,7 +228,7 @@ export default function InterviewSessionPage() {
    */
   const handleNextQuestion = async () => {
     // Save current response metadata (streaming continues)
-    await saveResponseMetadata();
+    //await saveResponseMetadata();
 
     // Check if there are more questions
     if (currentQuestionIndex < currentSession!.questions.length - 1) {
