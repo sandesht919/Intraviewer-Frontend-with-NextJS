@@ -119,7 +119,7 @@ export const useInterview = () => {
 
       // Send file to backend for parsing/storage
       const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
-      const endpoint = API_URL ? `${API_URL}/api/interviews/upload-cv` : '/api/interviews/upload-cv';
+      const endpoint = API_URL ? `${API_URL}/userinput/data` : '/userinput/data';
       const formData = new FormData();
       formData.append('file', file);
 
