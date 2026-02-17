@@ -258,11 +258,17 @@ export default function InterviewSessionPage() {
    * Handle interview completion
    * Stop streaming and finalize interview
    */
-  const handleCompleteInterview = async () => {
-    try {
-      // Store session ID before clearing
-      const sessionIdForRedirect = backendSessionId;
+  const [isCompleting, setIsCompleting] = useState(false);
 
+  const handleCompleteInterview = async () => {
+    // Prevent double-clicks / re-entrancy
+    if (isCompleting) return;
+    setIsCompleting(true);
+
+    // Capture session ID FIRST before any state changes
+    const sessionIdForRedirect = backendSessionId;
+
+    try {
       if (!sessionIdForRedirect) {
         setSessionError('No active session to complete');
         return;
@@ -272,7 +278,11 @@ export default function InterviewSessionPage() {
       await saveResponseMetadata();
 
       // Stop media streaming (sends session_complete to backend)
-      stopMediaStream();
+      try {
+        stopMediaStream();
+      } catch (err) {
+        console.warn('stopMediaStream error (non-fatal):', err);
+      }
 
       // Stop all media tracks
       if (localStream) {
@@ -290,12 +300,15 @@ export default function InterviewSessionPage() {
       );
       console.log('📊 Session cleared. Redirecting to results:', sessionIdForRedirect);
 
-      // Redirect to results page
-      router.push(`/interview/results/${sessionIdForRedirect}`);
+      // Redirect IMMEDIATELY using the captured ID (state already cleared won't affect this)
+      // Use replace to prevent back-navigation to the cleared session page
+      router.replace(`/interview/results/${sessionIdForRedirect}`);
     } catch (err: any) {
       console.error('❌ Failed to complete interview:', err);
-      setSessionError(err.message || 'Failed to complete interview');
+      setSessionError(err?.message || 'Failed to complete interview');
+      setIsCompleting(false);
     }
+    // NOTE: Don't reset isCompleting on success - we're navigating away
   };
 
   /**
@@ -674,9 +687,14 @@ export default function InterviewSessionPage() {
                 onClick={
                   questionProgress < totalQuestions ? handleNextQuestion : handleCompleteInterview
                 }
-                className="w-full bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 shadow-md"
+                disabled={isCompleting}
+                className="w-full bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 shadow-md disabled:opacity-70"
               >
-                {questionProgress < totalQuestions ? (
+                {isCompleting ? (
+                  <>
+                    <Loader className="w-4 h-4 mr-2 animate-spin" /> Completing...
+                  </>
+                ) : questionProgress < totalQuestions ? (
                   <>
                     Next Question <ChevronRight className="w-4 h-4 ml-2" />
                   </>
