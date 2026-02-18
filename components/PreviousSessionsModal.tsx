@@ -43,7 +43,7 @@ export default function PreviousSessionsModal({
       case 'completed':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'in-progress':
-        return <PlayCircle className="w-5 h-5 text-blue-500" />;
+        return <PlayCircle className="w-5 h-5 text-amber-600" />;
       case 'cancelled':
         return <XCircle className="w-5 h-5 text-red-500" />;
       default:
@@ -56,7 +56,7 @@ export default function PreviousSessionsModal({
       case 'completed':
         return 'bg-green-100 text-green-700 border-green-300';
       case 'in-progress':
-        return 'bg-blue-100 text-blue-700 border-blue-300';
+        return 'bg-amber-100 text-amber-700 border-amber-300';
       case 'cancelled':
         return 'bg-red-100 text-red-700 border-red-300';
       default:
@@ -77,11 +77,11 @@ export default function PreviousSessionsModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white/40 backdrop-blur-md rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-amber-700/20">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-sky-600 p-6 text-white">
+        <div className="bg-gradient-to-r from-amber-600 to-amber-700 p-6 text-white">
           <h2 className="text-2xl font-bold mb-2">Your Interview Sessions</h2>
-          <p className="text-blue-100">
+          <p className="text-amber-100">
             Continue a previous session or start a new interview
           </p>
         </div>
@@ -90,16 +90,16 @@ export default function PreviousSessionsModal({
         <div className="p-6 max-h-[60vh] overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader className="w-8 h-8 animate-spin text-blue-600" />
-              <span className="ml-3 text-slate-600">Loading sessions...</span>
+              <Loader className="w-8 h-8 animate-spin text-amber-700" />
+              <span className="ml-3 text-stone-700">Loading sessions...</span>
             </div>
           ) : sessions.length === 0 ? (
             <div className="text-center py-12">
-              <Clock className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-800 mb-2">
+              <Clock className="w-16 h-16 text-stone-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-black mb-2">
                 No Previous Sessions
               </h3>
-              <p className="text-slate-600 mb-6">
+              <p className="text-stone-700 mb-6">
                 Start your first interview practice session now
               </p>
             </div>
@@ -108,16 +108,16 @@ export default function PreviousSessionsModal({
               {sessions.map((session) => (
                 <div
                   key={session.id}
-                  className="border border-slate-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-md transition-all"
+                  className="border border-amber-700/20 rounded-xl p-5 hover:bg-white/70 transition-all bg-white/50"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       {getStatusIcon(session.status)}
                       <div>
-                        <h3 className="font-semibold text-slate-800">
+                        <h3 className="font-semibold text-black">
                           Interview Session #{session.id}
                         </h3>
-                        <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                        <div className="flex items-center gap-2 text-sm text-stone-600 mt-1">
                           <Calendar className="w-4 h-4" />
                           {formatDate(session.createdAt)}
                         </div>
@@ -133,13 +133,13 @@ export default function PreviousSessionsModal({
                   </div>
 
                   {session.jobDescription && (
-                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">
+                    <p className="text-sm text-stone-700 mb-3 line-clamp-2">
                       {session.jobDescription}
                     </p>
                   )}
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">
+                    <span className="text-stone-600">
                       {session.questions?.length || 0} questions •{' '}
                       {session.responses?.length || 0} answered
                     </span>
@@ -148,7 +148,7 @@ export default function PreviousSessionsModal({
                       <Button
                         size="sm"
                         onClick={() => router.push(`/interview/results/${session.id}`)}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        className="bg-amber-700 hover:bg-amber-800"
                       >
                         View Results
                       </Button>
@@ -159,7 +159,7 @@ export default function PreviousSessionsModal({
                         size="sm"
                         variant="outline"
                         onClick={() => router.push('/interview/session')}
-                        className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                        className="border-amber-700 text-amber-700 hover:bg-amber-50"
                       >
                         Continue
                       </Button>
@@ -172,11 +172,11 @@ export default function PreviousSessionsModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-slate-200 p-6 bg-slate-50">
+        <div className="border-t border-amber-700/20 p-6 bg-white/50 backdrop-blur-sm">
           <div className="flex gap-3">
             <Button
               onClick={onCreateNew}
-              className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 shadow-md"
+              className="flex-1 bg-amber-700 hover:bg-amber-800 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create New Interview
@@ -185,7 +185,7 @@ export default function PreviousSessionsModal({
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="px-6"
+                className="px-6 border-amber-700/30 text-black hover:bg-white/60"
               >
                 Cancel
               </Button>

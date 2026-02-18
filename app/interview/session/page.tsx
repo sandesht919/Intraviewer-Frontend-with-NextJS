@@ -379,11 +379,11 @@ export default function InterviewSessionPage() {
   if (showSessionsModal || !currentSession || !backendSessionId) {
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center">
+        <div className="min-h-screen bg-[#e1e1db] flex items-center justify-center">
           {/* Background decorative elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
+            <div className="absolute top-20 left-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
           </div>
         </div>
 
@@ -415,29 +415,29 @@ export default function InterviewSessionPage() {
   const connectionStatusColor = mediaConnected ? 'text-green-500' : 'text-yellow-500';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 py-8 px-4">
+    <div className="min-h-screen bg-[#e1e1db] py-8 px-4 pt-24">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative max-w-5xl mx-auto">
         {/* Header with Media Status */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Interview Session</h1>
-            <p className="text-slate-600">
+            <h1 className="text-3xl font-bold text-black mb-2">Interview Session</h1>
+            <p className="text-stone-600">
               Question {questionProgress} of {totalQuestions}
             </p>
           </div>
 
           {/* Media Status Indicator */}
-          <div className="flex items-center gap-3 px-4 py-2 bg-white/80 border border-sky-200 rounded-lg shadow-sm">
+          <div className="flex items-center gap-3 px-4 py-2 bg-white/60 backdrop-blur-sm border border-amber-700/20 rounded-lg">
             <div
               className={`w-2 h-2 rounded-full ${mediaConnected ? 'animate-pulse' : ''} ${connectionStatusColor}`}
             ></div>
-            <span className="text-sm text-slate-700">
+            <span className="text-sm text-stone-700">
               {streamStatus.isRecording
                 ? 'Live & Recording'
                 : localStream
@@ -449,9 +449,9 @@ export default function InterviewSessionPage() {
 
         {/* Error Alert */}
         {(sessionError || mediaError) && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-red-300 text-sm">{sessionError || mediaError}</p>
+          <div className="mb-6 p-4 bg-red-50/60 border border-red-200/50 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <p className="text-red-700 text-sm">{sessionError || mediaError}</p>
           </div>
         )}
 
@@ -459,7 +459,7 @@ export default function InterviewSessionPage() {
           {/* Left Column: Video and Controls */}
           <div className="lg:col-span-2 space-y-6">
             {/* Video Feed Container */}
-            <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-6 overflow-hidden shadow-xl">
+            <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6 overflow-hidden">
               {/* Video Preview */}
               <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden mb-6">
                 <video
@@ -473,8 +473,8 @@ export default function InterviewSessionPage() {
                 {/* Start Interview overlay */}
                 {!isInterviewStarted && !showSessionsModal && localStream && (
                   <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center">
-                    <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl text-center max-w-sm mx-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+                    <div className="bg-white/10 p-6 rounded-xl backdrop-blur-md border border-white/20 text-center max-w-sm mx-4">
+                      <div className="w-16 h-16 bg-amber-700 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Play className="w-8 h-8 text-white ml-1" />
                       </div>
                       <h3 className="text-xl font-bold text-white mb-2">
@@ -487,7 +487,7 @@ export default function InterviewSessionPage() {
                       <Button
                         onClick={handleStartInterview}
                         size="lg"
-                        className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold"
+                        className="w-full bg-amber-700 text-white hover:bg-amber-800 font-medium"
                       >
                         Start Interview Session
                       </Button>
@@ -526,7 +526,7 @@ export default function InterviewSessionPage() {
                   size="lg"
                   className={`
                     flex items-center gap-2
-                    ${isMuted ? 'bg-red-50 border-red-300 text-red-600' : 'bg-sky-600 hover:bg-sky-700'}
+                    ${isMuted ? 'bg-red-50 border-red-300 text-red-600' : 'bg-amber-700 hover:bg-amber-800'}
                   `}
                 >
                   {isMuted ? (
@@ -549,7 +549,7 @@ export default function InterviewSessionPage() {
                   size="lg"
                   className={`
                     flex items-center gap-2
-                    ${isCameraOff ? 'bg-red-50 border-red-300 text-red-600' : 'bg-sky-600 hover:bg-sky-700'}
+                    ${isCameraOff ? 'bg-red-50 border-red-300 text-red-600' : 'bg-amber-700 hover:bg-amber-800'}
                   `}
                 >
                   {isCameraOff ? (
@@ -579,19 +579,19 @@ export default function InterviewSessionPage() {
             </div>
 
             {/* Question Display */}
-            <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-6 shadow-xl">
+            <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-slate-600 mb-2">
+                <h2 className="text-lg font-semibold text-stone-600 mb-2">
                   Question {questionProgress}
                 </h2>
-                <p className="text-3xl font-bold text-slate-800 leading-tight">
+                <p className="text-3xl font-bold text-black leading-tight">
                   {currentQuestion?.question}
                 </p>
               </div>
 
               {/* Question Metadata */}
               <div className="flex gap-3 flex-wrap">
-                <span className="px-3 py-1 bg-sky-100 text-sky-700 text-sm rounded-full">
+                <span className="px-3 py-1 bg-amber-100/70 text-amber-700 text-sm rounded-full">
                   {currentQuestion?.category}
                 </span>
                 <span
@@ -611,20 +611,20 @@ export default function InterviewSessionPage() {
           {/* Right Column: Timer and Navigation */}
           <div className="space-y-6">
             {/* Timer */}
-            <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-6 shadow-xl">
+            <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6">
               <div className="text-center">
-                <Clock className="w-6 h-6 text-slate-500 mx-auto mb-2" />
-                <p className="text-slate-600 text-sm mb-3">Time Remaining</p>
-                <div className="text-5xl font-bold text-slate-800 font-mono mb-4">
+                <Clock className="w-6 h-6 text-stone-500 mx-auto mb-2" />
+                <p className="text-stone-600 text-sm mb-3">Time Remaining</p>
+                <div className="text-5xl font-bold text-black font-mono mb-4">
                   {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
                 </div>
 
                 {/* Timer Progress Bar */}
-                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                   <div
                     className={`
                       h-full transition-all duration-300
-                      ${timeRemaining > 30 ? 'bg-sky-500' : 'bg-yellow-500'}
+                      ${timeRemaining > 30 ? 'bg-amber-600' : 'bg-yellow-500'}
                       ${timeRemaining < 10 ? 'bg-red-500' : ''}
                     `}
                     style={{ width: `${(timeRemaining / 90) * 100}%` }}
@@ -634,18 +634,18 @@ export default function InterviewSessionPage() {
             </div>
 
             {/* Progress */}
-            <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-6 shadow-xl">
-              <h3 className="font-semibold text-slate-800 mb-4">Progress</h3>
+            <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6">
+              <h3 className="font-semibold text-black mb-4">Progress</h3>
 
               {/* Progress Bar */}
-              <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-3">
+              <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
                 <div
-                  className="h-full bg-sky-500 transition-all"
+                  className="h-full bg-amber-600 transition-all"
                   style={{ width: `${(questionProgress / totalQuestions) * 100}%` }}
                 ></div>
               </div>
 
-              <p className="text-slate-600 text-sm mb-4">
+              <p className="text-stone-600 text-sm mb-4">
                 {questionProgress} / {totalQuestions} questions completed
               </p>
 
@@ -656,9 +656,9 @@ export default function InterviewSessionPage() {
                     key={q.id ?? `question-${idx}`}
                     className={`
                       p-2 rounded text-sm flex items-center gap-2 transition
-                      ${idx === currentQuestionIndex ? 'bg-sky-100 text-sky-700' : ''}
-                      ${idx < currentQuestionIndex ? 'text-green-600' : 'text-slate-500'}
-                      ${idx > currentQuestionIndex ? 'text-slate-400' : ''}
+                      ${idx === currentQuestionIndex ? 'bg-amber-100/70 text-amber-700' : ''}
+                      ${idx < currentQuestionIndex ? 'text-green-600' : 'text-stone-500'}
+                      ${idx > currentQuestionIndex ? 'text-stone-400' : ''}
                     `}
                   >
                     {idx < currentQuestionIndex ? (
@@ -688,7 +688,7 @@ export default function InterviewSessionPage() {
                   questionProgress < totalQuestions ? handleNextQuestion : handleCompleteInterview
                 }
                 disabled={isCompleting}
-                className="w-full bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 shadow-md disabled:opacity-70"
+                className="w-full bg-amber-700 hover:bg-amber-800 disabled:opacity-70"
               >
                 {isCompleting ? (
                   <>
@@ -710,7 +710,7 @@ export default function InterviewSessionPage() {
 
         {/* Debug Info - For testing Media and Streaming */}
         {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-400 font-mono space-y-1">
+          <div className="mt-8 p-4 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl text-xs text-stone-600 font-mono space-y-1">
             <p>Media Stream: {localStream ? '✓ Active' : '✗ Not Active'}</p>
             <p>WebSocket: {streamStatus.isConnected ? '✓ Connected' : '✗ Disconnected'}</p>
             <p>Streaming: {streamStatus.isRecording ? '✓ Active' : '✗ Inactive'}</p>
@@ -721,7 +721,7 @@ export default function InterviewSessionPage() {
             <p>
               Question: {currentQuestionIndex + 1} / {totalQuestions}
             </p>
-            {streamStatus.error && <p className="text-red-400">Error: {streamStatus.error}</p>}
+            {streamStatus.error && <p className="text-red-600">Error: {streamStatus.error}</p>}
           </div>
         )}
       </div>

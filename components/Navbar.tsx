@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "./ui/button";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { Menu, Bell, Search, User } from "lucide-react";
@@ -35,21 +36,27 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
    
     if (!isAuthenticated) {
         return (
-            <nav className="fixed top-4 left-4 right-4 z-50 bg-[#e1e1db]/80 backdrop-blur-xl border border-amber-700 rounded-2xl shadow-lg">
+            <nav className="fixed top-0.2 left-4 right-4 z-50 bg-white/40 backdrop-blur-md border border-amber-700/30 rounded-xl">
                 <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-                    <Link href ="/">
-                    <div className="text-2xl font-bold text-black">
-                        IntraViewer
-                    </div>
+                    <Link href="/" className="flex items-center gap-2">
+                        <Image
+                            src="/intraviewerlogo.png"
+                            alt="IntraViewer Logo"
+                            width={32}
+                            height={32}
+                            className="w-8 h-8 rounded-lg"
+                            priority
+                        />
+                        <span className="text-2xl font-bold text-black">IntraViewer</span>
                     </Link>
                     <div className="flex items-center gap-4">
                         <Link href="/auth/login">
-                            <Button variant="ghost" className="text-black hover:text-amber-700 hover:bg-amber-100">
+                            <Button variant="ghost" className="text-black hover:text-amber-700 hover:bg-amber-100/50 rounded-lg">
                                 Sign In
                             </Button>
                         </Link>
                         <Link href="/auth/signup">
-                            <Button className="bg-amber-700 hover:bg-amber-800 text-white shadow-md rounded-xl">
+                            <Button className="bg-amber-700/90 hover:bg-amber-700 text-white rounded-lg border border-amber-600/50">
                                 Start Free Trial
                             </Button>
                         </Link>
@@ -62,7 +69,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
     return (
         <>
             {/* Authenticated Navigation */}
-            <nav className="fixed top-4 left-4 right-4 z-40 bg-[#e1e1db]/80 backdrop-blur-xl border border-amber-700 rounded-2xl shadow-lg">
+            <nav className="fixed top-0.2 left-3 right-3 z-40 bg-white/40 backdrop-blur-md border border-amber-700/30 rounded-xl">
                 <div className="flex items-center justify-between px-6 py-3">
                     {/* Left Section */}
                     <div className="flex items-center gap-4">
@@ -78,9 +85,14 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                         
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-amber-700 rounded-lg flex items-center justify-center shadow-sm">
-                                <span className="text-white font-bold text-sm">IV</span>
-                            </div>
+                            <Image
+                                src="/intraviewerlogo.png"
+                                alt="IntraViewer Logo"
+                                width={42}
+                                height={42}
+                                className="w-8 h-8 rounded-lg"
+                                priority
+                            />
                             <span className="font-bold text-black hidden sm:block">IntraViewer</span>
                         </Link>
                     </div>
@@ -92,7 +104,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                             <input
                                 type="text"
                                 placeholder="Search interviews, feedback, results..."
-                                className="w-full pl-10 pr-4 py-2 border border-amber-700 rounded-full bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent transition-all text-black placeholder-black/50"
+                                className="w-full pl-10 pr-4 py-2 border border-amber-700/30 rounded-lg bg-white/50 focus:bg-white/80 focus:outline-none focus:ring-1 focus:ring-amber-600/50 focus:border-amber-600/50 transition-all text-black placeholder-black/40"
                             />
                         </div>
                     </div>
@@ -121,14 +133,14 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                         {/* User Profile */}
                         <Link href={'./profile'}>
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-amber-700 rounded-full flex items-center justify-center">
-                                {user?.firstname && user?.lastname ? (
-                                  <span className="text-white text-sm font-medium">
-                                    {user.firstname?.[0]}{user.lastname?.[0]}
-                                  </span>
-                                ) : (
-                                  <User className="w-4 h-4 text-white" />
-                                )}
+                            <div className="w-8 h-8 rounded-lg overflow-hidden">
+                                <Image
+                                    src="/user.webp"
+                                    alt="User"
+                                    width={42}
+                                    height={42}
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
                             <span className="text-sm font-medium text-black hidden sm:block">
                                 {user?.name || user?.firstname || user?.email?.split('@')[0] || 'User'}

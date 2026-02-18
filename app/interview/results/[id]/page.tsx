@@ -251,23 +251,23 @@ export default function InterviewResultsPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-500/20 text-red-300 border-red-500/30';
+        return 'bg-red-100/70 text-red-700 border-red-200/50';
       case 'medium':
-        return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+        return 'bg-yellow-100/70 text-yellow-700 border-yellow-200/50';
       case 'low':
-        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+        return 'bg-blue-100/70 text-blue-700 border-blue-200/50';
       default:
-        return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+        return 'bg-stone-100/70 text-stone-700 border-stone-200/50';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#e1e1db] flex items-center justify-center pt-24">
         <div className="text-center">
-          <Loader className="w-12 h-12 animate-spin text-sky-600 mx-auto mb-4" />
-          <p className="text-slate-800 text-lg">Analyzing your interview...</p>
-          <p className="text-slate-600 text-sm mt-2">This may take a few moments</p>
+          <Loader className="w-12 h-12 animate-spin text-amber-700 mx-auto mb-4" />
+          <p className="text-black text-lg">Analyzing your interview...</p>
+          <p className="text-stone-600 text-sm mt-2">This may take a few moments</p>
         </div>
       </div>
     );
@@ -275,12 +275,12 @@ export default function InterviewResultsPage() {
 
   if (error || !analysisData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#e1e1db] flex items-center justify-center px-4 pt-24">
         <div className="text-center max-w-md">
           <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-          <p className="text-slate-800 text-lg mb-2">Failed to load results</p>
-          <p className="text-slate-600 mb-6">{error}</p>
-          <Button onClick={() => router.push('/interview/prepare')} className="bg-sky-600 hover:bg-sky-700">
+          <p className="text-black text-lg mb-2">Failed to load results</p>
+          <p className="text-stone-600 mb-6">{error}</p>
+          <Button onClick={() => router.push('/interview/prepare')} className="bg-amber-700 hover:bg-amber-800">
             Return to Preparation
           </Button>
         </div>
@@ -296,26 +296,26 @@ export default function InterviewResultsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 py-12 px-4">
+    <div className="min-h-screen bg-[#e1e1db] py-12 px-4 pt-24">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-black mb-4">
             Interview Results
           </h1>
-          <p className="text-slate-600 text-lg">
+          <p className="text-stone-600 text-lg">
             Here's your detailed performance analysis
           </p>
         </div>
 
         {/* Overall Score Card */}
-        <div className="mb-12 backdrop-blur-sm bg-white/80 border border-sky-200 rounded-3xl p-8 lg:p-12 shadow-xl">
+        <div className="mb-12 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-8 lg:p-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Score Circle */}
             <div className="flex justify-center">
@@ -329,7 +329,7 @@ export default function InterviewResultsPage() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
-                    className="text-slate-200"
+                    className="text-stone-200"
                   />
                   {/* Progress circle */}
                   <circle
@@ -349,7 +349,7 @@ export default function InterviewResultsPage() {
                   <div className={`text-5xl font-bold ${getScoreColor(analysisData.overallScore)}`}>
                     {analysisData.overallScore}
                   </div>
-                  <p className="text-slate-600">Overall Score</p>
+                  <p className="text-stone-600">Overall Score</p>
                 </div>
               </div>
             </div>
@@ -359,14 +359,14 @@ export default function InterviewResultsPage() {
               {/* Technical Score */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-slate-800 font-semibold">Technical Score</span>
+                  <span className="text-black font-semibold">Technical Score</span>
                   <span className={`text-lg font-bold ${getScoreColor(analysisData.technicalScore)}`}>
                     {analysisData.technicalScore}
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-sky-500 transition-all"
+                    className="h-full bg-amber-600 transition-all"
                     style={{ width: `${analysisData.technicalScore}%` }}
                   ></div>
                 </div>
@@ -375,14 +375,14 @@ export default function InterviewResultsPage() {
               {/* Communication Score */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-slate-800 font-semibold">Communication</span>
+                  <span className="text-black font-semibold">Communication</span>
                   <span className={`text-lg font-bold ${getScoreColor(analysisData.communicationScore)}`}>
                     {analysisData.communicationScore}
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-500 transition-all"
+                    className="h-full bg-amber-600 transition-all"
                     style={{ width: `${analysisData.communicationScore}%` }}
                   ></div>
                 </div>
@@ -391,12 +391,12 @@ export default function InterviewResultsPage() {
               {/* Confidence Level */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-slate-800 font-semibold">Confidence</span>
+                  <span className="text-black font-semibold">Confidence</span>
                   <span className={`text-lg font-bold ${getScoreColor(analysisData.confidenceLevel)}`}>
                     {analysisData.confidenceLevel}%
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-green-500 transition-all"
                     style={{ width: `${analysisData.confidenceLevel}%` }}
@@ -409,9 +409,9 @@ export default function InterviewResultsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
           {/* Facial Expressions Analysis */}
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-6">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <Smile className="w-6 h-6 text-blue-500" />
+          <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6">
+            <h2 className="text-2xl font-bold text-black mb-6 flex items-center gap-2">
+              <Smile className="w-6 h-6 text-amber-700" />
               Facial Expressions
             </h2>
 
@@ -419,21 +419,21 @@ export default function InterviewResultsPage() {
               {Object.entries(analysisData.facialExpressions).map(([emotion, percentage]) => (
                 <div key={emotion}>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-300 capitalize">{emotion}</span>
-                    <span className="text-white font-semibold">{percentage}%</span>
+                    <span className="text-stone-600 capitalize">{emotion}</span>
+                    <span className="text-black font-semibold">{percentage}%</span>
                   </div>
-                  <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                     <div
                       className={`h-full transition-all ${
                         emotion === 'confident'
                           ? 'bg-green-500'
                           : emotion === 'happy'
-                          ? 'bg-blue-500'
+                          ? 'bg-amber-600'
                           : emotion === 'nervous'
                           ? 'bg-yellow-500'
                           : emotion === 'confused'
                           ? 'bg-red-500'
-                          : 'bg-slate-500'
+                          : 'bg-stone-400'
                       }`}
                       style={{ width: `${percentage}%` }}
                     ></div>
@@ -444,41 +444,41 @@ export default function InterviewResultsPage() {
           </div>
 
           {/* Speech Metrics */}
-          <div className="backdrop-blur-md bg-slate-900/30 border border-slate-700 rounded-2xl p-6">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <Volume2 className="w-6 h-6 text-purple-500" />
+          <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6">
+            <h2 className="text-2xl font-bold text-black mb-6 flex items-center gap-2">
+              <Volume2 className="w-6 h-6 text-amber-700" />
               Speech Metrics
             </h2>
 
             <div className="space-y-4">
               {/* Pace */}
-              <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                <span className="text-slate-300">Speaking Pace</span>
-                <span className="text-white font-semibold">
+              <div className="flex justify-between items-center p-3 bg-white/50 rounded-lg">
+                <span className="text-stone-600">Speaking Pace</span>
+                <span className="text-black font-semibold">
                   {analysisData.speechMetrics.averagePace} WPM
                 </span>
               </div>
 
               {/* Clarity */}
-              <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                <span className="text-slate-300">Clarity</span>
-                <span className="text-white font-semibold">
+              <div className="flex justify-between items-center p-3 bg-white/50 rounded-lg">
+                <span className="text-stone-600">Clarity</span>
+                <span className="text-black font-semibold">
                   {analysisData.speechMetrics.clarity}%
                 </span>
               </div>
 
               {/* Filler Words */}
-              <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                <span className="text-slate-300">Filler Words (um, uh, etc.)</span>
-                <span className="text-white font-semibold">
+              <div className="flex justify-between items-center p-3 bg-white/50 rounded-lg">
+                <span className="text-stone-600">Filler Words (um, uh, etc.)</span>
+                <span className="text-black font-semibold">
                   {analysisData.speechMetrics.fillerWords}
                 </span>
               </div>
 
               {/* Pause Duration */}
-              <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                <span className="text-slate-300">Avg Pause Duration</span>
-                <span className="text-white font-semibold">
+              <div className="flex justify-between items-center p-3 bg-white/50 rounded-lg">
+                <span className="text-stone-600">Avg Pause Duration</span>
+                <span className="text-black font-semibold">
                   {analysisData.speechMetrics.pauseDuration}s
                 </span>
               </div>
@@ -488,18 +488,18 @@ export default function InterviewResultsPage() {
 
         {/* Question Analysis */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6">Question-by-Question Analysis</h2>
+          <h2 className="text-2xl font-bold text-black mb-6">Question-by-Question Analysis</h2>
 
           <div className="space-y-4">
             {analysisData.questionAnalysis.map((qa) => (
               <div
                 key={qa.questionId}
                 className={`
-                  backdrop-blur-md border rounded-2xl overflow-hidden transition-all cursor-pointer
+                  bg-white/40 backdrop-blur-sm border rounded-xl overflow-hidden transition-all cursor-pointer
                   ${
                     expandedQuestion === qa.questionId
-                      ? 'border-blue-500 bg-slate-900/50'
-                      : 'border-slate-700 bg-slate-900/30 hover:border-slate-600'
+                      ? 'border-amber-700 bg-white/60'
+                      : 'border-amber-700/20 hover:bg-white/60'
                   }
                 `}
                 onClick={() =>
@@ -512,7 +512,7 @@ export default function InterviewResultsPage() {
                 <div className="p-6 flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-sm font-semibold text-blue-400">
+                      <span className="text-sm font-semibold text-amber-700">
                         Question {qa.questionId}
                       </span>
                       <span
@@ -524,10 +524,10 @@ export default function InterviewResultsPage() {
                         {qa.score}
                       </span>
                     </div>
-                    <p className="text-white font-semibold">{qa.question}</p>
+                    <p className="text-black font-semibold">{qa.question}</p>
                   </div>
                   <ArrowRight
-                    className={`w-6 h-6 text-slate-400 transition-transform ${
+                    className={`w-6 h-6 text-stone-400 transition-transform ${
                       expandedQuestion === qa.questionId ? 'rotate-90' : ''
                     }`}
                   />
@@ -535,22 +535,22 @@ export default function InterviewResultsPage() {
 
                 {/* Question Details - Expanded */}
                 {expandedQuestion === qa.questionId && (
-                  <div className="px-6 pb-6 border-t border-slate-700 space-y-6">
+                  <div className="px-6 pb-6 border-t border-amber-700/20 space-y-6">
                     {/* Feedback */}
                     <div>
-                      <h4 className="text-slate-300 font-semibold mb-2">Feedback</h4>
-                      <p className="text-slate-300">{qa.feedback}</p>
+                      <h4 className="text-stone-700 font-semibold mb-2">Feedback</h4>
+                      <p className="text-stone-600">{qa.feedback}</p>
                     </div>
 
                     {/* Strengths */}
                     <div>
-                      <h4 className="text-green-300 font-semibold mb-2 flex items-center gap-2">
+                      <h4 className="text-green-700 font-semibold mb-2 flex items-center gap-2">
                         <CheckCircle className="w-4 h-4" />
                         Strengths
                       </h4>
                       <ul className="space-y-1">
                         {qa.strengths.map((strength, idx) => (
-                          <li key={idx} className="text-slate-300 text-sm flex items-center gap-2">
+                          <li key={idx} className="text-stone-600 text-sm flex items-center gap-2">
                             <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                             {strength}
                           </li>
@@ -560,14 +560,14 @@ export default function InterviewResultsPage() {
 
                     {/* Areas for Improvement */}
                     <div>
-                      <h4 className="text-yellow-300 font-semibold mb-2 flex items-center gap-2">
+                      <h4 className="text-amber-700 font-semibold mb-2 flex items-center gap-2">
                         <AlertCircle className="w-4 h-4" />
                         Areas for Improvement
                       </h4>
                       <ul className="space-y-1">
                         {qa.improvements.map((improvement, idx) => (
-                          <li key={idx} className="text-slate-300 text-sm flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
+                          <li key={idx} className="text-stone-600 text-sm flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-amber-500 rounded-full"></div>
                             {improvement}
                           </li>
                         ))}
@@ -582,8 +582,8 @@ export default function InterviewResultsPage() {
 
         {/* Suggestions for Improvement */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-            <Lightbulb className="w-6 h-6 text-yellow-500" />
+          <h2 className="text-2xl font-bold text-black mb-6 flex items-center gap-2">
+            <Lightbulb className="w-6 h-6 text-amber-700" />
             Suggestions for Improvement
           </h2>
 
@@ -592,7 +592,7 @@ export default function InterviewResultsPage() {
               <div
                 key={idx}
                 className={`
-                  backdrop-blur-md border rounded-2xl p-6
+                  bg-white/40 backdrop-blur-sm border rounded-xl p-6
                   ${getPriorityColor(suggestion.priority)}
                 `}
               >
@@ -612,7 +612,7 @@ export default function InterviewResultsPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
           <Button
             onClick={() => router.push('/interview/prepare')}
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 flex items-center gap-2"
+            className="bg-amber-700 hover:bg-amber-800 flex items-center gap-2"
           >
             <RotateCcw className="w-4 h-4" />
             Retake Interview
@@ -621,7 +621,7 @@ export default function InterviewResultsPage() {
           <Button
             variant="outline"
             onClick={() => console.log('TODO: Implement PDF download')}
-            className="flex items-center gap-2"
+            className="border-amber-700/30 text-amber-700 hover:bg-white/60 flex items-center gap-2"
           >
             <Download className="w-4 h-4" />
             Download Report
@@ -630,7 +630,7 @@ export default function InterviewResultsPage() {
           <Button
             variant="outline"
             onClick={() => console.log('TODO: Implement share functionality')}
-            className="flex items-center gap-2"
+            className="border-amber-700/30 text-amber-700 hover:bg-white/60 flex items-center gap-2"
           >
             <Share2 className="w-4 h-4" />
             Share Results
@@ -638,9 +638,9 @@ export default function InterviewResultsPage() {
         </div>
 
         {/* Footer Link */}
-        <div className="text-center text-slate-400">
+        <div className="text-center text-stone-500">
           <p className="mb-4">Want to practice more?</p>
-          <Link href="/interview/prepare" className="text-blue-400 hover:text-blue-300 font-semibold">
+          <Link href="/interview/prepare" className="text-amber-700 hover:text-amber-800 font-semibold">
             Start a new interview session →
           </Link>
         </div>

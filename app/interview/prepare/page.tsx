@@ -173,20 +173,20 @@ export default function InterviewPreparePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 py-12 px-4">
+    <div className="min-h-screen bg-[#e1e1db] py-12 px-4 pt-24">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-amber-300/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-black mb-4">
             Start Your Interview Practice
           </h1>
-          <p className="text-slate-600 text-lg">
+          <p className="text-stone-700 text-lg">
             Tell us about your target role and we'll generate personalized questions
           </p>
         </div>
@@ -199,11 +199,11 @@ export default function InterviewPreparePage() {
             <div
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
-                ${
+                ${(
                   currentStep === 'upload' || cvData.file
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
-                    : 'bg-slate-800 text-slate-500'
-                }
+                    ? 'bg-amber-700 text-white'
+                    : 'bg-stone-300 text-stone-500'
+                )}
               `}
             >
               {cvData.file ? <CheckCircle className="w-6 h-6" /> : '1'}
@@ -215,7 +215,7 @@ export default function InterviewPreparePage() {
           <div
             className={`
               flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${localJobTitle && localJobDesc ? 'bg-blue-500' : 'bg-slate-800'}
+              ${localJobTitle && localJobDesc ? 'bg-amber-700' : 'bg-stone-400'}
             `}
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
@@ -225,11 +225,11 @@ export default function InterviewPreparePage() {
             <div
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
-                ${
+                ${(
                   currentStep === 'describe' || (localJobTitle && localJobDesc)
-                   ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
-                    : 'bg-slate-800 text-slate-500'
-                }
+                   ? 'bg-amber-700 text-white'
+                    : 'bg-stone-300 text-stone-500'
+                )}
               `}
             >
               {(localJobTitle && localJobDesc) ? <CheckCircle className="w-6 h-6" /> : '2'}
@@ -241,7 +241,7 @@ export default function InterviewPreparePage() {
           <div
             className={`
               flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${interviewQuestions.length > 0 ? 'bg-blue-500' : 'bg-slate-800'}
+              ${interviewQuestions.length > 0 ? 'bg-amber-700' : 'bg-stone-400'}
             `}
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
@@ -251,11 +251,11 @@ export default function InterviewPreparePage() {
             <div
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
-                ${
+                ${(
                   currentStep === 'createSession' || interviewQuestions.length > 0
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
-                    : 'bg-slate-800 text-slate-500'
-                }
+                    ? 'bg-amber-700 text-white'
+                    : 'bg-stone-300 text-stone-500'
+                )}
               `}
             >
               {interviewQuestions.length > 0 ? <CheckCircle className="w-6 h-6" /> : '3'}
@@ -267,7 +267,7 @@ export default function InterviewPreparePage() {
           <div
             className={`
               flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${interviewQuestions.length > 0 ? 'bg-blue-500' : 'bg-slate-800'}
+              ${interviewQuestions.length > 0 ? 'bg-amber-700' : 'bg-stone-400'}
             `}
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
@@ -277,11 +277,11 @@ export default function InterviewPreparePage() {
             <div
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
-                ${
+                ${(
                   currentStep === 'preview' || interviewQuestions.length > 0
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
-                    : 'bg-slate-800 text-slate-500'
-                }
+                    ? 'bg-amber-700 text-white'
+                    : 'bg-stone-300 text-stone-500'
+                )}
               `}
             >
               {interviewQuestions.length > 0 ? <CheckCircle className="w-6 h-6" /> : '4'}
@@ -292,18 +292,18 @@ export default function InterviewPreparePage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-red-300 text-sm">{error}</p>
+          <div className="mb-8 p-4 bg-red-50/60 border border-red-200/50 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <p className="text-red-700 text-sm">{error}</p>
           </div>
         )}
 
         {/* Step 1:  Upload CV */}
         {currentStep === 'upload' && (
-          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
+          <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-8">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Upload Your CV (Optional)</h2>
-              <p className="text-slate-600">
+              <h2 className="text-2xl font-bold text-black mb-2">Upload Your CV (Optional)</h2>
+              <p className="text-stone-700">
                 Your CV helps us generate more personalized questions. Supported formats: PDF, Images (JPG, PNG, etc.), DOCX (Max 5MB). You can skip this if you prefer.
               </p>
             </div>
@@ -317,16 +317,16 @@ export default function InterviewPreparePage() {
                 onDrop={handleDrop}
                 className={`
                   border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all mb-6
-                  ${
+                  ${(
                     dragActive
-                      ? 'border-sky-500 bg-sky-100'
-                      : 'border-sky-300 hover:border-sky-400 bg-white hover:bg-sky-50'
-                  }
+                      ? 'border-amber-600/50 bg-amber-50/50'
+                      : 'border-amber-700/30 hover:border-amber-700/50 bg-white/30 hover:bg-white/50'
+                  )}
                 `}
               >
-                <Upload className="w-12 h-12 mx-auto mb-4 text-slate-400" />
-                <p className="text-slate-800 font-semibold mb-2">Drag and drop your CV here</p>
-                <p className="text-slate-600 text-sm mb-4">or click to browse your files</p>
+                <Upload className="w-12 h-12 mx-auto mb-4 text-stone-500" />
+                <p className="text-black font-semibold mb-2">Drag and drop your CV here</p>
+                <p className="text-stone-600 text-sm mb-4">or click to browse your files</p>
 
                 <input
                   type="file"
@@ -343,7 +343,7 @@ export default function InterviewPreparePage() {
                 <label htmlFor="file-input">
                   <Button
                     type="button"
-                    className="bg-sky-600 hover:bg-sky-700"
+                    className="bg-amber-700 hover:bg-amber-800 text-white"
                     onClick={() => document.getElementById('file-input')?.click()}
                   >
                     Select File
@@ -352,19 +352,19 @@ export default function InterviewPreparePage() {
               </div>
             ) : (
               /* CV Uploaded Display */
-              <div className="p-6 bg-green-100 border border-green-300 rounded-lg flex items-center justify-between mb-6">
+              <div className="p-6 bg-emerald-50/60 border border-emerald-200/50 rounded-lg flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <FileText className="w-8 h-8 text-green-600" />
+                  <FileText className="w-8 h-8 text-emerald-600" />
                   <div>
-                    <p className="text-slate-800 font-semibold">{cvData.fileName}</p>
-                    <p className="text-slate-600 text-sm">Ready for analysis</p>
+                    <p className="text-black font-semibold">{cvData.fileName}</p>
+                    <p className="text-stone-600 text-sm">Ready for analysis</p>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleRemoveCV}
-                  className="text-red-400 hover:text-red-300 border-red-500/30 hover:border-red-500/50"
+                  className="text-red-600 hover:text-red-700 border-red-400 hover:border-red-500"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -375,7 +375,7 @@ export default function InterviewPreparePage() {
             <div className="flex justify-end">
               <Button
                 onClick={() => setCurrentStep('describe')}
-                className="bg-sky-600 hover:bg-sky-700 shadow-md"
+                className="bg-amber-700 hover:bg-amber-800 shadow-md text-white"
               >
                 Continue <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -385,17 +385,17 @@ export default function InterviewPreparePage() {
 
         {/* Step 2: Describe Job */}
         {currentStep === 'describe' && (
-          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
+          <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-8">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Describe Your Target Role</h2>
-              <p className="text-slate-600">
+              <h2 className="text-2xl font-bold text-black mb-2">Describe Your Target Role</h2>
+              <p className="text-stone-700">
                 Tell us about the position you're interviewing for. Include the job title and detailed description.
               </p>
             </div>
 
             {/* Job Title Input */}
             <div className="mb-6">
-              <label htmlFor="job-title" className="block text-sm font-medium text-slate-700 mb-3">
+              <label htmlFor="job-title" className="block text-sm font-medium text-stone-700 mb-3">
                 Job Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -405,9 +405,9 @@ export default function InterviewPreparePage() {
                 onChange={(e) => setLocalJobTitle(e.target.value)}
                 placeholder="E.g., Senior Frontend Engineer"
                 className="
-                  w-full px-4 py-3 bg-white border border-sky-200 rounded-lg
-                  text-slate-800 placeholder-slate-400
-                  focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400
+                  w-full px-4 py-3 bg-white/50 border border-amber-700/30 rounded-lg
+                  text-black placeholder-stone-500
+                  focus:outline-none focus:ring-1 focus:ring-amber-600/50 focus:border-amber-600/50 focus:bg-white/70
                   transition-all
                 "
               />
@@ -415,7 +415,7 @@ export default function InterviewPreparePage() {
 
             {/* Job Description Input */}
             <div className="mb-6">
-              <label htmlFor="job-desc" className="block text-sm font-medium text-slate-700 mb-3">
+              <label htmlFor="job-desc" className="block text-sm font-medium text-stone-700 mb-3">
                 Job Description <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -425,13 +425,13 @@ export default function InterviewPreparePage() {
                 placeholder="E.g., We're seeking a skilled engineer to lead our frontend team. Required: React, TypeScript, Web Performance. Responsibilities: Lead frontend architecture, mentor junior devs, optimize performance..."
                 rows={6}
                 className="
-                  w-full px-4 py-3 bg-white border border-sky-200 rounded-lg
-                  text-slate-800 placeholder-slate-400 resize-none
-                  focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400
+                  w-full px-4 py-3 bg-white/50 border border-amber-700/30 rounded-lg
+                  text-black placeholder-stone-500 resize-none
+                  focus:outline-none focus:ring-1 focus:ring-amber-600/50 focus:border-amber-600/50 focus:bg-white/70
                   transition-all
                 "
               />
-              <p className="text-slate-600 text-sm mt-2">
+              <p className="text-stone-600 text-sm mt-2">
                 {localJobDesc.length} characters
               </p>
             </div>
@@ -441,12 +441,13 @@ export default function InterviewPreparePage() {
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep('upload')}
+                className="border-amber-700/30 text-black hover:bg-white/50"
               >
                 Back
               </Button>
               <Button
                 onClick={handleSetUserData}
-                className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 flex items-center gap-2 shadow-md"
+                className="bg-amber-700 hover:bg-amber-800 flex items-center gap-2 text-white"
               >
                 {isGenerating ? (
                   <>
@@ -466,7 +467,7 @@ export default function InterviewPreparePage() {
 
         {/* Step 3: Preview Questions */}
         {currentStep === 'createSession'&& (
-          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
+          <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-8">
            
 
            
@@ -476,12 +477,13 @@ export default function InterviewPreparePage() {
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep('describe')}
+                className="border-amber-700/30 text-black hover:bg-white/50"
               >
                back
               </Button>
               <Button
                 onClick={handleCreateSession}
-                className="bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 flex items-center gap-2 shadow-md"
+                className="bg-amber-700 hover:bg-amber-800 flex items-center gap-2 text-white"
               >
               {isGenerating ? (
                   <>
@@ -504,7 +506,7 @@ export default function InterviewPreparePage() {
 
          {/* Step 3: Preview Questions */}
         {currentStep === 'preview'&& (
-          <div className="backdrop-blur-sm bg-white/80 border border-sky-200 rounded-2xl p-8 shadow-xl">
+          <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-8">
            
 
            
@@ -514,12 +516,13 @@ export default function InterviewPreparePage() {
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep('createSession')}
+                className="border-amber-700/30 text-black hover:bg-white/50"
               >
                back
               </Button>
               <Button
                 onClick={handleStartInterview}
-                className="bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-700 hover:to-sky-700 flex items-center gap-2 shadow-md"
+                className="bg-amber-700 hover:bg-amber-800 flex items-center gap-2 text-white"
               >
              Start Interview <ArrowRight className="w-4 h-4" />
               </Button>

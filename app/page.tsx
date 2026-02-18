@@ -81,16 +81,16 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#e1e1db] text-black overflow-hidden">
+    <div  className=" px-0 py-0 top-0 min-h-screen bg-[#e1e1db] text-black overflow-hidden">
       
       {/* Navbar */}
       
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-0 pt-0">
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-100/50 via-transparent to-transparent pointer-events-none"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-200/40 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-100/30 via-transparent to-transparent pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-200/20 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div className="relative z-10 text-center max-w-4xl mx-auto">
           <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight">
@@ -108,11 +108,11 @@ export default function Home() {
             <input
               type="text"
               placeholder="Find your interview type..."
-              className="w-full px-6 py-4 bg-stone-200/80 border border-amber-700 rounded-full text-black placeholder-black/50 focus:outline-none focus:border-amber-600 text-lg pr-14"
+              className="w-full px-6 py-4 bg-white/50 backdrop-blur-sm border border-amber-700/20 rounded-full text-black placeholder-black/50 focus:outline-none focus:border-amber-700/50 text-lg pr-14"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-orange-100 hover:bg-orange-200 rounded-full transition">
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-amber-100/70 hover:bg-amber-100 rounded-full transition">
               <Search className="w-5 h-5 text-amber-700" />
             </button>
           </div>
@@ -120,7 +120,7 @@ export default function Home() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-amber-700 rounded-full flex items-start justify-center p-2">
+          <div className="w-6 h-10 border-2 border-amber-700/30 rounded-full flex items-start justify-center p-2">
             <div className="w-1 h-2 bg-amber-700 rounded-full animate-pulse"></div>
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function Home() {
 
       {/* Hero Illustration Section */}
       <section className="relative py-20 flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-100/50 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-100/30 to-transparent pointer-events-none"></div>
         <div className="relative">
           <Image
             src="/interview-3.png"
@@ -151,13 +151,13 @@ export default function Home() {
               <Link 
                 key={idx} 
                 href="/auth/signup"
-                className="group relative bg-stone-100 border border-amber-700 rounded-2xl p-6 hover:bg-orange-50 hover:border-amber-600 transition-all duration-300"
+                className="group relative bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6 hover:bg-white/60 transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="text-lg font-semibold text-black group-hover:text-amber-700 transition">
                     {interview.name}
                   </h3>
-                  <div className="p-2 bg-orange-100 rounded-lg">
+                  <div className="p-2 bg-amber-100/70 rounded-lg">
                     <interview.icon className="w-5 h-5 text-amber-700" />
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export default function Home() {
                 <br />
                 resume
               </h2>
-              <span className="inline-block px-4 py-1 bg-orange-100 rounded-full text-sm text-amber-700 mb-6">
+              <span className="inline-block px-4 py-1 bg-amber-100/70 rounded-full text-sm text-amber-700 mb-6">
                 Coming Soon
               </span>
               
@@ -231,7 +231,7 @@ export default function Home() {
               
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <div className="p-3 bg-orange-100 border border-amber-700 rounded-xl w-fit mb-4">
+                  <div className="p-3 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl w-fit mb-4">
                     <Grid3X3 className="w-6 h-6 text-amber-700" />
                   </div>
                   <h3 className="font-semibold text-black mb-2">Practice question by question</h3>
@@ -239,7 +239,7 @@ export default function Home() {
                 </div>
                 
                 <div>
-                  <div className="p-3 bg-orange-100 border border-amber-700 rounded-xl w-fit mb-4">
+                  <div className="p-3 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl w-fit mb-4">
                     <Zap className="w-6 h-6 text-amber-700" />
                   </div>
                   <h3 className="font-semibold text-black mb-2">AI-powered feedback</h3>
@@ -247,7 +247,7 @@ export default function Home() {
                 </div>
                 
                 <div>
-                  <div className="p-3 bg-orange-100 border border-amber-700 rounded-xl w-fit mb-4">
+                  <div className="p-3 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl w-fit mb-4">
                     <RefreshCw className="w-6 h-6 text-amber-700" />
                   </div>
                   <h3 className="font-semibold text-black mb-2">Unlimited retries</h3>
@@ -255,7 +255,7 @@ export default function Home() {
                 </div>
                 
                 <div>
-                  <div className="p-3 bg-orange-100 border border-amber-700 rounded-xl w-fit mb-4">
+                  <div className="p-3 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl w-fit mb-4">
                     <Code className="w-6 h-6 text-amber-700" />
                   </div>
                   <h3 className="font-semibold text-black mb-2">Role-specific questions</h3>
@@ -267,16 +267,16 @@ export default function Home() {
             <div className="relative flex items-center justify-center">
               {/* Document-style illustration */}
               <div className="relative">
-                <div className="absolute inset-0 bg-orange-300/30 blur-[80px] rounded-full"></div>
-                <div className="relative w-80 h-80 border border-amber-700 rounded-2xl bg-gradient-to-br from-orange-100 to-transparent backdrop-blur-sm p-6">
+                <div className="absolute inset-0 bg-amber-200/20 blur-[80px] rounded-full"></div>
+                <div className="relative w-80 h-80 border border-amber-700/20 rounded-xl bg-white/40 backdrop-blur-sm p-6">
                   <div className="space-y-3">
-                    <div className="h-3 bg-orange-400/40 rounded w-3/4"></div>
-                    <div className="h-3 bg-orange-300/30 rounded w-full"></div>
-                    <div className="h-3 bg-orange-300/30 rounded w-5/6"></div>
+                    <div className="h-3 bg-amber-700/30 rounded w-3/4"></div>
+                    <div className="h-3 bg-amber-700/20 rounded w-full"></div>
+                    <div className="h-3 bg-amber-700/20 rounded w-5/6"></div>
                     <div className="h-8 mt-6"></div>
-                    <div className="h-3 bg-orange-400/35 rounded w-2/3"></div>
-                    <div className="h-3 bg-orange-300/30 rounded w-full"></div>
-                    <div className="h-3 bg-orange-300/30 rounded w-4/5"></div>
+                    <div className="h-3 bg-amber-700/25 rounded w-2/3"></div>
+                    <div className="h-3 bg-amber-700/20 rounded w-full"></div>
+                    <div className="h-3 bg-amber-700/20 rounded w-4/5"></div>
                   </div>
                 </div>
               </div>
@@ -300,21 +300,21 @@ export default function Home() {
               
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-orange-100 border border-amber-700 rounded-xl">
+                  <div className="p-3 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl">
                     <MessageSquare className="w-5 h-5 text-amber-700" />
                   </div>
                   <span className="text-black">Practice with voice recording</span>
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-orange-100 border border-amber-700 rounded-xl">
+                  <div className="p-3 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl">
                     <Search className="w-5 h-5 text-amber-700" />
                   </div>
                   <span className="text-black">Get instant feedback analysis</span>
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-orange-100 border border-amber-700 rounded-xl">
+                  <div className="p-3 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl">
                     <Zap className="w-5 h-5 text-amber-700" />
                   </div>
                   <span className="text-black">Low latency, high-quality</span>
@@ -353,7 +353,7 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/auth/login">
-              <Button size="lg" variant="outline" className="border-amber-700 text-black hover:bg-amber-100 text-lg px-8 py-6">
+              <Button size="lg" variant="outline" className="border-amber-700/30 text-black hover:bg-white/60 text-lg px-8 py-6">
                 Sign In
               </Button>
             </Link>
@@ -362,12 +362,12 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-amber-700 py-12 px-4">
+      <footer className="border-t border-amber-700/20 py-12 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-6 h-6 bg-gradient-to-b from-amber-600 via-amber-700 to-amber-800 rounded"></div>
+                <div className="w-6 h-6 bg-amber-700 rounded"></div>
                 <span className="text-lg font-semibold text-black">IntraViewer</span>
               </div>
               <p className="text-black text-sm">
@@ -403,7 +403,7 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="border-t border-amber-700 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <div className="border-t border-amber-700/20 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-black text-sm">
               © 2026 IntraViewer. All rights reserved.
             </p>

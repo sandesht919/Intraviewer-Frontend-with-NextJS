@@ -8,6 +8,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { RouteGuard } from '@/components/guards/RouteGuard';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { 
@@ -187,10 +188,10 @@ export default function ProfilePage() {
   if (!mounted) {
     return (
       <RouteGuard requireAuth={true}>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-[#e1e1db] flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your profile...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700 mx-auto mb-4"></div>
+            <p className="text-stone-700">Loading your profile...</p>
           </div>
         </div>
       </RouteGuard>
@@ -199,11 +200,11 @@ export default function ProfilePage() {
 
   return (
     <RouteGuard requireAuth={true}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="max-w-4xl mx-auto p-6">
+      <div className="min-h-screen bg-[#e1e1db]">
+        <div className="max-w-4xl mx-auto p-6 pt-24">
           {/* Header */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-            <div className="relative h-40 bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600">
+          <div className="bg-white/40 backdrop-blur-sm rounded-xl border border-amber-700/20 mb-8 overflow-hidden">
+            <div className="relative h-40 bg-amber-700/90">
               {/* Decorative pattern */}
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
               <div className="absolute top-4 right-4 flex gap-2">
@@ -215,15 +216,21 @@ export default function ProfilePage() {
               {/* Profile Photo */}
               <div className="absolute -bottom-20 left-8">
                 <div className="relative group">
-                  <div className="w-40 h-40 bg-gradient-to-r from-sky-400 to-indigo-500 rounded-full border-6 border-white shadow-xl flex items-center justify-center text-4xl font-bold text-white">
-                    {getUserInitials()}
+                  <div className="w-40 h-40 rounded-full border-6 border-white/80 overflow-hidden">
+                    <Image
+                      src="/user.webp"
+                      alt="Profile Photo"
+                      width={160}
+                      height={160}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <button className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all duration-200 hover:scale-110">
-                    <Camera className="w-5 h-5 text-gray-600" />
+                  <button className="absolute bottom-3 right-3 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110">
+                    <Camera className="w-5 h-5 text-stone-700" />
                   </button>
                   
                   {/* Online indicator */}
-                  <div className="absolute top-3 right-3 w-6 h-6 bg-green-500 rounded-full border-3 border-white flex items-center justify-center">
+                  <div className="absolute top-3 right-3 w-6 h-6 bg-emerald-500 rounded-full border-3 border-white/80 flex items-center justify-center">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
                 </div>
@@ -237,11 +244,11 @@ export default function ProfilePage() {
                     onClick={handleRefreshUserData}
                     disabled={isRefreshing}
                     variant="outline"
-                    className="bg-white/90 text-gray-700 hover:bg-white"
+                    className="bg-white/80 backdrop-blur-sm text-stone-700 hover:bg-white border-amber-700/30"
                     size="sm"
                   >
                     {isRefreshing ? (
-                      <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
+                      <div className="w-4 h-4 animate-spin rounded-full border-2 border-stone-300 border-t-stone-700"></div>
                     ) : (
                       <>
                         <TrendingUp className="w-4 h-4 mr-2" />
@@ -263,7 +270,7 @@ export default function ProfilePage() {
                       <Button
                         onClick={handleCancel}
                         variant="outline"
-                        className="bg-white text-gray-700"
+                        className="bg-white/80 backdrop-blur-sm text-stone-700 border-amber-700/30"
                         size="sm"
                       >
                         <X className="w-4 h-4 mr-2" />
@@ -274,7 +281,7 @@ export default function ProfilePage() {
                     <Button
                       onClick={() => setIsEditing(true)}
                       variant="outline"
-                      className="bg-white/90 text-gray-700 hover:bg-white"
+                      className="bg-white/80 backdrop-blur-sm text-stone-700 hover:bg-white border-amber-700/30"
                       size="sm"
                     >
                       <Edit3 className="w-4 h-4 mr-2" />
@@ -295,25 +302,25 @@ export default function ProfilePage() {
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="text-3xl font-bold text-gray-900 bg-transparent border-b-2 border-sky-500 focus:outline-none w-full"
+                        className="text-3xl font-bold text-black bg-transparent border-b-2 border-amber-700/50 focus:border-amber-700 focus:outline-none w-full"
                         placeholder="Your Name"
                       />
                       <input
                         type="text"
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="text-xl text-gray-600 bg-transparent border-b border-gray-300 focus:outline-none focus:border-sky-500 w-full"
+                        className="text-xl text-stone-700 bg-transparent border-b border-stone-300 focus:outline-none focus:border-amber-700/50 w-full"
                         placeholder="Job Title"
                       />
                     </div>
                   ) : (
                     <div>
-                      <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                      <h1 className="text-4xl font-bold text-black mb-2">
                         {formData.name || 'Welcome!'}
                       </h1>
-                      <p className="text-xl text-gray-600 mb-1">{formData.title}</p>
-                      <p className="text-gray-500 mb-3">{formData.company}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <p className="text-xl text-stone-700 mb-1">{formData.title}</p>
+                      <p className="text-stone-600 mb-3">{formData.company}</p>
+                      <div className="flex items-center gap-4 text-sm text-stone-500">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           Joined {userStats.joinDate}
@@ -329,21 +336,21 @@ export default function ProfilePage() {
                 
                 {/* Enhanced Quick Stats */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="text-center p-4 bg-gradient-to-br from-sky-50 to-blue-50 rounded-xl border border-sky-100">
-                    <div className="text-2xl font-bold text-sky-600 mb-1">{userStats.interviewsCompleted}</div>
-                    <div className="text-xs text-gray-600 font-medium">Interviews</div>
+                  <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl border border-amber-200">
+                    <div className="text-2xl font-bold text-amber-700 mb-1">{userStats.interviewsCompleted}</div>
+                    <div className="text-xs text-stone-700 font-medium">Interviews</div>
                   </div>
-                  <div className="text-center p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-100">
+                  <div className="text-center p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
                     <div className="text-2xl font-bold text-emerald-600 mb-1">{userStats.averageScore}%</div>
-                    <div className="text-xs text-gray-600 font-medium">Avg Score</div>
+                    <div className="text-xs text-stone-700 font-medium">Avg Score</div>
                   </div>
-                  <div className="text-center p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
-                    <div className="text-2xl font-bold text-indigo-600 mb-1">{userStats.achievements}</div>
-                    <div className="text-xs text-gray-600 font-medium">Achievements</div>
+                  <div className="text-center p-4 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl border border-amber-200">
+                    <div className="text-2xl font-bold text-amber-700 mb-1">{userStats.achievements}</div>
+                    <div className="text-xs text-stone-700 font-medium">Achievements</div>
                   </div>
-                  <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100">
+                  <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200">
                     <div className="text-2xl font-bold text-amber-600 mb-1">{userStats.streak}</div>
-                    <div className="text-xs text-gray-600 font-medium">Day Streak</div>
+                    <div className="text-xs text-stone-700 font-medium">Day Streak</div>
                   </div>
                 </div>
               </div>
@@ -351,8 +358,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-            <div className="border-b border-gray-200">
+          <div className="bg-white/40 backdrop-blur-sm rounded-xl border border-amber-700/20 mb-6">
+            <div className="border-b border-amber-700/20">
               <nav className="flex space-x-8 px-6">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
@@ -363,8 +370,8 @@ export default function ProfilePage() {
                       className={`
                         flex items-center gap-2 py-4 px-2 border-b-2 font-medium text-sm transition-colors
                         ${activeTab === tab.id
-                          ? 'border-sky-500 text-sky-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                          ? 'border-amber-700 text-amber-700'
+                          : 'border-transparent text-stone-600 hover:text-black hover:border-amber-400'
                         }
                       `}
                     >
@@ -383,51 +390,51 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Full Name</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50"
                           />
                         ) : (
-                          <div className="flex items-center gap-2 text-gray-900">
-                            <User className="w-4 h-4 text-gray-500" />
+                          <div className="flex items-center gap-2 text-black">
+                            <User className="w-4 h-4 text-stone-600" />
                             {formData.name}
                           </div>
                         )}
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Email</label>
                         {isEditing ? (
                           <input
                             type="email"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50"
                           />
                         ) : (
-                          <div className="flex items-center gap-2 text-gray-900">
-                            <Mail className="w-4 h-4 text-gray-500" />
+                          <div className="flex items-center gap-2 text-black">
+                            <Mail className="w-4 h-4 text-stone-600" />
                             {formData.email}
                           </div>
                         )}
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Phone</label>
                         {isEditing ? (
                           <input
                             type="tel"
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50"
                           />
                         ) : (
-                          <div className="flex items-center gap-2 text-gray-900">
-                            <Phone className="w-4 h-4 text-gray-500" />
+                          <div className="flex items-center gap-2 text-black">
+                            <Phone className="w-4 h-4 text-stone-600" />
                             {formData.phone}
                           </div>
                         )}
@@ -436,35 +443,35 @@ export default function ProfilePage() {
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Location</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={formData.location}
                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50"
                           />
                         ) : (
-                          <div className="flex items-center gap-2 text-gray-900">
-                            <MapPin className="w-4 h-4 text-gray-500" />
+                          <div className="flex items-center gap-2 text-black">
+                            <MapPin className="w-4 h-4 text-stone-600" />
                             {formData.location}
                           </div>
                         )}
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">LinkedIn</label>
                         {isEditing ? (
                           <input
                             type="url"
                             value={formData.linkedIn}
                             onChange={(e) => setFormData({ ...formData, linkedIn: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50"
                           />
                         ) : (
-                          <div className="flex items-center gap-2 text-gray-900">
-                            <Globe className="w-4 h-4 text-gray-500" />
-                            <a href={formData.linkedIn} className="text-sky-600 hover:underline">
+                          <div className="flex items-center gap-2 text-black">
+                            <Globe className="w-4 h-4 text-stone-600" />
+                            <a href={formData.linkedIn} className="text-amber-700 hover:underline">
                               View LinkedIn Profile
                             </a>
                           </div>
@@ -472,18 +479,18 @@ export default function ProfilePage() {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Website</label>
                         {isEditing ? (
                           <input
                             type="url"
                             value={formData.website}
                             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50"
                           />
                         ) : (
-                          <div className="flex items-center gap-2 text-gray-900">
-                            <Globe className="w-4 h-4 text-gray-500" />
-                            <a href={formData.website} className="text-sky-600 hover:underline">
+                          <div className="flex items-center gap-2 text-black">
+                            <Globe className="w-4 h-4 text-stone-600" />
+                            <a href={formData.website} className="text-amber-700 hover:underline">
                               {formData.website}
                             </a>
                           </div>
@@ -493,17 +500,17 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Bio</label>
                     {isEditing ? (
                       <textarea
                         value={formData.bio}
                         onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                        className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50"
                         placeholder="Tell us about yourself..."
                       />
                     ) : (
-                      <p className="text-gray-900 leading-relaxed">{formData.bio}</p>
+                      <p className="text-black leading-relaxed">{formData.bio}</p>
                     )}
                   </div>
                 </div>
@@ -514,32 +521,32 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Role</label>
-                        <div className="flex items-center gap-2 text-gray-900">
-                          <Briefcase className="w-4 h-4 text-gray-500" />
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Current Role</label>
+                        <div className="flex items-center gap-2 text-black">
+                          <Briefcase className="w-4 h-4 text-stone-600" />
                           {formData.title} at {formData.company}
                         </div>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
-                        <div className="text-gray-900">Mid-Level (3-5 years)</div>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Experience Level</label>
+                        <div className="text-black">Mid-Level (3-5 years)</div>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
-                        <div className="text-gray-900">Technology</div>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Industry</label>
+                        <div className="text-black">Technology</div>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Skills</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Skills</label>
                         <div className="flex flex-wrap gap-2">
                           {formData.skills.map((skill, index) => (
                             <span
                               key={index}
-                              className="px-3 py-1 bg-sky-100 text-sky-800 rounded-full text-sm"
+                              className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm border border-amber-300"
                             >
                               {skill}
                             </span>
@@ -548,27 +555,27 @@ export default function ProfilePage() {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Looking for</label>
-                        <div className="text-gray-900">Senior Software Engineer roles</div>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Looking for</label>
+                        <div className="text-black">Senior Software Engineer roles</div>
                       </div>
                     </div>
                   </div>
 
                   {/* Achievements */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6">Achievements & Progress</h3>
+                    <h3 className="text-lg font-semibold text-black mb-6">Achievements & Progress</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {achievements.map((achievement, index) => {
                         const Icon = achievement.icon;
                         return (
                           <div key={index} className={`p-6 rounded-xl border transition-all duration-200 hover:shadow-md ${
                             achievement.earned 
-                              ? 'bg-gradient-to-br from-sky-50 to-indigo-50 border-sky-200' 
-                              : 'bg-gray-50 border-gray-200'
+                              ? 'bg-amber-50/60 border-amber-200/50' 
+                              : 'bg-white/30 border-stone-200'
                           }`}>
                             <div className="flex items-center gap-3 mb-3">
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                achievement.earned ? 'bg-sky-600' : 'bg-gray-400'
+                                achievement.earned ? 'bg-amber-700' : 'bg-stone-400'
                               }`}>
                                 {achievement.earned ? (
                                   <CheckCircle className="w-5 h-5 text-white" />
@@ -578,22 +585,22 @@ export default function ProfilePage() {
                               </div>
                               <div className="flex-1">
                                 <h4 className={`font-medium ${
-                                  achievement.earned ? 'text-gray-900' : 'text-gray-500'
+                                  achievement.earned ? 'text-black' : 'text-stone-500'
                                 }`}>{achievement.title}</h4>
                                 <p className={`text-sm ${
-                                  achievement.earned ? 'text-gray-600' : 'text-gray-400'
+                                  achievement.earned ? 'text-stone-700' : 'text-stone-400'
                                 }`}>{achievement.description}</p>
                               </div>
                             </div>
                             {!achievement.earned && (
                               <div className="mt-3">
-                                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                <div className="flex justify-between text-xs text-stone-500 mb-1">
                                   <span>Progress</span>
                                   <span>{Math.round(achievement.progress)}%</span>
                                 </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div className="w-full bg-stone-300 rounded-full h-2">
                                   <div 
-                                    className="bg-sky-600 h-2 rounded-full transition-all duration-300"
+                                    className="bg-amber-700 h-2 rounded-full transition-all duration-300"
                                     style={{ width: `${achievement.progress}%` }}
                                   ></div>
                                 </div>
@@ -610,54 +617,54 @@ export default function ProfilePage() {
               {activeTab === 'security' && (
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-amber-700/20 hover:bg-white/70 transition-colors">
                       <div className="flex items-center gap-3">
-                        <Key className="w-5 h-5 text-gray-500" />
+                        <Key className="w-5 h-5 text-stone-600" />
                         <div>
-                          <h4 className="font-medium text-gray-900">Password</h4>
-                          <p className="text-sm text-gray-600">Last changed 2 months ago</p>
+                          <h4 className="font-medium text-black">Password</h4>
+                          <p className="text-sm text-stone-600">Last changed 2 months ago</p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">Change Password</Button>
+                      <Button variant="outline" size="sm" className="border-amber-700/30 text-black">Change Password</Button>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-amber-700/20 hover:bg-white/70 transition-colors">
                       <div className="flex items-center gap-3">
-                        <Shield className="w-5 h-5 text-gray-500" />
+                        <Shield className="w-5 h-5 text-stone-600" />
                         <div>
-                          <h4 className="font-medium text-gray-900">Two-Factor Authentication</h4>
-                          <p className="text-sm text-gray-600">Add an extra layer of security</p>
+                          <h4 className="font-medium text-black">Two-Factor Authentication</h4>
+                          <p className="text-sm text-stone-600">Add an extra layer of security</p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">Enable 2FA</Button>
+                      <Button variant="outline" size="sm" className="border-amber-700/30 text-black">Enable 2FA</Button>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-amber-700/20 hover:bg-white/70 transition-colors">
                       <div className="flex items-center gap-3">
-                        <Mail className="w-5 h-5 text-gray-500" />
+                        <Mail className="w-5 h-5 text-stone-600" />
                         <div>
-                          <h4 className="font-medium text-gray-900">Email Verification</h4>
-                          <p className="text-sm text-green-600">Verified ✓</p>
+                          <h4 className="font-medium text-black">Email Verification</h4>
+                          <p className="text-sm text-emerald-600">Verified ✓</p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" disabled>Verified</Button>
+                      <Button variant="outline" size="sm" disabled className="border-amber-700/30">Verified</Button>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Privacy Settings</h3>
+                    <h3 className="text-lg font-semibold text-black mb-4">Privacy Settings</h3>
                     <div className="space-y-3">
                       <label className="flex items-center justify-between">
-                        <span className="text-gray-700">Make profile public</span>
-                        <input type="checkbox" className="form-checkbox h-4 w-4 text-sky-600" />
+                        <span className="text-stone-700">Make profile public</span>
+                        <input type="checkbox" className="form-checkbox h-4 w-4 text-amber-700" />
                       </label>
                       <label className="flex items-center justify-between">
-                        <span className="text-gray-700">Allow search engines to index profile</span>
-                        <input type="checkbox" className="form-checkbox h-4 w-4 text-sky-600" />
+                        <span className="text-stone-700">Allow search engines to index profile</span>
+                        <input type="checkbox" className="form-checkbox h-4 w-4 text-amber-700" />
                       </label>
                       <label className="flex items-center justify-between">
-                        <span className="text-gray-700">Show online status</span>
-                        <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-sky-600" />
+                        <span className="text-stone-700">Show online status</span>
+                        <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-amber-700" />
                       </label>
                     </div>
                   </div>
@@ -667,49 +674,49 @@ export default function ProfilePage() {
               {activeTab === 'preferences' && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Notifications</h3>
+                    <h3 className="text-lg font-semibold text-black mb-4">Notifications</h3>
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-amber-700/20 hover:bg-white/70 transition-colors">
                         <div className="flex items-center gap-3">
-                          <Bell className="w-5 h-5 text-gray-500" />
+                          <Bell className="w-5 h-5 text-stone-600" />
                           <div>
-                            <h4 className="font-medium text-gray-900">Email Notifications</h4>
-                            <p className="text-sm text-gray-600">Receive updates about your account</p>
+                            <h4 className="font-medium text-black">Email Notifications</h4>
+                            <p className="text-sm text-stone-600">Receive updates about your account</p>
                           </div>
                         </div>
-                        <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-sky-600" />
+                        <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-amber-700" />
                       </div>
 
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-amber-700/20 hover:bg-white/70 transition-colors">
                         <div className="flex items-center gap-3">
-                          <Calendar className="w-5 h-5 text-gray-500" />
+                          <Calendar className="w-5 h-5 text-stone-600" />
                           <div>
-                            <h4 className="font-medium text-gray-900">Interview Reminders</h4>
-                            <p className="text-sm text-gray-600">Get notified before scheduled interviews</p>
+                            <h4 className="font-medium text-black">Interview Reminders</h4>
+                            <p className="text-sm text-stone-600">Get notified before scheduled interviews</p>
                           </div>
                         </div>
-                        <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-sky-600" />
+                        <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-amber-700" />
                       </div>
 
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-amber-700/20 hover:bg-white/70 transition-colors">
                         <div className="flex items-center gap-3">
-                          <Award className="w-5 h-5 text-gray-500" />
+                          <Award className="w-5 h-5 text-stone-600" />
                           <div>
-                            <h4 className="font-medium text-gray-900">Achievement Notifications</h4>
-                            <p className="text-sm text-gray-600">Celebrate your milestones</p>
+                            <h4 className="font-medium text-black">Achievement Notifications</h4>
+                            <p className="text-sm text-stone-600">Celebrate your milestones</p>
                           </div>
                         </div>
-                        <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-sky-600" />
+                        <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-amber-700" />
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Interview Preferences</h3>
+                    <h3 className="text-lg font-semibold text-black mb-4">Interview Preferences</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Default Interview Duration</label>
-                        <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Default Interview Duration</label>
+                        <select className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50 text-black">
                           <option>30 minutes</option>
                           <option>45 minutes</option>
                           <option>60 minutes</option>
@@ -717,8 +724,8 @@ export default function ProfilePage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level</label>
-                        <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Difficulty Level</label>
+                        <select className="w-full px-3 py-2 border border-amber-700/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-600/50 bg-white/50 text-black">
                           <option>Beginner</option>
                           <option>Intermediate</option>
                           <option>Advanced</option>
@@ -727,12 +734,12 @@ export default function ProfilePage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Interview Types</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Preferred Interview Types</label>
                         <div className="space-y-2">
                           {['Technical', 'Behavioral', 'System Design', 'Case Study'].map((type) => (
                             <label key={type} className="flex items-center gap-2">
-                              <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-sky-600" />
-                              <span className="text-gray-700">{type}</span>
+                              <input type="checkbox" defaultChecked className="form-checkbox h-4 w-4 text-amber-700" />
+                              <span className="text-stone-700">{type}</span>
                             </label>
                           ))}
                         </div>
