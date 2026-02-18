@@ -653,7 +653,7 @@ export default function InterviewSessionPage() {
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {currentSession.questions.map((q, idx) => (
                   <div
-                    key={q.id}
+                    key={q.id ?? `question-${idx}`}
                     className={`
                       p-2 rounded text-sm flex items-center gap-2 transition
                       ${idx === currentQuestionIndex ? 'bg-sky-100 text-sky-700' : ''}

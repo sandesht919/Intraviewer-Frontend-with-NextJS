@@ -37,9 +37,11 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
         return (
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-sky-200 shadow-sm">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+                    <Link href ="/">
                     <div className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
                         IntraViewer
                     </div>
+                    </Link>
                     <div className="flex items-center gap-4">
                         <Link href="/auth/login">
                             <Button variant="ghost" className="text-slate-600 hover:text-slate-900 hover:bg-sky-50">
@@ -75,7 +77,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                         </Button>
                         
                         {/* Logo */}
-                        <Link href="/dashboard" className="flex items-center gap-2">
+                        <Link href="/" className="flex items-center gap-2">
                             <div className="w-8 h-8 bg-gradient-to-br from-sky-600 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
                                 <span className="text-white font-bold text-sm">IV</span>
                             </div>
