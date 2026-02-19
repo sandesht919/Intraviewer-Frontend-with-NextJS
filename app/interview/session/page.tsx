@@ -2,7 +2,6 @@
  * Live Interview Session Page
  *
  * Main interview practice page where:
- * - User's camera/microphone are accessed via WebRTC
  * - Interview questions are displayed one at a time
  * - User responds to each question
  * - Interview progress is tracked
@@ -18,7 +17,6 @@
  * - Navigation between questions
  *
  * TODO:
- * - Implement actual WebRTC recording
  * - Connect WebSocket for real-time analysis
  * - Handle connection failures
  */

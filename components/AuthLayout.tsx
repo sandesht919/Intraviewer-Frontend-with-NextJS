@@ -69,14 +69,19 @@ const AuthLayout = ({ children, isDrawerOpen = false }: AuthLayoutProps) => {
 
   // Calculate dynamic margin based on drawer state and authentication
   const getMainContentStyle = () => {
+    // Landing page should not have top padding - it handles its own layout
+    if (pathname === '/') {
+      return "min-h-screen";
+    }
+    
     if (!isAuthenticated) {
-      return "pt-20 min-h-screen";
+      return "";
     }
     
     // For authenticated users, adjust left margin based on drawer state
     // Only apply left margin on desktop (lg and up)
     const leftMargin = isDrawerOpen ? "lg:ml-64" : "lg:ml-16";
-    return `pt-20 min-h-screen transition-all duration-300 ease-in-out ${leftMargin}`;
+    return `transition-all duration-300 ease-in-out ${leftMargin}`;
   };
 
   // Prevent hydration mismatch

@@ -13,6 +13,7 @@
     "@types/uuid": "^10.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "gsap": "^3.14.2",
     "lucide-react": "^0.553.0",
     "next": "16.0.3",
     "react": "19.2.0",

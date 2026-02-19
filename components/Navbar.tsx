@@ -1,13 +1,14 @@
 
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { Menu, Bell, Search, User } from "lucide-react";
 import Drawer from "./Drawer";
+import gsap from 'gsap';
 
 interface NavbarProps {
   onDrawerStateChange?: (isOpen: boolean) => void;
@@ -17,6 +18,14 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
     const { isAuthenticated, user } = useAuthStore();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
+    
+    // Refs for GSAP animations
+    const navRef = useRef<HTMLElement>(null);
+    const logoRef = useRef<HTMLAnchorElement>(null);
+    const navItemsRef = useRef<HTMLDivElement>(null);
+    const authNavRef = useRef<HTMLElement>(null);
+    const authLogoRef = useRef<HTMLAnchorElement>(null);
+    const authButtonsRef = useRef<HTMLDivElement>(null);
 
     // Initialize drawer state based on screen size only once
     useEffect(() => {
@@ -28,6 +37,57 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
         }
     }, [onDrawerStateChange, isInitialized]);
 
+    // GSAP Navbar Animation
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            const timeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
+            
+            if (!isAuthenticated) {
+                // Unauthenticated navbar animation
+                timeline
+                    .fromTo(
+                        authNavRef.current,
+                        { y: -100, opacity: 0 },
+                        { y: 0, opacity: 1, duration: 0.8 }
+                    )
+                    .fromTo(
+                        authLogoRef.current,
+                        { x: -30, opacity: 0 },
+                        { x: 0, opacity: 1, duration: 0.5 },
+                        '-=0.4'
+                    )
+                    .fromTo(
+                        authButtonsRef.current?.children || [],
+                        { y: -20, opacity: 0 },
+                        { y: 0, opacity: 1, duration: 0.4, stagger: 0.1 },
+                        '-=0.3'
+                    );
+            } else {
+                // Authenticated navbar animation
+                timeline
+                    .fromTo(
+                        navRef.current,
+                        { y: -100, opacity: 0 },
+                        { y: 0, opacity: 1, duration: 0.8 }
+                    )
+                    .fromTo(
+                        logoRef.current,
+                        { x: -30, opacity: 0 },
+                        { x: 0, opacity: 1, duration: 0.5 },
+                        '-=0.4'
+                    )
+                    .fromTo(
+                        navItemsRef.current?.children || [],
+                        { y: -20, opacity: 0 },
+                        { y: 0, opacity: 1, duration: 0.4, stagger: 0.1 },
+                        '-=0.3'
+                    );
+            }
+        });
+        
+        return () => ctx.revert();
+    }, [isAuthenticated]);
+
     const toggleDrawer = () => {
         const newState = !isDrawerOpen;
         setIsDrawerOpen(newState);
@@ -36,9 +96,9 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
    
     if (!isAuthenticated) {
         return (
-            <nav className="fixed top-0.2 left-4 right-4 z-50 bg-white/40 backdrop-blur-md border border-amber-700/30 rounded-xl">
+            <nav ref={authNavRef} className="fixed top-0.2 left-4 right-4 z-50 bg-white/40 backdrop-blur-md border border-amber-700/30 rounded-xl opacity-0">
                 <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2">
+                    <Link ref={authLogoRef} href="/" className="flex items-center gap-2 opacity-0">
                         <Image
                             src="/intraviewerlogo.png"
                             alt="IntraViewer Logo"
@@ -49,7 +109,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                         />
                         <span className="text-2xl font-bold text-black">IntraViewer</span>
                     </Link>
-                    <div className="flex items-center gap-4">
+                    <div ref={authButtonsRef} className="flex items-center gap-4">
                         <Link href="/auth/login">
                             <Button variant="ghost" className="text-black hover:text-amber-700 hover:bg-amber-100/50 rounded-lg">
                                 Sign In
@@ -69,7 +129,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
     return (
         <>
             {/* Authenticated Navigation */}
-            <nav className="fixed top-0.2 left-3 right-3 z-40 bg-white/40 backdrop-blur-md border border-amber-700/30 rounded-xl">
+            <nav ref={navRef} className="fixed top-0.2 left-3 right-3 z-40 bg-white/40 backdrop-blur-md border border-amber-700/30 rounded-xl opacity-0">
                 <div className="flex items-center justify-between px-6 py-3">
                     {/* Left Section */}
                     <div className="flex items-center gap-4">
@@ -84,7 +144,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                         </Button>
                         
                         {/* Logo */}
-                        <Link href="/" className="flex items-center gap-2">
+                        <Link ref={logoRef} href="/" className="flex items-center gap-2 opacity-0">
                             <Image
                                 src="/intraviewerlogo.png"
                                 alt="IntraViewer Logo"
@@ -110,7 +170,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                     </div>
 
                     {/* Right Section */}
-                    <div className="flex items-center gap-3">
+                    <div ref={navItemsRef} className="flex items-center gap-3">
                         {/* Search Icon for mobile */}
                         <Button
                             variant="ghost"
