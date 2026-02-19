@@ -117,7 +117,7 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                         </Link>
                         <Link href="/auth/signup">
                             <Button className="bg-amber-700/90 hover:bg-amber-700 text-white rounded-lg border border-amber-600/50">
-                                Start Free Trial
+                                Join
                             </Button>
                         </Link>
                     </div>

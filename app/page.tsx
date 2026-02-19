@@ -72,6 +72,30 @@ const featuredInterviews = [
   },
 ];
 
+// Fan carousel card data
+const fanCards = [
+  { src: '/login.png',       label: 'Secure Login',    alt: 'Login screen' },
+  { src: '/interview-2.png', label: 'Mock Sessions',    alt: 'Mock interview' },
+  { src: '/interview-3.png', label: 'AI Feedback',      alt: 'AI feedback' },
+  { src: '/interview-1.png', label: 'Voice Practice',   alt: 'Voice practice' },
+  { src: '/signup.png',      label: 'Quick Signup',     alt: 'Sign up screen' },
+  { src: '/login.png',       label: 'Secure Login',    alt: 'Login screen' },
+  { src: '/interview-2.png', label: 'Mock Sessions',    alt: 'Mock interview' },
+  { src: '/interview-3.png', label: 'AI Feedback',      alt: 'AI feedback' },
+  { src: '/interview-1.png', label: 'Voice Practice',   alt: 'Voice practice' },
+  { src: '/signup.png',      label: 'Quick Signup',     alt: 'Sign up screen' },
+  { src: '/login.png',       label: 'Secure Login',    alt: 'Login screen' },
+  { src: '/interview-2.png', label: 'Mock Sessions',    alt: 'Mock interview' },
+  { src: '/interview-3.png', label: 'AI Feedback',      alt: 'AI feedback' },
+  { src: '/interview-1.png', label: 'Voice Practice',   alt: 'Voice practice' },
+  { src: '/signup.png',      label: 'Quick Signup',     alt: 'Sign up screen' },
+];
+
+// Orbit radius — larger = wider, gentler arc
+const ORBIT_R = 1000;
+// Pivot sits ORBIT_R + 20px below section top → only top arc is visible
+const PIVOT_OFFSET = 40;
+
 /**
  * Landing Page Component
  */
@@ -88,8 +112,9 @@ export default function Home() {
   const heroSubtitleRef = useRef<HTMLParagraphElement>(null);
   const heroSearchRef = useRef<HTMLDivElement>(null);
   const heroImageRef = useRef<HTMLDivElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const carouselContainerRef = useRef<HTMLDivElement>(null);
+  const fanCarouselRef = useRef<HTMLDivElement>(null);
+  const fanRingRef = useRef<HTMLDivElement>(null);
+  const fanCardEls = useRef<HTMLDivElement[]>([]);
   const featuredSectionRef = useRef<HTMLElement>(null);
   const featuredCardsRef = useRef<HTMLDivElement>(null);
   const resumeSectionRef = useRef<HTMLElement>(null);
@@ -97,14 +122,7 @@ export default function Home() {
   const talkSectionRef = useRef<HTMLElement>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
 
-  // Carousel images
-  const carouselImages = [
-    { src: '/interview-1.png', title: 'Voice Practice' },
-    { src: '/interview-2.png', title: 'Resume Review' },
-    { src: '/interview-3.png', title: 'AI Feedback' },
-    { src: '/login.png', title: 'Get Started' },
-    { src: '/signup.png', title: 'Join Today' },
-  ];
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -164,46 +182,39 @@ export default function Home() {
         ease: 'none',
       });
 
-      // Carousel fade in and continuous rotation
-      if (carouselContainerRef.current) {
-        gsap.fromTo(
-          carouselContainerRef.current,
-          { opacity: 0, y: 60 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            delay: 0.8,
-            ease: 'power3.out',
-          }
-        );
 
-        // Continuous slow rotation of the entire carousel
-        gsap.to(carouselRef.current, {
-          rotation: 10,
-          duration: 8,
-          repeat: -1,
-          yoyo: true,
-          ease: 'power1.inOut',
+
+      // Ferris-wheel orbit: fade cards in, then spin the ring pivot forever
+      if (fanCarouselRef.current && fanRingRef.current && fanCardEls.current.length) {
+        // Cards are placed on the arc via CSS; start invisible
+        gsap.set(fanCardEls.current, { opacity: 0 });
+
+        const fanTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: fanCarouselRef.current,
+            start: 'top 75%',
+          },
         });
-      }
 
-      // Hero image parallax and fade in
-      if (heroImageRef.current) {
-        gsap.fromTo(
-          heroImageRef.current,
-          { opacity: 0, y: 80 },
+        // Stagger-fade the cards in
+        fanTl.to(fanCardEls.current, {
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.12,
+          ease: 'power2.out',
+        });
+
+        // Spin the ring pivot — transformOrigin 0 0 = ring's own top-left = the fixed pivot
+        fanTl.to(
+          fanRingRef.current,
           {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            scrollTrigger: {
-              trigger: heroImageRef.current,
-              start: 'top 85%',
-              end: 'top 50%',
-              scrub: 1,
-            },
-          }
+            rotation: 360,
+            duration: 55,
+            repeat: -1,
+            ease: 'none',
+            transformOrigin: '0 0',
+          },
+          '+=0.3'
         );
       }
 
@@ -298,6 +309,7 @@ export default function Home() {
           }
         );
       }
+      
 
       // CTA section animation
       if (ctaSectionRef.current) {
@@ -355,6 +367,8 @@ export default function Home() {
             </span>
           </div>
           
+       
+
           <p ref={heroSubtitleRef} className="text-lg md:text-xl text-black/80 mb-12 max-w-2xl mx-auto leading-relaxed opacity-0">
             Platform packed with{' '}
             <span className="inline-block px-3 py-1 bg-black/5 rounded-md font-medium">AI-powered</span>
@@ -373,70 +387,88 @@ export default function Home() {
          
         </div>
 
-        {/* Rotating Carousel */}
-        <div ref={carouselContainerRef} className="relative w-full mt-8 mb-20 opacity-0">
-          <div 
-            ref={carouselRef}
-            className="relative h-[400px] md:h-[500px] w-full flex items-center justify-center"
-            style={{ perspective: '1200px' }}
-          >
-            {carouselImages.map((image, index) => {
-              const totalCards = carouselImages.length;
-              const angleStep = 30; // degrees between cards
-              const angle = (index - Math.floor(totalCards / 2)) * angleStep;
-              const radius = 320; // distance from center
-              const xOffset = Math.sin((angle * Math.PI) / 180) * radius;
-              const zOffset = Math.cos((angle * Math.PI) / 180) * radius - radius;
-              const rotation = angle * 0.6;
-              const yOffset = Math.abs(angle) * 1.5; // cards on edges go lower
-              
-              return (
-                <div
-                  key={index}
-                  className="absolute w-48 md:w-64 transition-all duration-500 hover:scale-110 hover:z-50"
-                  style={{
-                    transform: `translateX(${xOffset}px) translateZ(${zOffset}px) translateY(${yOffset}px) rotateY(${rotation}deg) rotateZ(${rotation * 0.3}deg)`,
-                    zIndex: 10 - Math.abs(index - Math.floor(totalCards / 2)),
-                  }}
-                >
-                  <div className="bg-gray-900 rounded-xl overflow-hidden shadow-2xl border border-gray-700">
-                    <Image
-                      src={image.src}
-                      alt={image.title}
-                      width={320}
-                      height={200}
-                      className="w-full h-32 md:h-40 object-cover"
-                    />
-                    <div className="p-3 bg-gray-900">
-                      <p className="text-white/80 text-sm font-medium">{image.title}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+
 
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-amber-700/30 rounded-full flex items-start justify-center p-2">
-            <div className="w-1 h-2 bg-amber-700 rounded-full animate-pulse"></div>
+          <div className="w-6 h-10 border-2 border-black/10 rounded-full flex items-start justify-center p-2">
+            <div className="w-1 h-2 bg-black/40 rounded-full animate-pulse"></div>
           </div>
         </div>
       </section>
 
-      {/* Hero Illustration Section */}
-      <section className="relative py-20 flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-100/30 to-transparent pointer-events-none"></div>
-        <div ref={heroImageRef} className="relative opacity-0">
-          <Image
-            src="/interview-3.png"
-            alt="AI Interview Practice"
-            width={800}
-            height={500}
-            className="rounded-2xl shadow-xl"
-            priority
-          />
+      {/* Ferris-Wheel Card Carousel
+          Layout:
+            - section clips overflow (overflow-hidden), fixed height
+            - fanCarouselRef  = scroll-trigger anchor
+            - fanRingRef      = 0×0 pivot div, placed at (50%, ORBIT_R+80px from top)
+            - each card:  rotate(arcAngle) translateY(-ORBIT_R) translateX(-120px)
+              → places card on circle; card tilts naturally with arc position
+            - GSAP spins fanRingRef → all children orbit the pivot
+      */}
+      <section
+        ref={fanCarouselRef}
+        className="relative overflow-hidden"
+        style={{ height: 480 }}
+      >
+        <div className="absolute inset-0 pointer-events-none" />
+
+        {/* Ring pivot: true 0×0 point at section-centre / pivot-depth.
+            GSAP spins this with transformOrigin:'0 0' → rotates around its own top-left,
+            which is exactly the orbit centre. Cards are children so they orbit with it. */}
+        <div
+          ref={fanRingRef}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: ORBIT_R + PIVOT_OFFSET,
+            width: 0,
+            height: 0,
+          }}
+        >
+          {fanCards.map((card, i) => (
+            /*
+              Positioning wrapper — NEVER touched by GSAP.
+              transform-origin: 0 0  → rotates around the ring pivot (0,0 of wrapper = pivot).
+              rotate(angle) translateY(-R) translateX(-halfW) places card on circle.
+            */
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                transformOrigin: '0 0',
+                transform: `rotate(${(360 / fanCards.length) * i}deg) translateY(-${ORBIT_R}px) translateX(-120px)`,
+              }}
+            >
+              {/* Inner card — GSAP fades this; no positioning transform conflict */}
+              <div
+                ref={(el) => { if (el) fanCardEls.current[i] = el; }}
+                className="cursor-pointer select-none"
+                style={{ opacity: 0, willChange: 'opacity' }}
+              >
+                <div
+                  className="rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+                  style={{ width: 240, height: 240, background: '#111' }}
+                >
+                  <div className="relative overflow-hidden" style={{ flex: 1 }}>
+                    <Image
+                      src={card.src}
+                      alt={card.alt}
+                      fill
+                      className="object-cover"
+                      sizes="240px"
+                    />
+                  </div>
+                  <div className="px-4 py-2.5 border-t border-white/10" style={{ background: '#111' }}>
+                    <p className="text-white text-sm font-medium">{card.label}</p>
+                    <p className="text-white/40 text-xs mt-0.5">Resource</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
