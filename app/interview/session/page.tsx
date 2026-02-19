@@ -90,11 +90,12 @@ export default function InterviewSessionPage() {
 
   // Local state for interview control
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(90); // 90 seconds per question
+  const [elapsedTime, setElapsedTime] = useState(0); // Counts up from 0
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [isInterviewStarted, setIsInterviewStarted] = useState(false);
+  const [hoveredQuestion, setHoveredQuestion] = useState<{ idx: number; text: string; x: number; y: number } | null>(null);
 
   // Refs for video, canvas (for frame extraction), and timing
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -144,6 +145,8 @@ export default function InterviewSessionPage() {
     // We remove currentSession from this check to prevent re-initialization loops.
     if (!backendSessionId || localStream) return;
 
+    let isMounted = true;
+
     const setupMedia = async () => {
       try {
         // Request camera and microphone access
@@ -156,16 +159,30 @@ export default function InterviewSessionPage() {
           },
         });
 
+        // Check if component is still mounted before updating state
+        if (!isMounted) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
         setLocalStream(stream);
 
         // Display local video preview
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          await videoRef.current.play();
+          try {
+            await videoRef.current.play();
+          } catch (playError: any) {
+            // Ignore AbortError - happens when component unmounts during play
+            if (playError.name !== 'AbortError') {
+              console.error('Video play error:', playError);
+            }
+          }
         }
 
         console.log('📹 Media preview started');
       } catch (err: any) {
+        if (!isMounted) return;
         setMediaError(err.message || 'Failed to access camera/microphone');
         setSessionError('Please allow camera and microphone access to continue');
         console.error('Media setup error:', err);
@@ -175,6 +192,7 @@ export default function InterviewSessionPage() {
     setupMedia();
 
     return () => {
+      isMounted = false;
       // Cleanup on unmount
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
@@ -186,24 +204,19 @@ export default function InterviewSessionPage() {
   }, [backendSessionId]); // Re-run if session changes
 
   /**
-   * Question timer countdown
+   * Question timer - counts up from 0
    */
   useEffect(() => {
     if (!currentSession || !isInterviewStarted) return;
 
     const interval = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          return 90; // Reset timer
-        }
-        return prev - 1;
-      });
+      setElapsedTime((prev) => prev + 1);
     }, 1000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [currentQuestionIndex, currentSession]); // Reset timer when question changes
+  }, [currentSession, isInterviewStarted]); // Only reset when interview starts
 
   /**
    * Save response metadata
@@ -244,7 +257,6 @@ export default function InterviewSessionPage() {
     // Check if there are more questions
     if (currentQuestionIndex < currentSession!.questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setTimeRemaining(90); // Reset timer for next question
       responseStartTimeRef.current = Date.now();
 
       console.log('📝 Moving to question', currentQuestionIndex + 2);
@@ -614,20 +626,16 @@ export default function InterviewSessionPage() {
             <div className="bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6">
               <div className="text-center">
                 <Clock className="w-6 h-6 text-stone-500 mx-auto mb-2" />
-                <p className="text-stone-600 text-sm mb-3">Time Remaining</p>
+                <p className="text-stone-600 text-sm mb-3">Time Elapsed</p>
                 <div className="text-5xl font-bold text-black font-mono mb-4">
-                  {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
+                  {Math.floor(elapsedTime / 60)}:{String(elapsedTime % 60).padStart(2, '0')}
                 </div>
 
-                {/* Timer Progress Bar */}
+                {/* Timer Progress Bar - shows progress based on elapsed time */}
                 <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                   <div
-                    className={`
-                      h-full transition-all duration-300
-                      ${timeRemaining > 30 ? 'bg-amber-600' : 'bg-yellow-500'}
-                      ${timeRemaining < 10 ? 'bg-red-500' : ''}
-                    `}
-                    style={{ width: `${(timeRemaining / 90) * 100}%` }}
+                    className="h-full bg-amber-600 transition-all duration-300"
+                    style={{ width: `${Math.min((elapsedTime / 300) * 100, 100)}%` }}
                   ></div>
                 </div>
               </div>
@@ -651,25 +659,42 @@ export default function InterviewSessionPage() {
 
               {/* Questions List */}
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {currentSession.questions.map((q, idx) => (
-                  <div
-                    key={q.id ?? `question-${idx}`}
-                    className={`
-                      p-2 rounded text-sm flex items-center gap-2 transition
-                      ${idx === currentQuestionIndex ? 'bg-amber-100/70 text-amber-700' : ''}
-                      ${idx < currentQuestionIndex ? 'text-green-600' : 'text-stone-500'}
-                      ${idx > currentQuestionIndex ? 'text-stone-400' : ''}
-                    `}
-                  >
-                    {idx < currentQuestionIndex ? (
-                      <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      <div className="w-4 h-4 rounded-full border border-current"></div>
-                    )}
-                    <span className="text-xs">Q{idx + 1}</span>
-                  </div>
-                ))}
+                {currentSession.questions.map((q, idx) => {
+                  const questionText = (q as any).question || (q as any).question_text || '';
+                  return (
+                    <div
+                      key={`question-${idx}`}
+                      className={`
+                        p-2 rounded text-sm flex items-center gap-2 transition-all cursor-pointer
+                        ${idx === currentQuestionIndex ? 'bg-amber-100/70 text-amber-700' : ''}
+                        ${idx < currentQuestionIndex ? 'text-green-600 hover:bg-amber-50/80 hover:text-amber-700' : 'text-stone-500'}
+                        ${idx > currentQuestionIndex ? 'text-stone-400' : ''}
+                      `}
+                      onMouseEnter={(e) => {
+                        if (idx < currentQuestionIndex) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setHoveredQuestion({ 
+                            idx, 
+                            text: questionText,
+                            x: rect.left,
+                            y: rect.top
+                          });
+                        }
+                      }}
+                      onMouseLeave={() => setHoveredQuestion(null)}
+                    >
+                      {idx < currentQuestionIndex ? (
+                        <CheckCircle className="w-4 h-4" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border border-current"></div>
+                      )}
+                      <span className="text-xs">Q{idx + 1}</span>
+                    </div>
+                  );
+                })}
               </div>
+
+              {/* Fixed Tooltip for hovered questions */}
             </div>
 
             {/* Navigation Buttons */}
@@ -725,6 +750,26 @@ export default function InterviewSessionPage() {
           </div>
         )}
       </div>
+
+      {/* Global Question Tooltip - rendered at root level */}
+      {hoveredQuestion && (
+        <div 
+          className="fixed z-[9999] w-72 p-4 bg-white border-2 border-amber-700/40 rounded-xl shadow-2xl pointer-events-none"
+          style={{
+            left: `${Math.max(16, hoveredQuestion.x - 300)}px`,
+            top: `${hoveredQuestion.y}px`,
+          }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-6 h-6 bg-amber-700 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">{hoveredQuestion.idx + 1}</span>
+            </div>
+            <span className="text-sm font-semibold text-amber-700">Question {hoveredQuestion.idx + 1}</span>
+            <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
+          </div>
+          <p className="text-stone-700 text-sm leading-relaxed">{hoveredQuestion.text}</p>
+        </div>
+      )}
     </div>
   );
 }
