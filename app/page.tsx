@@ -184,27 +184,23 @@ export default function Home() {
 
 
 
-      // Ferris-wheel orbit: fade cards in, then spin the ring pivot forever
+      // Ferris-wheel orbit: fade cards in immediately, then spin forever
       if (fanCarouselRef.current && fanRingRef.current && fanCardEls.current.length) {
-        // Cards are placed on the arc via CSS; start invisible
-        gsap.set(fanCardEls.current, { opacity: 0 });
+        const fanTl = gsap.timeline({ delay: 0.2 });
 
-        const fanTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: fanCarouselRef.current,
-            start: 'top 75%',
-          },
-        });
+        // Stagger-fade the cards in immediately (no scroll trigger)
+        fanTl.fromTo(
+          fanCardEls.current,
+          { opacity: 0 },
+          {
+            opacity: 1,
+            duration: 0.4,
+            stagger: 0.06,
+            ease: 'power2.out',
+          }
+        );
 
-        // Stagger-fade the cards in
-        fanTl.to(fanCardEls.current, {
-          opacity: 1,
-          duration: 0.5,
-          stagger: 0.12,
-          ease: 'power2.out',
-        });
-
-        // Spin the ring pivot — transformOrigin 0 0 = ring's own top-left = the fixed pivot
+        // Spin the ring pivot continuously
         fanTl.to(
           fanRingRef.current,
           {
@@ -214,7 +210,7 @@ export default function Home() {
             ease: 'none',
             transformOrigin: '0 0',
           },
-          '+=0.3'
+          '+=0.1'
         );
       }
 
@@ -230,27 +226,36 @@ export default function Home() {
             scrollTrigger: {
               trigger: featuredSectionRef.current,
               start: 'top 80%',
+              end: 'top top',
+              toggleActions: 'play none none reset',
             },
           }
         );
       }
 
-      // Featured cards stagger animation
+      // Featured cards — each card slides in from below as its track scrolls into view
       if (featuredCardsRef.current) {
-        gsap.fromTo(
-          featuredCardsRef.current.children,
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            stagger: 0.1,
-            scrollTrigger: {
-              trigger: featuredCardsRef.current,
-              start: 'top 80%',
-            },
-          }
-        );
+        const tracks = featuredCardsRef.current.querySelectorAll<HTMLElement>('.card-track');
+        tracks.forEach((track) => {
+          const card = track.querySelector<HTMLElement>('.card-sticky');
+          if (!card) return;
+          gsap.fromTo(
+            card,
+            { y: 100, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.7,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: track,
+                start: 'top 85%',
+                end: 'top 30%',
+                toggleActions: 'play none none reset',
+              },
+            }
+          );
+        });
       }
 
       // Resume section animation
@@ -267,6 +272,8 @@ export default function Home() {
             scrollTrigger: {
               trigger: resumeSectionRef.current,
               start: 'top 75%',
+              end: 'top top',
+              toggleActions: 'play none none reset',
             },
           }
         );
@@ -286,6 +293,8 @@ export default function Home() {
             scrollTrigger: {
               trigger: aceSectionRef.current,
               start: 'top 75%',
+              end: 'top top',
+              toggleActions: 'play none none reset',
             },
           }
         );
@@ -305,6 +314,8 @@ export default function Home() {
             scrollTrigger: {
               trigger: talkSectionRef.current,
               start: 'top 75%',
+              end: 'top top',
+              toggleActions: 'play none none reset',
             },
           }
         );
@@ -324,6 +335,8 @@ export default function Home() {
             scrollTrigger: {
               trigger: ctaSectionRef.current,
               start: 'top 80%',
+              end: 'top top',
+              toggleActions: 'play none none reset',
             },
           }
         );
@@ -333,43 +346,55 @@ export default function Home() {
     return () => ctx.revert(); // Cleanup
   }, []);
 
+  // Unique images used by the fan carousel (5 uniques, repeated 3×)
+  const uniqueCarouselSrcs = ['/login.png', '/interview-2.png', '/interview-3.png', '/interview-1.png', '/signup.png'];
+
   return (
     <div  className=" px-0 py-0  min-h-screen bg-[#e1e1db] text-black overflow-hidden">
-      
-      
+
+      {/* ── Carousel image preloader ─────────────────────────────────────────────
+           Renders all 5 unique images off-screen with priority=true so Next.js
+           injects <link rel="preload"> tags in <head> and sets loading="eager".
+           By the time GSAP fades the carousel in they are already in the cache.
+      ─────────────────────────────────────────────────────────────────────── */}
+      <div aria-hidden="true" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        {uniqueCarouselSrcs.map((src) => (
+          <Image key={src} src={src} alt="" width={240} height={240} priority />
+        ))}
+      </div>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-0 pt-0">
+      <section ref={heroRef} className="relative bg-green-950 min-h-screen flex flex-col items-center justify-center px-0 pt-0">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-amber-100/30 via-transparent to-transparent pointer-events-none"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-200/20 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div className="relative z-10 text-center max-w-5xl mx-auto px-4">
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-4 text-white">
           {/* Split Title */}
-          <div ref={heroTitleRef} className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6 mb-8">
+          <div ref={heroTitleRef} className="flex flex-row items-center justify-center gap-3 md:gap-6 mb-8 flex-wrap">
             <span 
               ref={titleLeftRef}
-              className="text-5xl md:text-8xl font-bold tracking-tight opacity-0"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-none opacity-0"
             >
-              Intra
+              IntraViewer
             </span>
             <span 
               ref={titleIconRef}
-              className="text-4xl md:text-6xl text-amber-600 opacity-0 rotate-0"
+              className="text-3xl sm:text-4xl md:text-5xl text-amber-500 opacity-0 rotate-0 leading-none font-bold"
             >
               ✦
             </span>
             <span 
               ref={titleRightRef}
-              className="text-5xl md:text-8xl font-bold tracking-tight opacity-0"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-none opacity-0"
             >
-              Viewer
+              View To Self
             </span>
           </div>
           
        
 
-          <p ref={heroSubtitleRef} className="text-lg md:text-xl text-black/80 mb-12 max-w-2xl mx-auto leading-relaxed opacity-0">
+          <p ref={heroSubtitleRef} className="text-lg md:text-xl text-white/70 mb-12 max-w-2xl mx-auto leading-relaxed opacity-0">
             Platform packed with{' '}
             <span className="inline-block px-3 py-1 bg-black/5 rounded-md font-medium">AI-powered</span>
             {' '}&{' '}
@@ -446,7 +471,7 @@ export default function Home() {
               <div
                 ref={(el) => { if (el) fanCardEls.current[i] = el; }}
                 className="cursor-pointer select-none"
-                style={{ opacity: 0, willChange: 'opacity' }}
+                style={{ willChange: 'opacity' }}
               >
                 <div
                   className="rounded-2xl shadow-2xl overflow-hidden flex flex-col"
@@ -459,6 +484,7 @@ export default function Home() {
                       fill
                       className="object-cover"
                       sizes="240px"
+                      loading="eager"
                     />
                   </div>
                   <div className="px-4 py-2.5 border-t border-white/10" style={{ background: '#111' }}>
@@ -472,38 +498,61 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Interview Types */}
-      <section ref={featuredSectionRef} className="py-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12">Featured Interview Types</h2>
-          
-          <div ref={featuredCardsRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredInterviews.map((interview, idx) => (
-              <Link 
-                key={idx} 
-                href="/auth/signup"
-                className="group relative bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl p-6 hover:bg-white/60 transition-all duration-300"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-black group-hover:text-amber-700 transition">
-                    {interview.name}
-                  </h3>
-                  <div className="p-2 bg-amber-100/70 rounded-lg">
-                    <interview.icon className="w-5 h-5 text-amber-700" />
-                  </div>
+      {/* Featured Interview Types — sticky stacking cards */}
+      <section ref={featuredSectionRef} className="relative">
+        {/* Sticky title pinned at top */}
+        <div className="sticky top-0 z-20 pt-20 pb-10 text-center bg-gradient-to-b from-[#e1e1db] via-[#e1e1db]/95 to-[#e1e1db]/0 px-4">
+          <h2 className="text-4xl md:text-5xl font-bold">Featured Interview Types</h2>
+        </div>
+
+        {/* Stacking cards — each card-track creates scroll height; card-sticky pins + stacks */}
+        <div ref={featuredCardsRef} className="relative">
+          {featuredInterviews.map((interview, idx) => {
+            const tilts    = ['-5deg', '4.5deg', '-4deg', '5.5deg', '-4.5deg', '3.5deg'];
+            const offsetXs = ['-5%',   '5%',    '-4%',   '6%',     '-4%',     '4%'   ];
+            const tilt     = tilts[idx]    ?? (idx % 2 === 0 ? '-4deg' : '4deg');
+            const offsetX  = offsetXs[idx] ?? (idx % 2 === 0 ? '-4%'  : '4%'  );
+            return (
+              /* card-track: takes up real scroll height so GSAP trigger fires for each card */
+              <div key={idx} className="card-track" style={{ height: '45vh', minHeight: '220px' }}>
+                <div
+                  className="card-sticky"
+                  style={{
+                    position: 'sticky',
+                    top: `${130 + idx * 16}px`,
+                    zIndex: idx + 1,
+                    maxWidth: '680px',
+                    margin: '0 auto',
+                    transform: `rotate(${tilt}) translateX(${offsetX})`,
+                    opacity: 0, /* GSAP will reveal */
+                  }}
+                >
+                  <Link
+                    href="/auth/signup"
+                    className="group flex items-center justify-between bg-white rounded-3xl px-10 py-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  >
+                    <div className="flex-1 pr-8">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3 group-hover:text-amber-700 transition">
+                        {interview.name}
+                      </h3>
+                      <p className="text-stone-500 text-sm leading-relaxed">
+                        {interview.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-stone-400 text-sm mt-5">
+                        <Star className="w-4 h-4" />
+                        <span>{interview.stars}</span>
+                      </div>
+                    </div>
+                    <div className="shrink-0 p-5 bg-amber-50 rounded-2xl">
+                      <interview.icon className="w-9 h-9 text-amber-700" />
+                    </div>
+                  </Link>
                 </div>
-                
-                <p className="text-black text-sm mb-6 leading-relaxed">
-                  {interview.description}
-                </p>
-                
-                <div className="flex items-center gap-2 text-black text-sm">
-                  <Star className="w-4 h-4" />
-                  <span>{interview.stars}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
+              </div>
+            );
+          })}
+          {/* Extra scroll room so last card stays visible */}
+          <div style={{ height: '40vh' }} />
         </div>
       </section>
 

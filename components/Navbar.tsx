@@ -109,14 +109,14 @@ const Navbar = ({ onDrawerStateChange }: NavbarProps) => {
                         />
                         <span className="text-2xl font-bold text-black">IntraViewer</span>
                     </Link>
-                    <div ref={authButtonsRef} className="flex items-center gap-4">
+                    <div ref={authButtonsRef} className="flex items-center gap-2">
                         <Link href="/auth/login">
-                            <Button variant="ghost" className="text-black hover:text-amber-700 hover:bg-amber-100/50 rounded-lg">
-                                Sign In
+                            <Button variant="ghost" className="text-black bg-brown hover:text-white hover:bg-green-600 rounded-lg">
+                                Login
                             </Button>
                         </Link>
                         <Link href="/auth/signup">
-                            <Button className="bg-amber-700/90 hover:bg-amber-700 text-white rounded-lg border border-amber-600/50">
+                            <Button className="bg-cyan-500/90 hover:bg-amber-700 text-white rounded-lg border border-amber-600/50">
                                 Join
                             </Button>
                         </Link>
