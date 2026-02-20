@@ -502,7 +502,7 @@ export default function Home() {
       <section ref={featuredSectionRef} className="relative">
         {/* Sticky title pinned at top */}
         <div className="sticky top-0 z-20 pt-20 pb-10 text-center bg-gradient-to-b from-[#e1e1db] via-[#e1e1db]/95 to-[#e1e1db]/0 px-4">
-          <h2 className="text-4xl md:text-5xl font-bold">Featured Interview Types</h2>
+          <h2 className="text-4xl md:text-5xl font-bold">Featured Interview </h2>
         </div>
 
         {/* Stacking cards — each card-track creates scroll height; card-sticky pins + stacks */}
@@ -514,7 +514,7 @@ export default function Home() {
             const offsetX  = offsetXs[idx] ?? (idx % 2 === 0 ? '-4%'  : '4%'  );
             return (
               /* card-track: takes up real scroll height so GSAP trigger fires for each card */
-              <div key={idx} className="card-track" style={{ height: '45vh', minHeight: '220px' }}>
+              <div key={idx} className="card-track" style={{ height: '22vh', minHeight: '150px' }}>
                 <div
                   className="card-sticky"
                   style={{
@@ -552,7 +552,7 @@ export default function Home() {
             );
           })}
           {/* Extra scroll room so last card stays visible */}
-          <div style={{ height: '40vh' }} />
+          <div style={{ height: '25vh' }} />
         </div>
       </section>
 
