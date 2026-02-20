@@ -29,6 +29,20 @@ interface MediaStreamStatus {
   sessionId: number | null; // Backend session ID
 }
 
+export interface TranscriptionEntry {
+  questionNumber: number;
+  text: string;
+  chunkNumber: number;
+  timestamp: Date;
+}
+
+export interface EmotionEntry {
+  label: string;
+  score: number | string;
+  chunkNumber: number;
+  timestamp: Date;
+}
+
 export const useMediaStream = (config: MediaStreamConfig = {}) => {
   const {
     audioChunkDuration = 10000,
@@ -49,6 +63,8 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
     error: null,
     sessionId: null,
   });
+  const [transcriptions, setTranscriptions] = useState<TranscriptionEntry[]>([]);
+  const [liveEmotions, setLiveEmotions] = useState<EmotionEntry[]>([]);
 
   // Refs
   const sessionIdRef = useRef<string>(uuidv4());
@@ -124,8 +140,34 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
       };
 
       ws.onmessage = (event) => {
-        console.log('📨 Received from backend:', event.data);
-        // Backend sends transcriptions as text
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'transcription') {
+            setTranscriptions((prev) => [
+              ...prev,
+              {
+                questionNumber: currentQuestionNumberRef.current,
+                text: msg.data,
+                chunkNumber: msg.chunk_number ?? 0,
+                timestamp: new Date(),
+              },
+            ]);
+          } else if (msg.type === 'live_emotion_analysis') {
+            setLiveEmotions((prev) => [
+              ...prev,
+              {
+                label: msg.data?.label ?? String(msg.data),
+                score: msg.data?.score ?? 0,
+                chunkNumber: msg.chunk_number ?? 0,
+                timestamp: new Date(),
+              },
+            ]);
+          } else {
+            console.log('📨 Received from backend:', msg);
+          }
+        } catch {
+          console.log('📨 Received from backend (raw):', event.data);
+        }
       };
 
       ws.onerror = (error) => {
@@ -501,5 +543,7 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
     startRecording,
     stopRecording,
     flushAndSwitchQuestion, // Call before advancing question index to cleanly separate answers
+    transcriptions,
+    liveEmotions,
   };
 };

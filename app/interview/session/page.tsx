@@ -77,6 +77,8 @@ export default function InterviewSessionPage() {
     startRecording: startMediaStream,
     stopRecording: stopMediaStream,
     flushAndSwitchQuestion,
+    transcriptions,
+    liveEmotions,
   } = useMediaStream({
     interviewSessionId: backendSessionId || undefined,
     audioChunkDuration: 10000, // 10 seconds
@@ -735,22 +737,95 @@ export default function InterviewSessionPage() {
           </div>
         </div>
 
-        {/* Debug Info - For testing Media and Streaming */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 p-4 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl text-xs text-stone-600 font-mono space-y-1">
-            <p>Media Stream: {localStream ? '✓ Active' : '✗ Not Active'}</p>
-            <p>WebSocket: {streamStatus.isConnected ? '✓ Connected' : '✗ Disconnected'}</p>
-            <p>Streaming: {streamStatus.isRecording ? '✓ Active' : '✗ Inactive'}</p>
-            <p>Session ID (Interview): {currentSession.id}</p>
-            <p>Session ID (Media): {sessionId}</p>
-            <p>Audio Chunks: {streamStatus.chunksRecorded}</p>
-            <p>Video Frames: {streamStatus.framesRecorded}</p>
-            <p>
-              Question: {currentQuestionIndex + 1} / {totalQuestions}
-            </p>
-            {streamStatus.error && <p className="text-red-600">Error: {streamStatus.error}</p>}
+        {/* Live Session Feed - Transcripts & Emotions */}
+        <div className="mt-8 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl overflow-hidden">
+          {/* Panel header */}
+          <div className="px-6 py-4 border-b border-amber-700/20 flex items-center justify-between">
+            <h3 className="font-semibold text-black">Live Session Feed</h3>
+            <div className="flex items-center gap-3 text-xs text-stone-500">
+              <span className="flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full inline-block ${streamStatus.isRecording ? 'bg-red-500 animate-pulse' : 'bg-stone-300'}`}></span>
+                {streamStatus.chunksRecorded} audio chunk{streamStatus.chunksRecorded !== 1 ? 's' : ''}
+              </span>
+              <span className="text-stone-300">·</span>
+              <span>{transcriptions.length} transcript{transcriptions.length !== 1 ? 's' : ''}</span>
+              <span className="text-stone-300">·</span>
+              <span>{liveEmotions.length} emotion read{liveEmotions.length !== 1 ? 's' : ''}</span>
+            </div>
           </div>
-        )}
+
+          <div className="grid grid-cols-5 divide-x divide-amber-700/10">
+            {/* Q&A Transcript Column */}
+            <div className="col-span-3 p-5">
+              <h4 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Transcripts</h4>
+              <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
+                {Array.from(new Set(transcriptions.map((t) => t.questionNumber)))
+                  .sort((a, b) => a - b)
+                  .map((qNum) => {
+                    const rawQ = currentSession.questions[qNum - 1] as any;
+                    const qLabel = rawQ?.question || rawQ?.question_text || '';
+                    const qChunks = transcriptions.filter((t) => t.questionNumber === qNum);
+                    return (
+                      <div key={qNum}>
+                        <p className="text-xs font-semibold text-amber-700 mb-1.5">
+                          Q{qNum}{qLabel ? `: ${qLabel.slice(0, 70)}${qLabel.length > 70 ? '\u2026' : ''}` : ''}
+                        </p>
+                        <p className="text-sm text-stone-700 leading-relaxed bg-white/60 rounded-lg px-3 py-2 border border-amber-700/10">
+                          {qChunks.map((c) => c.text).join(' ')}
+                        </p>
+                      </div>
+                    );
+                  })}
+                {transcriptions.length === 0 && (
+                  <p className="text-stone-400 text-sm italic">Transcriptions will appear here as you speak\u2026</p>
+                )}
+              </div>
+            </div>
+
+            {/* Live Emotion Column */}
+            <div className="col-span-2 p-5">
+              <h4 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Live Emotions</h4>
+              <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+                {[...liveEmotions].reverse().map((e, i) => {
+                  const score =
+                    typeof e.score === 'number' ? e.score : parseFloat(String(e.score)) || 0;
+                  const pct = Math.min(100, Math.round(score * 100));
+                  const label = e.label.toLowerCase();
+                  const colorClass =
+                    label.includes('happy') || label.includes('joy')
+                      ? 'bg-green-50 text-green-700 border-green-200'
+                      : label.includes('sad') || label.includes('fear')
+                        ? 'bg-blue-50 text-blue-700 border-blue-200'
+                        : label.includes('angry') || label.includes('disgust')
+                          ? 'bg-red-50 text-red-700 border-red-200'
+                          : label.includes('surprise')
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : label.includes('neutral')
+                              ? 'bg-stone-50 text-stone-600 border-stone-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200';
+                  return (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs ${colorClass}`}
+                    >
+                      <span className="font-semibold capitalize min-w-[72px]">{e.label}</span>
+                      <div className="flex-1 h-1.5 bg-black/10 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-current rounded-full transition-all duration-300"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="tabular-nums w-8 text-right">{pct}%</span>
+                    </div>
+                  );
+                })}
+                {liveEmotions.length === 0 && (
+                  <p className="text-stone-400 text-sm italic">Emotion analysis will appear here\u2026</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Global Question Tooltip - rendered at root level */}
