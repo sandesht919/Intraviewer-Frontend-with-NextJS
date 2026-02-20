@@ -62,6 +62,8 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
   const frameIndexRef = useRef<number>(0);
   const recordingStartTimeRef = useRef<number>(0);
   const currentChunkStartTimeRef = useRef<number>(0);
+  const currentQuestionNumberRef = useRef<number>(1); // Tracks the currently displayed question
+  const pendingQuestionNumberRef = useRef<number | null>(null); // Queued question switch after current chunk flushes
 
   const frameIntervalIdRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -150,8 +152,33 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
   );
 
   /**
+   * Flush the current in-progress audio chunk (tagged with the OLD question number)
+   * and then seamlessly restart recording for the NEW question.
+   *
+   * Call this from the session page BEFORE advancing the question index.
+   * Handles the race condition where the user clicks "Next" before the 10-sec
+   * chunk boundary — ensuring no audio is misattributed to the wrong question.
+   */
+  const flushAndSwitchQuestion = useCallback((newQuestionNumber: number) => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      console.log(
+        `⏭️ Flushing Q${currentQuestionNumberRef.current} chunk → switching to Q${newQuestionNumber}`
+      );
+      // Queue the switch: onstop will apply it AFTER the current chunk is sent
+      pendingQuestionNumberRef.current = newQuestionNumber;
+      // Stop immediately — onstop fires, sends partial chunk with OLD question number,
+      // applies the pending switch, then auto-restarts recording for the NEW question
+      mediaRecorderRef.current.stop();
+    } else {
+      // Not currently recording — apply the switch directly
+      console.log(`🔢 Question switched to ${newQuestionNumber} (recorder idle)`);
+      currentQuestionNumberRef.current = newQuestionNumber;
+    }
+  }, []);
+
+  /**
    * Send audio/video blob via WebSocket in backend-expected format
-   * Backend expects: { type: "audio" | "video", data: base64_string }
+   * Backend expects: { type: "audio" | "video", data: base64_string, question_number: number }
    */
   const sendBlob = useCallback((type: 'audio' | 'video', blob: Blob) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
@@ -159,19 +186,22 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
       return;
     }
 
+    const questionNumber = currentQuestionNumberRef.current;
+
     const reader = new FileReader();
     reader.onload = () => {
       const arrayBuffer = reader.result as ArrayBuffer;
       const base64 = btoa(
         new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
       );
-      console.log('the audio chunks', base64);
+      console.log(`the audio chunks (question ${questionNumber})`, base64);
 
-      // Send in backend-expected format
+      // Send in backend-expected format with question_number flag
       wsRef.current?.send(
         JSON.stringify({
           type,
           data: base64,
+          question_number: questionNumber,
         })
       );
     };
@@ -203,12 +233,15 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
         const chunkIndex = chunkIndexRef.current;
+        // Snapshot question number NOW — before any pending switch is applied
+        const questionForThisChunk = currentQuestionNumberRef.current;
 
-        console.log(`🎤 Sending audio chunk ${chunkIndex}, size: ${blob.size} bytes`);
+        console.log(
+          `🎤 Sending audio chunk ${chunkIndex} for Q${questionForThisChunk}, size: ${blob.size} bytes`
+        );
 
-        // Send audio blob in backend format
+        // Send audio blob tagged with the question that was active while recording
         sendBlob('audio', blob);
-        console.log('the audion formate ', blob);
 
         setStatus((prev) => ({
           ...prev,
@@ -219,6 +252,15 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
         chunks = [];
         chunkIndexRef.current++;
         currentChunkStartTimeRef.current = Date.now();
+
+        // Apply any pending question-switch AFTER the chunk has been sent
+        if (pendingQuestionNumberRef.current !== null) {
+          console.log(
+            `🔄 Question boundary confirmed: Q${questionForThisChunk} chunk sent. Now recording Q${pendingQuestionNumberRef.current}`
+          );
+          currentQuestionNumberRef.current = pendingQuestionNumberRef.current;
+          pendingQuestionNumberRef.current = null;
+        }
 
         // Start next chunk if media recorder still exists and stream is still active
         if (mediaRecorderRef.current === mediaRecorder && mediaStreamRef.current) {
@@ -458,5 +500,6 @@ export const useMediaStream = (config: MediaStreamConfig = {}) => {
     status,
     startRecording,
     stopRecording,
+    flushAndSwitchQuestion, // Call before advancing question index to cleanly separate answers
   };
 };

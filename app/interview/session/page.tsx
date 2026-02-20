@@ -76,6 +76,7 @@ export default function InterviewSessionPage() {
     status: streamStatus,
     startRecording: startMediaStream,
     stopRecording: stopMediaStream,
+    flushAndSwitchQuestion,
   } = useMediaStream({
     interviewSessionId: backendSessionId || undefined,
     audioChunkDuration: 10000, // 10 seconds
@@ -249,15 +250,18 @@ export default function InterviewSessionPage() {
    * Handle next question navigation
    */
   const handleNextQuestion = async () => {
-    // Save current response metadata (streaming continues)
-    //await saveResponseMetadata();
-
-    // Check if there are more questions
     if (currentQuestionIndex < currentSession!.questions.length - 1) {
+      const nextQuestionNumber = currentQuestionIndex + 2; // 1-based
+
+      // Flush the in-progress audio chunk (tagged with current question) and
+      // immediately restart recording for the next question.
+      // Must happen BEFORE advancing the index so the chunk boundary is clean.
+      flushAndSwitchQuestion(nextQuestionNumber);
+
       setCurrentQuestionIndex((prev) => prev + 1);
       responseStartTimeRef.current = Date.now();
 
-      console.log('📝 Moving to question', currentQuestionIndex + 2);
+      console.log('📝 Moving to question', nextQuestionNumber);
     } else {
       // All questions completed
       handleCompleteInterview();
