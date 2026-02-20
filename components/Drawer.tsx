@@ -125,7 +125,7 @@ const Drawer = ({ isOpen, onToggle }: DrawerProps) => {
                       className={`
                         flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors
                         ${active 
-                          ? 'bg-amber-100/70 text-amber-700 border-l-2 border-amber-700' 
+                          ? 'bg-emerald-100/70 text-emerald-700 border-l-2 border-emerald-600' 
                           : 'text-black hover:bg-white/50 hover:text-amber-800'
                         }
                         ${isOpen ? 'gap-3' : 'justify-center'}
@@ -161,7 +161,7 @@ const Drawer = ({ isOpen, onToggle }: DrawerProps) => {
                       className={`
                         flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors
                         ${active 
-                          ? 'bg-amber-100/70 text-amber-700 border-l-2 border-amber-700' 
+                          ? 'bg-emerald-100/70 text-emerald-700 border-l-2 border-emerald-600' 
                           : 'text-black hover:bg-white/50 hover:text-amber-800'
                         }
                         ${isOpen ? 'gap-3' : 'justify-center'}

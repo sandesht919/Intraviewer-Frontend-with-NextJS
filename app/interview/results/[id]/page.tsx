@@ -366,7 +366,7 @@ export default function InterviewResultsPage() {
                 </div>
                 <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-amber-600 transition-all"
+                    className="h-full bg-emerald-500 transition-all"
                     style={{ width: `${analysisData.technicalScore}%` }}
                   ></div>
                 </div>
@@ -382,7 +382,7 @@ export default function InterviewResultsPage() {
                 </div>
                 <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-amber-600 transition-all"
+                    className="h-full bg-emerald-500 transition-all"
                     style={{ width: `${analysisData.communicationScore}%` }}
                   ></div>
                 </div>

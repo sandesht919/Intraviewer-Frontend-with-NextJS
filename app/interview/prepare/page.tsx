@@ -177,7 +177,7 @@ export default function InterviewPreparePage() {
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-amber-300/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-emerald-300/8 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative max-w-2xl mx-auto">
@@ -200,9 +200,11 @@ export default function InterviewPreparePage() {
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
                 ${(
-                  currentStep === 'upload' || cvData.file
-                    ? 'bg-amber-700 text-white'
-                    : 'bg-stone-300 text-stone-500'
+                  cvData.file
+                    ? 'bg-emerald-600 text-white'
+                    : currentStep === 'upload'
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-stone-300 text-stone-500'
                 )}
               `}
             >
@@ -215,7 +217,7 @@ export default function InterviewPreparePage() {
           <div
             className={`
               flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${localJobTitle && localJobDesc ? 'bg-amber-700' : 'bg-stone-400'}
+              ${localJobTitle && localJobDesc ? 'bg-emerald-500' : 'bg-stone-400'}
             `}
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
@@ -226,9 +228,11 @@ export default function InterviewPreparePage() {
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
                 ${(
-                  currentStep === 'describe' || (localJobTitle && localJobDesc)
-                   ? 'bg-amber-700 text-white'
-                    : 'bg-stone-300 text-stone-500'
+                  localJobTitle && localJobDesc
+                    ? 'bg-emerald-600 text-white'
+                    : currentStep === 'describe'
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-stone-300 text-stone-500'
                 )}
               `}
             >
@@ -241,7 +245,7 @@ export default function InterviewPreparePage() {
           <div
             className={`
               flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${interviewQuestions.length > 0 ? 'bg-amber-700' : 'bg-stone-400'}
+              ${interviewQuestions.length > 0 ? 'bg-emerald-500' : 'bg-stone-400'}
             `}
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
@@ -252,9 +256,11 @@ export default function InterviewPreparePage() {
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
                 ${(
-                  currentStep === 'createSession' || interviewQuestions.length > 0
-                    ? 'bg-amber-700 text-white'
-                    : 'bg-stone-300 text-stone-500'
+                  interviewQuestions.length > 0
+                    ? 'bg-emerald-600 text-white'
+                    : currentStep === 'createSession'
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-stone-300 text-stone-500'
                 )}
               `}
             >
@@ -267,7 +273,7 @@ export default function InterviewPreparePage() {
           <div
             className={`
               flex-1 h-1 my-auto mx-4 rounded-full transition-all
-              ${interviewQuestions.length > 0 ? 'bg-amber-700' : 'bg-stone-400'}
+              ${interviewQuestions.length > 0 ? 'bg-emerald-500' : 'bg-stone-400'}
             `}
             style={{ alignSelf: 'center', height: '2px' }}
           ></div>
@@ -278,9 +284,11 @@ export default function InterviewPreparePage() {
               className={`
                 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg mb-2 transition-all
                 ${(
-                  currentStep === 'preview' || interviewQuestions.length > 0
-                    ? 'bg-amber-700 text-white'
-                    : 'bg-stone-300 text-stone-500'
+                  currentStep === 'preview'
+                    ? 'bg-emerald-600 text-white'
+                    : interviewQuestions.length > 0
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-stone-300 text-stone-500'
                 )}
               `}
             >

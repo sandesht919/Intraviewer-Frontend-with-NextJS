@@ -61,6 +61,12 @@ export default function DashboardPage() {
     <RouteGuard requireAuth={true}>
       <div className="min-h-screen bg-[#e1e1db]">
         <div className="p-6 pt-24 max-w-5xl mx-auto">
+
+          {/* Subtle background accent */}
+          <div className="fixed inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-32 right-16 w-80 h-80 bg-emerald-300/6 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-32 left-16 w-64 h-64 bg-amber-200/8 rounded-full blur-3xl"></div>
+          </div>
           
           {/* Header */}
           <div className="mb-10">
@@ -99,17 +105,17 @@ export default function DashboardPage() {
           {/* Quick Links */}
           <div className="grid grid-cols-2 gap-4 mb-10">
             <Link href="/interview/results">
-              <div className="bg-white/40 backdrop-blur-sm p-4 rounded-xl border border-amber-700/20 hover:bg-white/60 transition-all cursor-pointer">
+              <div className="bg-white/40 backdrop-blur-sm p-4 rounded-xl border border-amber-700/20 hover:bg-emerald-50/50 hover:border-emerald-400/30 transition-all cursor-pointer group">
                 <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-amber-700" />
+                  <FileText className="w-5 h-5 text-amber-700 group-hover:text-emerald-600 transition-colors" />
                   <span className="text-stone-700 font-medium">Past Results</span>
                 </div>
               </div>
             </Link>
             <Link href="/profile">
-              <div className="bg-white/40 backdrop-blur-sm p-4 rounded-xl border border-amber-700/20 hover:bg-white/60 transition-all cursor-pointer">
+              <div className="bg-white/40 backdrop-blur-sm p-4 rounded-xl border border-amber-700/20 hover:bg-emerald-50/50 hover:border-emerald-400/30 transition-all cursor-pointer group">
                 <div className="flex items-center gap-3">
-                  <Briefcase className="w-5 h-5 text-amber-700" />
+                  <Briefcase className="w-5 h-5 text-amber-700 group-hover:text-emerald-600 transition-colors" />
                   <span className="text-stone-700 font-medium">Your Profile</span>
                 </div>
               </div>
@@ -151,8 +157,8 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="bg-white/40 backdrop-blur-sm rounded-xl border border-amber-700/20 p-8 text-center">
-                <div className="w-12 h-12 bg-amber-100/70 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <PlayCircle className="w-6 h-6 text-amber-700" />
+                <div className="w-12 h-12 bg-emerald-100/80 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <PlayCircle className="w-6 h-6 text-emerald-600" />
                 </div>
                 <p className="text-stone-600 mb-1">No sessions yet</p>
                 <p className="text-sm text-stone-400 mb-4">

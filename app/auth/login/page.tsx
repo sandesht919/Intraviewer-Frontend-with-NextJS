@@ -136,15 +136,15 @@ export default function LoginPage() {
               </p>
               <div className="flex items-center justify-center gap-6 text-sm text-stone-500">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-amber-700" />
+                  <Check className="w-4 h-4 text-emerald-600" />
                   <span>Track Progress</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-amber-700" />
+                  <Check className="w-4 h-4 text-emerald-600" />
                   <span>View History</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-amber-700" />
+                  <Check className="w-4 h-4 text-emerald-600" />
                   <span>Get Insights</span>
                 </div>
               </div>

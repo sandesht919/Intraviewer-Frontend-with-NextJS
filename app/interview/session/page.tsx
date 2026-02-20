@@ -436,6 +436,7 @@ export default function InterviewSessionPage() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-72 h-72 bg-amber-200/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-emerald-300/8 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative max-w-5xl mx-auto">
@@ -449,11 +450,11 @@ export default function InterviewSessionPage() {
           </div>
 
           {/* Media Status Indicator */}
-          <div className="flex items-center gap-3 px-4 py-2 bg-white/60 backdrop-blur-sm border border-amber-700/20 rounded-lg">
+          <div className={`flex items-center gap-3 px-4 py-2 backdrop-blur-sm rounded-lg border transition-colors ${mediaConnected ? 'bg-emerald-50/70 border-emerald-400/40' : 'bg-white/60 border-amber-700/20'}`}>
             <div
               className={`w-2 h-2 rounded-full ${mediaConnected ? 'animate-pulse' : ''} ${connectionStatusColor}`}
             ></div>
-            <span className="text-sm text-stone-700">
+            <span className={`text-sm ${mediaConnected ? 'text-emerald-700' : 'text-stone-700'}`}>
               {streamStatus.isRecording
                 ? 'Live & Recording'
                 : localStream
@@ -635,13 +636,12 @@ export default function InterviewSessionPage() {
                   {Math.floor(elapsedTime / 60)}:{String(elapsedTime % 60).padStart(2, '0')}
                 </div>
 
-                {/* Timer Progress Bar - shows progress based on elapsed time */}
-                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-amber-600 transition-all duration-300"
-                    style={{ width: `${Math.min((elapsedTime / 300) * 100, 100)}%` }}
-                  ></div>
-                </div>
+              {/* Timer Progress Bar - shows progress based on elapsed time */}
+              <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-300"
+                  style={{ width: `${Math.min((elapsedTime / 300) * 100, 100)}%` }}
+                ></div>
               </div>
             </div>
 
@@ -652,7 +652,7 @@ export default function InterviewSessionPage() {
               {/* Progress Bar */}
               <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
                 <div
-                  className="h-full bg-amber-600 transition-all"
+                  className="h-full bg-emerald-500 transition-all"
                   style={{ width: `${(questionProgress / totalQuestions) * 100}%` }}
                 ></div>
               </div>
@@ -671,7 +671,7 @@ export default function InterviewSessionPage() {
                       className={`
                         p-2 rounded text-sm flex items-center gap-2 transition-all cursor-pointer
                         ${idx === currentQuestionIndex ? 'bg-amber-100/70 text-amber-700' : ''}
-                        ${idx < currentQuestionIndex ? 'text-green-600 hover:bg-amber-50/80 hover:text-amber-700' : 'text-stone-500'}
+                        ${idx < currentQuestionIndex ? 'text-emerald-600 bg-emerald-50/50 hover:bg-emerald-100/70 hover:text-emerald-700' : 'text-stone-500'}
                         ${idx > currentQuestionIndex ? 'text-stone-400' : ''}
                       `}
                       onMouseEnter={(e) => {
@@ -738,13 +738,16 @@ export default function InterviewSessionPage() {
         </div>
 
         {/* Live Session Feed - Transcripts & Emotions */}
-        <div className="mt-8 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl overflow-hidden">
+        <div className="mt-8 bg-white/40 backdrop-blur-sm border border-amber-700/20 rounded-xl overflow-hidden border-t-2 border-t-emerald-400/50">
           {/* Panel header */}
-          <div className="px-6 py-4 border-b border-amber-700/20 flex items-center justify-between">
-            <h3 className="font-semibold text-black">Live Session Feed</h3>
+          <div className="px-6 py-4 border-b border-amber-700/20 flex items-center justify-between bg-emerald-50/20">
+            <h3 className="font-semibold text-black flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${streamStatus.isRecording ? 'bg-emerald-500 animate-pulse' : 'bg-stone-300'}`}></span>
+              Live Session Feed
+            </h3>
             <div className="flex items-center gap-3 text-xs text-stone-500">
               <span className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full inline-block ${streamStatus.isRecording ? 'bg-red-500 animate-pulse' : 'bg-stone-300'}`}></span>
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${streamStatus.chunksRecorded > 0 ? 'bg-emerald-500' : 'bg-stone-300'}`}></span>
                 {streamStatus.chunksRecorded} audio chunk{streamStatus.chunksRecorded !== 1 ? 's' : ''}
               </span>
               <span className="text-stone-300">·</span>
@@ -757,7 +760,10 @@ export default function InterviewSessionPage() {
           <div className="grid grid-cols-5 divide-x divide-amber-700/10">
             {/* Q&A Transcript Column */}
             <div className="col-span-3 p-5">
-              <h4 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Transcripts</h4>
+              <h4 className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <span className="w-1 h-3 bg-emerald-500 rounded-full inline-block"></span>
+                Transcripts
+              </h4>
               <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
                 {Array.from(new Set(transcriptions.map((t) => t.questionNumber)))
                   .sort((a, b) => a - b)
@@ -784,7 +790,10 @@ export default function InterviewSessionPage() {
 
             {/* Live Emotion Column */}
             <div className="col-span-2 p-5">
-              <h4 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Live Emotions</h4>
+              <h4 className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <span className="w-1 h-3 bg-emerald-500 rounded-full inline-block"></span>
+                Live Emotions
+              </h4>
               <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
                 {[...liveEmotions].reverse().map((e, i) => {
                   const score =
@@ -847,6 +856,7 @@ export default function InterviewSessionPage() {
           <p className="text-stone-700 text-sm leading-relaxed">{hoveredQuestion.text}</p>
         </div>
       )}
+      </div>
     </div>
   );
 }
